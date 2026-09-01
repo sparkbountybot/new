@@ -1,0 +1,21 @@
+{
+  "phase": "completed",
+  "buys": 4,
+  "sells": 1,
+  "final_portfolio": {
+    "id": "paper",
+    "status": "ACTIVE",
+    "cash": 72106.3,
+    "portfolio_value": 100145.8,
+    "buying_power": 144212.6,
+    "regt_equity": 72106.3,
+    "regt_margin": 0,
+    "initial_margin": 0,
+    "maintenance_margin": 0,
+    "sma": 72106.3,
+    "daytrade_count": 1,
+    "daytrading_buying_power": 144212.6,
+    "last_equity": 100145.8,
+    "last_maintenance_margin": 0
+  }
+}

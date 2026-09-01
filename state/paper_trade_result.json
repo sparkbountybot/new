@@ -1,0 +1,68 @@
+{
+  "timestamp": "paper",
+  "account": {
+    "id": "paper",
+    "status": "ACTIVE",
+    "cash": 100000,
+    "portfolio_value": 100000,
+    "buying_power": 200000,
+    "regt_equity": 100000,
+    "regt_margin": 0,
+    "initial_margin": 0,
+    "maintenance_margin": 0,
+    "sma": 100000,
+    "daytrade_count": 0,
+    "daytrading_buying_power": 200000,
+    "last_equity": 100000,
+    "last_maintenance_margin": 0
+  },
+  "trades": [
+    {
+      "symbol": "V",
+      "action": "SELL",
+      "qty": 6,
+      "filled_price": 0,
+      "order_id": "85723ac9-316f-4bd7-8174-af8c7d3e9594",
+      "status": "rejected",
+      "signal": {
+        "symbol": "V",
+        "action": "SELL",
+        "confidence": 0.62,
+        "buy_score": 0,
+        "sell_score": 5,
+        "net_score": -5,
+        "price": 310.0,
+        "indicators": {
+          "rsi_14": 58.84,
+          "macd": -1.1017,
+          "macd_signal": -0.8813,
+          "bb_upper": 319.3,
+          "bb_lower": 300.7,
+          "vwap": 307.72,
+          "change": 2.81
+        },
+        "position_size": null,
+        "reasons": [
+          "MACD bearish crossover"
+        ],
+        "timestamp": "2026-09-01T19:12:27.117211"
+      }
+    }
+  ],
+  "positions": [],
+  "signals": [
+    "AAPL: SELL",
+    "MSFT: HOLD",
+    "GOOGL: BUY",
+    "AMZN: HOLD",
+    "META: BUY",
+    "NVDA: WEAK_SELL",
+    "TSLA: SELL",
+    "JPM: WEAK_BUY",
+    "V: SELL",
+    "JNJ: WEAK_BUY"
+  ],
+  "strong_signals": [
+    "V: SELL"
+  ]
+}
