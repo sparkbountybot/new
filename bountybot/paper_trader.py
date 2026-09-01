@@ -248,8 +248,11 @@ class PaperTrader:
             if side == "BUY" and len(self.account.positions) >= 5:
                 continue
             
+            # Get price from signal if available
+            sig_price = sig.get("price")
+            
             # Execute
-            order = self.submit_order(symbol, qty, side)
+            order = self.submit_order(symbol, qty, side, price=sig_price)
             results.append({
                 "symbol": symbol,
                 "action": side,

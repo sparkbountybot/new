@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-09-01T22:53:02.924456",
+  "real_account": {
+    "portfolio_value": 115585.19,
+    "cash": 0,
+    "buying_power": 0
+  },
+  "paper_account": {
+    "cash": 46458.03,
+    "portfolio_value": 116122.93,
+    "position_value": 69664.9,
+    "daily_pnl": 537.74
+  },
+  "signals": [
+    {
+      "symbol": "AMZN",
+      "action": "BUY",
+      "confidence": 0.69,
+      "position_size": 179,
+      "signal_type": "AFTER_HOURS_MOMENTUM",
+      "price": 193.54,
+      "rsi": 42.5
+    },
+    {
+      "symbol": "JPM",
+      "action": "BUY",
+      "confidence": 0.62,
+      "position_size": 158,
+      "signal_type": "AFTER_HOURS_MOMENTUM",
+      "price": 218.25,
+      "rsi": 42.1
+    }
+  ],
+  "results": [
+    {
+      "symbol": "AMZN",
+      "action": "BUY",
+      "qty": 179,
+      "filled_price": 193.54,
+      "order_id": "d530c067",
+      "status": "filled",
+      "signal": {
+        "symbol": "AMZN",
+        "action": "BUY",
+        "confidence": 0.69,
+        "position_size": 179,
+        "signal_type": "AFTER_HOURS_MOMENTUM",
+        "price": 193.54,
+        "rsi": 42.5
+      }
+    },
+    {
+      "symbol": "JPM",
+      "action": "BUY",
+      "qty": 158,
+      "filled_price": 218.25,
+      "order_id": "841a30be",
+      "status": "filled",
+      "signal": {
+        "symbol": "JPM",
+        "action": "BUY",
+        "confidence": 0.62,
+        "position_size": 158,
+        "signal_type": "AFTER_HOURS_MOMENTUM",
+        "price": 218.25,
+        "rsi": 42.1
+      }
+    }
+  ],
+  "positions": [
+    {
+      "symbol": "AMZN",
+      "qty": 179,
+      "avg_entry_price": 193.54,
+      "current_price": 194.92,
+      "market_value": 34890.68,
+      "unrealized_pl": 247.0199999999992,
+      "unrealized_plpc": 0.7130308980055778,
+      "today_pnl": 0
+    },
+    {
+      "symbol": "JPM",
+      "qty": 158,
+      "avg_entry_price": 218.25,
+      "current_price": 220.09,
+      "market_value": 34774.22,
+      "unrealized_pl": 290.72000000000054,
+      "unrealized_plpc": 0.8430698739977106,
+      "today_pnl": 0
+    }
+  ]
+}
