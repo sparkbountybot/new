@@ -55,5 +55,16 @@ openshell policy update spark2 \
   No need to wait for approval — just note it in decisions.md so the other knows.
   "Monkey see, monkey do" — whatever works in one sandbox works in both.
 
+## Key learnings from spark3
+- ✅ Python HTTP (requests) WORKS in spark3 but BLOCKED in spark2
+- ✅ Both need curl for DNS resolution — Python socket DNS fails in both
+- ✅ Code that works in one sandbox may fail in the other — always test both
+- ✅ Spark3 should run the clean requests-based version of after_hours_engine.py
+- ✅ Spark2 keeps the curl subprocess workaround
+
+## Recent discoveries by spark3
+- **2026-09-02:** Network profile analysis — spark3 has Python HTTP access to Alpaca
+- **Proposal:** Credential sync + joint validation in both sandboxes
+
 ---
 Last updated: 2026-09-01 23:40 UTC
