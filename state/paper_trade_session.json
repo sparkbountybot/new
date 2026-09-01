@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-09-01",
+  "results": [
+    {
+      "symbol": "AAPL",
+      "action": "BUY",
+      "qty": 10,
+      "filled_price": 191.98,
+      "order_id": "9bcdd667",
+      "status": "filled",
+      "signal": {
+        "symbol": "AAPL",
+        "action": "BUY",
+        "confidence": 0.7,
+        "signal_type": "BUY"
+      }
+    },
+    {
+      "symbol": "MSFT",
+      "action": "SELL",
+      "qty": 4,
+      "filled_price": 0,
+      "order_id": "e6a1df3a-f799-4b45-871c-713ae05a2abf",
+      "status": "rejected",
+      "signal": {
+        "symbol": "MSFT",
+        "action": "SELL",
+        "confidence": 0.6,
+        "signal_type": "SELL"
+      }
+    },
+    {
+      "symbol": "GOOGL",
+      "action": "BUY",
+      "qty": 11,
+      "filled_price": 175.02,
+      "order_id": "c06c64fc",
+      "status": "filled",
+      "signal": {
+        "symbol": "GOOGL",
+        "action": "BUY",
+        "confidence": 0.8,
+        "signal_type": "BUY"
+      }
+    }
+  ],
+  "account": {
+    "cash": 96154.98,
+    "portfolio_value": 99999.17,
+    "position_value": 3844.19,
+    "daily_pnl": -0.83
+  }
+}
