@@ -16,16 +16,14 @@ Each instance should:
 3. git push after each update
 
 ## Current State
-- Last sync: never (initial commit)
-- Both instances: share this repo
+- Last sync: 2026-09-01
+- Both instances: share repo `sparkbountybot/new`
 - Git auth: stored in credential helper
 
 ## Setup for each sandbox
 ```bash
-cd /path/to/sandbox/new
-mkdir -p .shared/notes .shared/sessions .shared
-cp /path/to/BASE/.shared/NOTES.md .shared/  # if copying first time
-git add .shared/
-git commit -m "Add shared notes structure"
-git push
+# In spark2 or spark3:
+mkdir -p /sandbox/new/.shared/{notes,sessions}
+echo "# Shared Notes" > /sandbox/new/.shared/notes/current.md
+cd /sandbox/new && git add .shared/ && git commit -m "init shared notes" && git push
 ```
