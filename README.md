@@ -150,8 +150,8 @@ Add these to your GitHub repo Settings → Secrets:
 
 | Secret | Purpose |
 |--------|---------|
-| `ALPAKA_API_KEY` | Alpaca API key |
-| `ALPAKA_API_SECRET` | Alpaca API secret |
+| `ALPACA_API_KEY` | Alpaca API key |
+| `ALPACA_API_SECRET` | Alpaca API secret |
 | `GITHUB_TOKEN` | Auto-set by Actions (for bounty scanning) |
 | `GMAIL_EMAIL` | Gmail address for scanning |
 | `GMAIL_PASSWORD` | Gmail App Password |
