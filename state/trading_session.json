@@ -1,102 +1,101 @@
 {
-  "timestamp": "2026-09-01T18:57:58.828562",
+  "timestamp": "2026-09-01T20:28:13.652979",
   "signals": [
     {
       "symbol": "AAPL",
-      "action": "HOLD",
-      "confidence": 0.3,
-      "buy_score": 4,
-      "sell_score": 4,
-      "net_score": 0,
+      "action": "SELL",
+      "confidence": 0.62,
+      "buy_score": 1,
+      "sell_score": 6,
+      "net_score": -5,
       "price": 192.5,
       "indicators": {
-        "rsi_14": 14.95,
-        "macd": -1.1388,
-        "macd_signal": -0.9111,
+        "rsi_14": 36.55,
+        "macd": -0.8585,
+        "macd_signal": -0.6868,
         "bb_upper": 198.28,
         "bb_lower": 186.72,
-        "vwap": 195.41,
-        "change": -1.14
+        "vwap": 191.85,
+        "change": 1.55
       },
       "position_size": null,
       "reasons": [
-        "RSI oversold (15.0)",
         "MACD bearish crossover",
-        "Price below VWAP"
+        "Stoch %K overbought"
       ],
-      "timestamp": "2026-09-01T18:57:58.828368"
+      "timestamp": "2026-09-01T20:28:13.652817"
     },
     {
       "symbol": "MSFT",
-      "action": "HOLD",
+      "action": "SELL",
       "confidence": 0.3,
-      "buy_score": 4,
+      "buy_score": 1,
       "sell_score": 4,
-      "net_score": 0,
+      "net_score": -3,
       "price": 425.0,
       "indicators": {
-        "rsi_14": 72.57,
-        "macd": 0.0777,
-        "macd_signal": 0.0622,
+        "rsi_14": 48.61,
+        "macd": -0.5698,
+        "macd_signal": -0.4558,
         "bb_upper": 437.75,
         "bb_lower": 412.25,
-        "vwap": 427.75,
-        "change": -1.02
+        "vwap": 429.92,
+        "change": 1.54
       },
       "position_size": null,
       "reasons": [
-        "RSI overbought (72.6)",
-        "MACD bullish crossover",
+        "MACD bearish crossover",
         "Price below VWAP"
       ],
-      "timestamp": "2026-09-01T18:57:58.828393"
+      "timestamp": "2026-09-01T20:28:13.652842"
     },
     {
       "symbol": "GOOGL",
       "action": "SELL",
-      "confidence": 0.4,
-      "buy_score": 1,
+      "confidence": 0.62,
+      "buy_score": 0,
       "sell_score": 5,
-      "net_score": -4,
+      "net_score": -5,
       "price": 175.0,
       "indicators": {
-        "rsi_14": 38.68,
-        "macd": -0.2888,
-        "macd_signal": -0.231,
+        "rsi_14": 54.75,
+        "macd": -2.4589,
+        "macd_signal": -1.9671,
         "bb_upper": 180.25,
         "bb_lower": 169.75,
-        "vwap": 172.53,
-        "change": -0.39
+        "vwap": 171.85,
+        "change": 2.86
       },
       "position_size": null,
       "reasons": [
         "MACD bearish crossover"
       ],
-      "timestamp": "2026-09-01T18:57:58.828409"
+      "timestamp": "2026-09-01T20:28:13.652857"
     },
     {
       "symbol": "AMZN",
-      "action": "SELL",
-      "confidence": 0.4,
-      "buy_score": 1,
+      "action": "WEAK_SELL",
+      "confidence": 0.5,
+      "buy_score": 4,
       "sell_score": 5,
-      "net_score": -4,
+      "net_score": -1,
       "price": 195.0,
       "indicators": {
-        "rsi_14": 52.86,
-        "macd": -1.6041,
-        "macd_signal": -1.2833,
+        "rsi_14": 27.42,
+        "macd": -0.3956,
+        "macd_signal": -0.3165,
         "bb_upper": 200.85,
         "bb_lower": 189.15,
-        "vwap": 192.77,
-        "change": 1.61
+        "vwap": 196.49,
+        "change": 1.54
       },
       "position_size": null,
       "reasons": [
+        "RSI oversold (27.4)",
         "MACD bearish crossover",
-        "Negative momentum reversal (-3.4%)"
+        "Price below VWAP"
       ],
-      "timestamp": "2026-09-01T18:57:58.828427"
+      "timestamp": "2026-09-01T20:28:13.652873"
     },
     {
       "symbol": "META",
@@ -107,204 +106,201 @@
       "net_score": 4,
       "price": 560.0,
       "indicators": {
-        "rsi_14": 30.68,
-        "macd": 4.2963,
-        "macd_signal": 3.4371,
+        "rsi_14": 37.07,
+        "macd": 3.1244,
+        "macd_signal": 2.4996,
         "bb_upper": 576.8,
         "bb_lower": 543.2,
-        "vwap": 563.13,
-        "change": 0.39
+        "vwap": 569.29,
+        "change": 2.59
       },
       "position_size": 53,
       "reasons": [
         "MACD bullish crossover",
         "Price below VWAP"
       ],
-      "timestamp": "2026-09-01T18:57:58.828463"
+      "timestamp": "2026-09-01T20:28:13.652891"
     },
     {
       "symbol": "NVDA",
       "action": "SELL",
-      "confidence": 0.75,
+      "confidence": 0.4,
       "buy_score": 0,
-      "sell_score": 6,
-      "net_score": -6,
+      "sell_score": 4,
+      "net_score": -4,
       "price": 135.0,
       "indicators": {
-        "rsi_14": 52.79,
-        "macd": -0.8879,
-        "macd_signal": -0.7103,
+        "rsi_14": 46.77,
+        "macd": -0.7438,
+        "macd_signal": -0.595,
         "bb_upper": 139.05,
         "bb_lower": 130.95,
-        "vwap": 132.63,
-        "change": -1.51
+        "vwap": 135.66,
+        "change": -1.08
       },
       "position_size": null,
       "reasons": [
         "MACD bearish crossover"
       ],
-      "timestamp": "2026-09-01T18:57:58.828481"
+      "timestamp": "2026-09-01T20:28:13.652903"
     },
     {
       "symbol": "TSLA",
-      "action": "HOLD",
+      "action": "SELL",
       "confidence": 0.3,
-      "buy_score": 4,
+      "buy_score": 1,
       "sell_score": 4,
-      "net_score": 0,
+      "net_score": -3,
       "price": 248.0,
       "indicators": {
-        "rsi_14": 29.44,
-        "macd": -2.8674,
-        "macd_signal": -2.2939,
+        "rsi_14": 45.77,
+        "macd": -0.7325,
+        "macd_signal": -0.586,
         "bb_upper": 255.44,
         "bb_lower": 240.56,
-        "vwap": 250.14,
-        "change": -1.56
+        "vwap": 249.57,
+        "change": -0.46
       },
       "position_size": null,
       "reasons": [
-        "RSI oversold (29.4)",
         "MACD bearish crossover",
         "Price below VWAP"
       ],
-      "timestamp": "2026-09-01T18:57:58.828492"
+      "timestamp": "2026-09-01T20:28:13.652913"
     },
     {
       "symbol": "JPM",
-      "action": "WEAK_SELL",
-      "confidence": 0.5,
-      "buy_score": 3,
-      "sell_score": 5,
-      "net_score": -2,
-      "price": 220.0,
-      "indicators": {
-        "rsi_14": 78.17,
-        "macd": 0.613,
-        "macd_signal": 0.4904,
-        "bb_upper": 226.6,
-        "bb_lower": 213.4,
-        "vwap": 218.87,
-        "change": -0.89
-      },
-      "position_size": null,
-      "reasons": [
-        "RSI overbought (78.2)",
-        "MACD bullish crossover"
-      ],
-      "timestamp": "2026-09-01T18:57:58.828502"
-    },
-    {
-      "symbol": "V",
-      "action": "SELL",
-      "confidence": 0.88,
-      "buy_score": 0,
-      "sell_score": 7,
-      "net_score": -7,
-      "price": 310.0,
-      "indicators": {
-        "rsi_14": 62.88,
-        "macd": -3.0025,
-        "macd_signal": -2.402,
-        "bb_upper": 319.3,
-        "bb_lower": 300.7,
-        "vwap": 308.62,
-        "change": -2.01
-      },
-      "position_size": null,
-      "reasons": [
-        "MACD bearish crossover",
-        "Stoch %K overbought"
-      ],
-      "timestamp": "2026-09-01T18:57:58.828513"
-    },
-    {
-      "symbol": "JNJ",
       "action": "SELL",
       "confidence": 0.4,
       "buy_score": 1,
       "sell_score": 5,
       "net_score": -4,
-      "price": 145.0,
+      "price": 220.0,
       "indicators": {
-        "rsi_14": 58.07,
-        "macd": -0.8957,
-        "macd_signal": -0.7166,
-        "bb_upper": 149.35,
-        "bb_lower": 140.65,
-        "vwap": 146.23,
-        "change": -0.61
+        "rsi_14": 69.93,
+        "macd": -0.3202,
+        "macd_signal": -0.2562,
+        "bb_upper": 226.6,
+        "bb_lower": 213.4,
+        "vwap": 223.06,
+        "change": 2.71
       },
       "position_size": null,
       "reasons": [
         "MACD bearish crossover",
         "Price below VWAP"
       ],
-      "timestamp": "2026-09-01T18:57:58.828524"
+      "timestamp": "2026-09-01T20:28:13.652923"
+    },
+    {
+      "symbol": "V",
+      "action": "WEAK_BUY",
+      "confidence": 0.5,
+      "buy_score": 4,
+      "sell_score": 2,
+      "net_score": 2,
+      "price": 310.0,
+      "indicators": {
+        "rsi_14": 37.71,
+        "macd": 0.5726,
+        "macd_signal": 0.4581,
+        "bb_upper": 319.3,
+        "bb_lower": 300.7,
+        "vwap": 307.97,
+        "change": -3.2
+      },
+      "position_size": 96,
+      "reasons": [
+        "MACD bullish crossover"
+      ],
+      "timestamp": "2026-09-01T20:28:13.652937"
+    },
+    {
+      "symbol": "JNJ",
+      "action": "SELL",
+      "confidence": 0.4,
+      "buy_score": 0,
+      "sell_score": 4,
+      "net_score": -4,
+      "price": 145.0,
+      "indicators": {
+        "rsi_14": 52.21,
+        "macd": -0.2959,
+        "macd_signal": -0.2367,
+        "bb_upper": 149.35,
+        "bb_lower": 140.65,
+        "vwap": 145.14,
+        "change": 1.94
+      },
+      "position_size": null,
+      "reasons": [
+        "MACD bearish crossover"
+      ],
+      "timestamp": "2026-09-01T20:28:13.652947"
     }
   ],
   "trades": [
     {
-      "symbol": "NVDA",
+      "symbol": "AAPL",
       "action": "SELL",
-      "qty": 14,
+      "qty": 10,
       "filled_price": 0,
-      "order_id": "feb81851-49fc-443a-b4a7-60c85616a8a7",
+      "order_id": "c236d407-7567-4c34-9358-2242b6701ea9",
       "status": "rejected",
       "signal": {
-        "symbol": "NVDA",
+        "symbol": "AAPL",
         "action": "SELL",
-        "confidence": 0.75,
-        "buy_score": 0,
+        "confidence": 0.62,
+        "buy_score": 1,
         "sell_score": 6,
-        "net_score": -6,
-        "price": 135.0,
+        "net_score": -5,
+        "price": 192.5,
         "indicators": {
-          "rsi_14": 52.79,
-          "macd": -0.8879,
-          "macd_signal": -0.7103,
-          "bb_upper": 139.05,
-          "bb_lower": 130.95,
-          "vwap": 132.63,
-          "change": -1.51
-        },
-        "position_size": null,
-        "reasons": [
-          "MACD bearish crossover"
-        ],
-        "timestamp": "2026-09-01T18:57:58.828481"
-      }
-    },
-    {
-      "symbol": "V",
-      "action": "SELL",
-      "qty": 6,
-      "filled_price": 0,
-      "order_id": "64b75da6-f4e7-4201-8a10-2705975fe95a",
-      "status": "rejected",
-      "signal": {
-        "symbol": "V",
-        "action": "SELL",
-        "confidence": 0.88,
-        "buy_score": 0,
-        "sell_score": 7,
-        "net_score": -7,
-        "price": 310.0,
-        "indicators": {
-          "rsi_14": 62.88,
-          "macd": -3.0025,
-          "macd_signal": -2.402,
-          "bb_upper": 319.3,
-          "bb_lower": 300.7,
-          "vwap": 308.62,
-          "change": -2.01
+          "rsi_14": 36.55,
+          "macd": -0.8585,
+          "macd_signal": -0.6868,
+          "bb_upper": 198.28,
+          "bb_lower": 186.72,
+          "vwap": 191.85,
+          "change": 1.55
         },
         "position_size": null,
         "reasons": [
           "MACD bearish crossover",
           "Stoch %K overbought"
         ],
-        "timestamp": "2026-09-01T18:57:58.828513"
+        "timestamp": "2026-09-01T20:28:13.652817"
+      }
+    },
+    {
+      "symbol": "GOOGL",
+      "action": "SELL",
+      "qty": 11,
+      "filled_price": 0,
+      "order_id": "6ea18417-4d8f-4be6-a29d-6b8e5fa43310",
+      "status": "rejected",
+      "signal": {
+        "symbol": "GOOGL",
+        "action": "SELL",
+        "confidence": 0.62,
+        "buy_score": 0,
+        "sell_score": 5,
+        "net_score": -5,
+        "price": 175.0,
+        "indicators": {
+          "rsi_14": 54.75,
+          "macd": -2.4589,
+          "macd_signal": -1.9671,
+          "bb_upper": 180.25,
+          "bb_lower": 169.75,
+          "vwap": 171.85,
+          "change": 2.86
+        },
+        "position_size": null,
+        "reasons": [
+          "MACD bearish crossover"
+        ],
+        "timestamp": "2026-09-01T20:28:13.652857"
       }
     }
   ],
