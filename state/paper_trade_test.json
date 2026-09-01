@@ -1,0 +1,128 @@
+{
+  "timestamp": "paper",
+  "account": {
+    "id": "paper",
+    "status": "ACTIVE",
+    "cash": 100000,
+    "portfolio_value": 100000,
+    "buying_power": 200000,
+    "regt_equity": 100000,
+    "regt_margin": 0,
+    "initial_margin": 0,
+    "maintenance_margin": 0,
+    "sma": 100000,
+    "daytrade_count": 0,
+    "daytrading_buying_power": 200000,
+    "last_equity": 100000,
+    "last_maintenance_margin": 0
+  },
+  "trades": [
+    {
+      "symbol": "MSFT",
+      "action": "BUY",
+      "qty": 70,
+      "filled_price": 424.96,
+      "order_id": "09c1a307",
+      "status": "filled",
+      "signal": {
+        "symbol": "MSFT",
+        "action": "BUY",
+        "confidence": 0.62,
+        "buy_score": 6,
+        "sell_score": 1,
+        "net_score": 5,
+        "price": 425.0,
+        "indicators": {
+          "rsi_14": 21.84,
+          "macd": 2.3441,
+          "macd_signal": 1.8753,
+          "bb_upper": 437.75,
+          "bb_lower": 412.25,
+          "vwap": 425.62,
+          "change": -1.82
+        },
+        "position_size": 70,
+        "reasons": [
+          "RSI oversold (21.8)",
+          "MACD bullish crossover"
+        ],
+        "timestamp": "2026-09-01T18:58:30.988756"
+      }
+    },
+    {
+      "symbol": "META",
+      "action": "SELL",
+      "qty": 3,
+      "filled_price": 0,
+      "order_id": "19e2bd03-c2ef-420e-8842-5746bf00cc2b",
+      "status": "rejected",
+      "signal": {
+        "symbol": "META",
+        "action": "SELL",
+        "confidence": 0.75,
+        "buy_score": 0,
+        "sell_score": 6,
+        "net_score": -6,
+        "price": 560.0,
+        "indicators": {
+          "rsi_14": 52.26,
+          "macd": -0.1525,
+          "macd_signal": -0.122,
+          "bb_upper": 576.8,
+          "bb_lower": 543.2,
+          "vwap": 554.44,
+          "change": 0.53
+        },
+        "position_size": null,
+        "reasons": [
+          "MACD bearish crossover"
+        ],
+        "timestamp": "2026-09-01T18:58:30.988809"
+      }
+    },
+    {
+      "symbol": "NVDA",
+      "action": "SELL",
+      "qty": 14,
+      "filled_price": 0,
+      "order_id": "29cc7075-301f-495b-883f-018705d98513",
+      "status": "rejected",
+      "signal": {
+        "symbol": "NVDA",
+        "action": "SELL",
+        "confidence": 0.88,
+        "buy_score": 0,
+        "sell_score": 7,
+        "net_score": -7,
+        "price": 135.0,
+        "indicators": {
+          "rsi_14": 42.77,
+          "macd": -0.2499,
+          "macd_signal": -0.1999,
+          "bb_upper": 139.05,
+          "bb_lower": 130.95,
+          "vwap": 133.69,
+          "change": 3.62
+        },
+        "position_size": null,
+        "reasons": [
+          "MACD bearish crossover",
+          "Stoch %K overbought"
+        ],
+        "timestamp": "2026-09-01T18:58:30.988822"
+      }
+    }
+  ],
+  "positions": [
+    {
+      "symbol": "MSFT",
+      "qty": 70,
+      "avg_entry_price": 424.96,
+      "current_price": 426.42,
+      "market_value": 29849.4,
+      "unrealized_pl": 102.20000000000255,
+      "unrealized_plpc": 0.3435617469879604,
+      "today_pnl": 0
+    }
+  ]
+}

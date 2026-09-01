@@ -34,6 +34,8 @@ except ImportError:
     TimeFrame = None
     TimeFrameUnit = None
 
+from bountybot.paper_trader import PaperTrader
+
 
 class TechnicalTrader:
     """Technical trading engine with multiple strategies via Alpaca."""
@@ -49,16 +51,20 @@ class TechnicalTrader:
 
         self.trading_client = None
         self.data_client = None
+        self.paper_trader = None
         self.demo_mode = False
 
         if not self.api_key or not self.secret_key:
-            print("  WARNING: Alpaca API keys not configured. Trading disabled.")
-            self.connected = False
+            print("  WARNING: Alpaca API keys not configured. Running in PAPER mode.")
+            # Paper mode: use full simulator with no API needed
+            self.paper_trader = PaperTrader(config)
+            self.connected = True
             return
 
         if not ALPACA_PY_AVAILABLE:
-            print("  WARNING: alpaca-py not installed. pip install alpaca-py")
-            self.connected = False
+            print("  WARNING: alpaca-py not installed. Running in PAPER mode.")
+            self.paper_trader = PaperTrader(config)
+            self.connected = True
             return
 
         try:
@@ -75,18 +81,16 @@ class TechnicalTrader:
             self.trading_client.get_account()  # Test connection
         except Exception as e:
             err_str = str(e).lower()
-            # Proxy or network block — fall back to demo mode
+            # Proxy or network block — fall back to paper mode
             if "proxy" in err_str or "tunnel" in err_str or "connect" in err_str or "503" in err_str:
-                print(f"  Note: Trading API unavailable ({type(e).__name__}). Running in DEMO mode.")
-                print("  Signal generation and indicators work — orders won't be executed.")
-                print("  This is expected in sandboxed environments with proxy restrictions.")
-                self.connected = True  # Allow indicator generation
-                self.demo_mode = True
-                self.trading_client = None
+                print(f"  Trading API unavailable. Running in PAPER mode.")
+                print("  Full paper trading with realistic order simulation — positions tracked, P&L calculated.")
+                self.paper_trader = PaperTrader(config)
+                self.connected = True
             else:
                 print(f"  WARNING: Failed to connect to Alpaca: {e}")
-                self.connected = False
-                self.trading_client = None
+                self.paper_trader = PaperTrader(config)
+                self.connected = True
 
         # Trading parameters
         self.risk_per_trade = trading.get("risk_per_trade", 0.02)
@@ -106,11 +110,31 @@ class TechnicalTrader:
         return self.connected
 
     def get_account(self) -> dict:
-        """Get account info from Alpaca (or demo placeholder)."""
+        """Get account info from paper trader or Alpaca."""
         if not self.is_connected:
-            return {"error": "Not connected to Alpaca"}
+            return {"error": "Not connected to trading engine"}
+        
+        # Use paper trader if available
+        if self.paper_trader:
+            acct = self.paper_trader.account.update_account()
+            return {
+                "id": "paper",
+                "status": "ACTIVE",
+                "cash": acct["cash"],
+                "portfolio_value": acct["portfolio_value"],
+                "buying_power": acct["cash"] * 2,  # 2x leverage like Alpaca
+                "regt_equity": acct["cash"],
+                "regt_margin": 0,
+                "initial_margin": 0,
+                "maintenance_margin": 0,
+                "sma": acct["cash"],
+                "daytrade_count": self.paper_trader.account.daytrade_count,
+                "daytrading_buying_power": acct["cash"] * 2,
+                "last_equity": acct["portfolio_value"],
+                "last_maintenance_margin": 0,
+            }
+        
         if self.demo_mode:
-            # Demo mode: return simulated portfolio state
             return {
                 "id": "demo", "status": "DEMO", "cash": 100000.00,
                 "portfolio_value": 100000.00, "buying_power": 200000.00,
@@ -141,9 +165,14 @@ class TechnicalTrader:
             return {"error": str(e)}
 
     def get_positions(self) -> list:
-        """Get current positions."""
+        """Get positions from paper trader or Alpaca."""
         if not self.is_connected:
-            return []
+            return [{"error": "Not connected to trading engine"}]
+        
+        # Use paper trader if available
+        if self.paper_trader:
+            return self.paper_trader.get_positions()
+        
         try:
             positions = self.trading_client.get_all_positions()
             result = []
@@ -490,8 +519,13 @@ class TechnicalTrader:
     def execute_trades(self, signals: list) -> list:
         """Execute trading signals. Returns list of execution results."""
         if not self.is_connected:
-            return [{"error": "Not connected to Alpaca"}]
+            return [{"error": "Not connected to trading engine"}]
 
+        # If paper trader is available, use it
+        if self.paper_trader:
+            return self.paper_trader.run_trades(signals)
+
+        # Otherwise use real Alpaca API
         results = []
         positions = {p["symbol"]: p for p in self.get_positions() if "error" not in p}
 
