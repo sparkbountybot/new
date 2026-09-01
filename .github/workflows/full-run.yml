@@ -1,0 +1,45 @@
+name: Full System Run
+
+on:
+  schedule:
+    # Every 6 hours — bounty scan + trade + report
+    - cron: '0 */6 * * *'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  bountybot-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install alpaca-py yfinance ta APScheduler pyyaml
+
+      - name: Run Full System
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ALPACA_API_KEY: ${{ secrets.ALPAKA_API_KEY }}
+          ALPACA_API_SECRET: ${{ secrets.ALPAKA_API_SECRET }}
+          GMAIL_EMAIL: ${{ secrets.GMAIL_EMAIL }}
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          PAX8_API_KEY: ${{ secrets.PAX8_API_KEY }}
+        run: |
+          python manager.py run
+
+      - name: Commit state
+        run: |
+          git config user.name "BountyBot"
+          git config user.email "bot@sparkbountybot.com"
+          git add state/
+          git commit -m "Auto-update state [$(date -u +%Y-%m-%dT%H:%M:%SZ)]" || echo "No changes"
+          git push || echo "Push failed"

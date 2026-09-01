@@ -1,0 +1,40 @@
+name: Bounty Scanner
+
+on:
+  schedule:
+    # Every 6 hours — discover new bounties
+    - cron: '0 */6 * * *'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  bounty-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install requests pyyaml
+
+      - name: Run Bounty Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== Bounty Scan $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+          python manager.py scan
+
+      - name: Commit state
+        run: |
+          git config user.name "BountyBot"
+          git config user.email "bot@sparkbountybot.com"
+          git add state/
+          git commit -m "Auto-scan bounties [$(date -u +%Y-%m-%dT%H:%M:%SZ)]" || echo "No changes"
+          git push || echo "Push failed"

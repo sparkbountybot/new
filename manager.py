@@ -1,143 +1,194 @@
-"""BountyBot Manager - CLI."""
-import sys, os, json, yaml
-from datetime import datetime
+"""
+BountyBot Framework v2 — Automated Technical Trading & GitHub Bounty Hunting
 
-def load_config(path="config.yaml"):
-    defaults = {
-        "github": {"org": "sparkbountybot", "watch_interval_seconds": 300},
-        "gmail": {"email": "", "password": "", "check_interval_seconds": 300},
-        "trading": {
-            "alpaca_api_key": "", "alpaca_secret_key": "",
-            "base_url": "https://paper-api.alpaca.markets",
-            "paper": True, "max_position_pct": 0.3,
-            "max_total_risk": 0.05,
-        },
-        "email": {"from": "bountybot@sparkbountybot.com"},
-        "sendgrid": {"api_key": ""},
-    }
-    try:
-        with open(path) as f:
-            uc = yaml.safe_load(f) or {}
-            for k in defaults:
-                if k in uc and isinstance(defaults[k], dict):
-                    defaults[k].update(uc[k])
-                elif k in uc:
-                    defaults[k] = uc[k]
-    except FileNotFoundError:
-        print(f"Warning: {path} not found")
-    except Exception as e:
-        print(f"Warning: {e}")
-    return defaults
+Usage:
+    python manager.py status            # Show system status
+    python manager.py scan              # Scan GitHub bounties
+    python manager.py trade-scan        # Execute trading signals
+    python manager.py query             # View alerts/jobs
+    python manager.py trade-status      # View trading positions
+    python manager.py send-test         # Test email
+    python manager.py run               # Full automated run
+    python manager.py dashboard         # Show dashboard
+    python manager.py schedule          # Start scheduler (background jobs)
+"""
+import sys, os, json
+from datetime import datetime
+from pathlib import Path
+
+from config import load_config, load_state, save_state, get_state_dir
+from bountybot.bounty_scanner import GitHubBountyHunter
+from bountybot.trader import TechnicalTrader
+from bountybot.gmail_monitor import GmailMonitor
+from bountybot.mail_sender import EmailSender
+from bountybot.scheduler import BountyScheduler
+from bountybot.dashboard import simple_dashboard
+
 
 def cmd_status(config):
-    try:
-        from bounty_scanner import BountyScanner
-        s = BountyScanner(config).get_summary()
-        print("\nGitHub Scanner:")
-        print(f"  Total: {s.get('total', 0)} "
-              f"Critical: {s.get('critical', 0)} "
-              f"High: {s.get('high', 0)} "
-              f"Medium: {s.get('medium', 0)} "
-              f"Reward: ${s.get('total_reward', 0)}")
-    except Exception as e:
-        print(f"\nGitHub Scanner: Error - {e}")
-    try:
-        from trader import Trader
-        p = Trader(config).get_portfolio()
-        print("\nPaper Trader:")
-        print(f"  Cash: ${p.get('cash', 0):.2f} "
-              f"Equity: ${p.get('equity', 0):.2f} "
-              f"P&L: ${p.get('pnl', 0):.2f}")
-        print(f"  Positions: {len(p.get('positions', {}))}")
-    except Exception as e:
-        print(f"\nPaper Trader: Error - {e}")
-    ec = config.get("gmail", {})
-    if ec.get("email") and ec.get("password"):
-        print("\nGmail Monitor: OK")
-    else:
-        print("\nGmail Monitor: Not configured")
+    """Show system status."""
+    print("\n" + "=" * 60)
+    print("  BOUNTYBOT FRAMEWORK v2")
+    print(f"  {datetime.utcnow().isoformat()} UTC")
+    print("=" * 60)
 
-def cmd_query(config):
-    try:
-        from bounty_scanner import BountyScanner
-        a = BountyScanner(config).get_alerts()
-        if not a:
-            print("No alerts")
-            return
-        for i, x in enumerate(a[-10:], 1):
-            print(f"{i}. [{x.get('difficulty', '?').upper()}] "
-                  f"${x.get('reward', 0):>5} - "
-                  f"{x.get('repo', '?')}: "
-                  f"{x.get('title', '?')[:60]}")
-    except Exception as e:
-        print(f"Error: {e}")
+    gh_token = config["github"].get("token", "")
+    print(f"\n  [GITHUB]")
+    print(f"    Status: {'Connected' if gh_token else 'No token'}")
+    print(f"    Org: {config['github']['org']}")
 
-def cmd_send_test(config):
-    if not config.get("gmail", {}).get("email"):
-        print("Gmail not configured")
-        return
-    print("Gmail configured. Test email would be sent.")
+    alpaca_key = config["trading"].get("alpaca_api_key", "")
+    print(f"\n  [TRADING]")
+    print(f"    Alpaca: {'Configured' if alpaca_key else 'Not configured'}")
+    print(f"    Mode: {'Paper' if config['trading'].get('paper', True) else 'Live'}")
 
-def cmd_trade_status(config):
-    try:
-        from trader import Trader
-        p = Trader(config).get_portfolio()
-        print("\nTrading Status")
-        print(f"  Cash: ${p.get('cash', 0):.2f} "
-              f"Equity: ${p.get('equity', 0):.2f}")
-        for sym, pos in p.get("positions", {}).items():
-            print(f"  {sym}: {pos.get('qty', 0)} "
-                  f"@ ${pos.get('current_price', 0):.2f}")
-    except Exception as e:
-        print(f"Error: {e}")
+    gmail = config.get("gmail", {})
+    print(f"\n  [GMAIL]")
+    print(f"    Status: {'Configured' if gmail.get('email') and gmail.get('password') else 'Not configured'}")
+
+    state_dir = get_state_dir()
+    if state_dir.exists():
+        files = list(state_dir.glob("*.json"))
+        print(f"\n  [STATE] {len(files)} files")
+        for f in sorted(files):
+            size = f.stat().st_size
+            print(f"    {f.name}: {size:,} bytes")
+
+    print("\n" + "=" * 60)
+
 
 def cmd_scan(config):
-    try:
-        from bounty_scanner import BountyScanner
-        b = BountyScanner(config).scan_for_bounties()
-        print(f"\nScan: found {len(b)} items")
-        for x in b[-5:]:
-            print(f"  [{x.get('difficulty', '?')}] "
-                  f"{x.get('reward', 0)} "
-                  f"{x.get('repo', '?')}:{x.get('path', '?')}")
-    except Exception as e:
-        print(f"Scan error: {e}")
+    """Scan GitHub for bounties."""
+    hunter = GitHubBountyHunter(config)
+    hunter.scan()
+
 
 def cmd_trade_scan(config):
-    try:
-        from trader import Trader
-        from bounty_scanner import BountyScanner
-        t = Trader(config)
-        a = BountyScanner(config).get_alerts()
-        if not a:
-            print("No signals")
-            return
-        print(f"Trading: {len(a)} signals")
-        for x in a:
-            sig = {
-                "repo": x.get("repo", ""),
-                "bounty_amount": x.get("reward", 0),
-                "difficulty": x.get("difficulty", "medium"),
-                "trend": "up" if x.get("score", 0) >= 80 else "down",
-            }
-            r = t.execute_bounty_signal(sig)
-            print(f"  {x.get('repo', '?')}: {r.get('status', '?')}")
-    except Exception as e:
-        print(f"Trade scan error: {e}")
+    """Execute trading signals."""
+    trader = TechnicalTrader(config)
+    result = trader.scan_and_trade()
+    print(f"\n  Result: {json.dumps(result, indent=2, default=str)}")
+
+
+def cmd_query(config):
+    """View alerts and jobs."""
+    hunter = GitHubBountyHunter(config)
+    alerts = hunter.get_alerts()
+
+    print(f"\n  === Active Alerts/Jobs ({len(alerts)}) ===")
+    for i, a in enumerate(alerts, 1):
+        print(f"\n  {i}. [{a['difficulty'].upper()}] ${a['reward']:>5} - {a['repo']}#{a['number']}")
+        print(f"     {a['title'][:80]}")
+        print(f"     Score: {a['score']} | {', '.join(a['reasons'][:3])}")
+        print(f"     URL: {a['url']}")
+
+    gm = GmailMonitor(config)
+    if gm.connected:
+        alerts_state = gm.get_alerts()
+        if alerts_state:
+            print(f"\n  === Gmail Alerts ({len(alerts_state)}) ===")
+            for a in alerts_state[-5:]:
+                print(f"    [{a['date'][:10]}] {a['subject']}")
+
+
+def cmd_trade_status(config):
+    """Show trading status."""
+    trader = TechnicalTrader(config)
+    portfolio = trader.get_portfolio()
+
+    print(f"\n  === Trading Status ===")
+    if "error" in portfolio:
+        print(f"  {portfolio['error']}")
+        return
+
+    print(f"  Portfolio: ${portfolio.get('portfolio_value', 0):,.2f}")
+    print(f"  Cash: ${portfolio.get('cash', 0):,.2f}")
+    print(f"  Buying Power: ${portfolio.get('buying_power', 0):,.2f}")
+    print(f"  Total P&L: ${portfolio.get('total_pnl', 0):,.2f}")
+    print(f"  Positions: {portfolio.get('num_positions', 0)}")
+
+    positions = [p for p in portfolio.get("positions", []) if "error" not in p]
+    for p in positions:
+        pnl = p.get("unrealized_pl", 0)
+        print(f"    {p['symbol']}: {p['qty']} shares @ ${p['avg_entry_price']:.2f}")
+        print(f"      Current: ${p['current_price']:.2f} | P&L: ${pnl:,.2f} ({p.get('unrealized_plpc', 0):+.1f}%)")
+
+
+def cmd_send_test(config):
+    """Test email sending."""
+    sender = EmailSender(config)
+    return sender.send_test()
+
+
+def cmd_run(config):
+    """Full automated run: scan bounties + trade + status."""
+    print("\n" + "=" * 60)
+    print("  BOUNTYBOT FULL RUN")
+    print("=" * 60)
+
+    hunter = GitHubBountyHunter(config)
+    jobs = hunter.scan()
+
+    trader = TechnicalTrader(config)
+    if trader.is_connected:
+        print("\n  Running trading engine...")
+        trade_result = trader.scan_and_trade()
+    else:
+        print("\n  Skipping trading (Alpaca not configured or proxy block)")
+
+    print(f"\n  === Run Complete ===")
+    print(f"  Bounties scanned: {len(jobs)}")
+    if trade_result and isinstance(trade_result, dict):
+        print(f"  Trades executed: {trade_result.get('trades_executed', 0)}")
+
+
+def cmd_dashboard(config):
+    """Show dashboard."""
+    hunter = GitHubBountyHunter(config)
+    trader = TechnicalTrader(config)
+    simple_dashboard(trader=trader, scanner=hunter, config=config)
+
+
+def cmd_schedule(config):
+    """Start scheduler for background jobs."""
+    def main_run(mode="full"):
+        if mode == "scan":
+            cmd_scan(config)
+        elif mode == "trade":
+            cmd_trade_scan(config)
+        elif mode == "status":
+            cmd_status(config)
+        else:
+            cmd_run(config)
+
+    sched = BountyScheduler(main_run, config)
+    sched.setup()
+    print("\nScheduler running. Press Ctrl+C to stop.")
+    sched.start()
+
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        cmd_status({})
-        sys.exit()
-    cfg = load_config()
+    config = load_config()
     cmds = {
-        "status": cmd_status, "query": cmd_query,
-        "send-test": cmd_send_test,
+        "status": cmd_status,
+        "scan": cmd_scan,
+        "trade-scan": cmd_trade_scan,
+        "query": cmd_query,
         "trade-status": cmd_trade_status,
-        "scan": cmd_scan, "trade-scan": cmd_trade_scan,
+        "send-test": cmd_send_test,
+        "run": cmd_run,
+        "dashboard": cmd_dashboard,
+        "schedule": cmd_schedule,
     }
+
+    if len(sys.argv) < 2:
+        cmd_status(config)
+        print("\n  Commands: status, scan, trade-scan, query, trade-status, send-test, run, dashboard, schedule")
+        sys.exit()
+
     cn = sys.argv[1].lower()
     if cn in cmds:
-        cmds[cn](cfg)
+        cmds[cn](config)
     else:
-        print(f"Unknown: {cn}")
+        print(f"Unknown command: {cn}")
+        print(f"Available: {', '.join(cmds.keys())}")

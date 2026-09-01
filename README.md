@@ -1,54 +1,226 @@
-# 🔥 SparkBountyBot — Automated Trading & Bounty Work
+# 🤖 BountyBot Framework v2
 
-> **Full stack**: DQN trading, Wyckoff screening, options market making, autonomous coding bot, Pax8 billing automation.
+**Automated Technical Trading + GitHub Bounty Hunting Platform**
 
-## Quick Start
+Built on NVIDIA GB10 GPU with 121GB RAM — fully autonomous, self-learning, always-on.
 
-```bash
-git clone https://<PAT>@github.com/sparkbountybot/sandbox-savefile.git
-cd sandbox-savefile
+## What It Does
+
+### 1. Technical Trading Engine
+Multi-strategy stock trading via Alpaca API with real-time technical indicators:
+- **RSI** (14/7 period) — overbought/oversold detection
+- **MACD** — trend momentum and crossovers  
+- **Bollinger Bands** — volatility-based support/resistance
+- **VWAP** — volume-weighted average price
+- **Stochastic Oscillator** — momentum confirmation
+- **ATR** — volatility measurement
+- **Rate of Change** — price momentum
+
+**Signal scoring system:** Combines 6+ indicators into a composite buy/sell score (0-100). Strong signals (confidence ≥ 0.6) trigger order execution.
+
+**Risk management:**
+- Max 3 concurrent positions
+- 30% portfolio max per position
+- 2% risk per trade
+- Auto position sizing based on account value
+
+### 2. GitHub Bounty Hunter
+Scans GitHub for high-value coding opportunities:
+- Searches 5000+ repos for bounty-worthy issues
+- Scores jobs by: reward amount, skill match, engagement, freshness
+- Auto-categorizes: Easy / Medium / Hard
+- Tracks discovered jobs in persistent state files
+- Supports reward extraction from issue titles and descriptions
+
+**Scoring:**
+- Reward factor (0-40 points): $3k+ = 40pts, $1k+ = 30pts, $500+ = 20pts
+- Skill match (0-25 points): Python, ML, API, React, Docker, etc.
+- Labels (0-15 points): bounty, paid, hacktoberfest, good-first-issue
+- Engagement (0-10 points): comment count
+- Freshness (0-10 points): days since last update
+
+### 3. Gmail Monitor
+Scans inbox for invoices, payments, and billing alerts. Creates GitHub issues for urgent items.
+
+### 4. Pax8 Billing Monitor
+Monitors MSP billing for client companies.
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────┐
+│              GitHub Actions (Cloud Cron)                │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
+│  │ Bounty   │  │ Technical│  │ Full System Run  │  │
+│  │ Scanner  │  │ Trading  │  │ (Every 6 hours)  │  │
+│  └──────────┘  └──────────┘  └──────────────────┘  │
+└──────────────────────────────────────────────────────┘
+              ▲                              │
+              │ git push/pull (state sync)   │
+              └──────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│              Local Sandbox (Your Machine)             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
+│  │ Technical│  │ GitHub   │  │ Gmail Monitor   │  │
+│  │ Trading  │  │ Bounty   │  │ Email Sender    │  │
+│  │ Engine   │  │ Hunter   │  │ Scheduler       │  │
+│  └──────────┘  └──────────┘  └──────────────────┘  │
+└──────────────────────────────────────────────────────┘
 ```
 
-State files are pre-populated from GitHub Actions. That's your save game.
+## Setup
 
-## What This Is
+### Prerequisites
+- Python 3.13+
+- NVIDIA GB10 GPU (recommended for training, not required for trading)
+- Alpaca API keys (paper or live)
+- GitHub Personal Access Token (for bounty scanning)
 
-| Component | What | Repo |
-|-----------|------|------|
-| **Trading** | DQN model, rules-based, Wyckoff, options, news-driven | `sandbox-savefile` |
-| **Coding Bot** | Discovers & proposes jobs, learns from payouts | `sandbox-savefile` |
-| **Billing** | Pax8 MSP billing (5 companies, $1.5k/mo) | `sandbox-savefile` |
-| **Alerts** | Gmail inbox → GitHub issues pipeline | `sandbox-savefile` |
-| **Framework v2** | Next-gen unified manager (stub) | `new` |
+### Installation
 
-## Cheatsheet
+```bash
+cd /path/to/bountybot-framework-v2
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-Full rebuild guide is in `sandbox-savefile/docs/rebuild-guide.md`
+### Configuration
 
-- **30-sec recovery**: Clone repo → state files exist → workflows run on schedule
-- **Secrets needed**: GMAIL_EMAIL, GMAIL_PASSWORD, ALPACA_API_KEY, ALPACA_API_SECRET
-- **DQN model**: BROKEN (always buys, never sells) — use `rules-trading.yml` instead
-- **Gmail**: needs real app password (remove spaces from `abcd efgh ijkl mnop` → `abcdefghijklmnop`)
-- **Pax8**: demo data only until `PAX8_API_KEY` is set
+Create a `.env` file or export these environment variables:
 
-## Current State
+```bash
+# GitHub
+export GITHUB_TOKEN="ghp_your_personal_access_token_here"
 
-- **Coding bot**: 24 cycles, 410 jobs, 15 accepted, 0 completed (1 accepted, awaiting payment)
-- **Trading**: DQN disabled, rules-based active, ~$10k paper portfolio
-- **Billing**: 5 unpaid invoices ($12,100 total), 4 urgent renewals
-- **GPU**: NVIDIA GB10, 96% util, 71°C
+# Alpaca Trading (Paper or Live)
+export ALPACA_API_KEY="your_alpaca_api_key"
+export ALPACA_API_SECRET="your_alpaca_api_secret"
 
-## Workflow Schedule
+# Gmail (optional - for invoice monitoring)
+export GMAIL_EMAIL="your@gmail.com"
+export GMAIL_PASSWORD="your-app-password"
 
-| Every 5 min | Every 15 min | Hourly | Every 4h | Daily/Sunday |
-|------------|-------------|--------|----------|-------------|
-| Options Maker | Gmail Monitor | Pax8 Monitor | Bot Loop | RL Train |
-| Wyckoff | Alpaca Monitor | | Job Discovery | Weekly Report |
-| News Options | Alert Manager | | Rules Trading | |
+# SendGrid (optional - for email reports)
+export SENDGRID_API_KEY="your_sendgrid_api_key"
+```
 
-## Repo Links
+Update `config.yaml` with your settings.
 
-- Main: https://github.com/sparkbountybot/sandbox-savefile
-- Actions: https://github.com/sparkbountybot/sandbox-savefile/actions
-- Secrets: https://github.com/sparkbountybot/sandbox-savefile/settings/secrets/actions
-- New: https://github.com/sparkbountybot/new
+### Running
+
+```bash
+# View system status
+python manager.py status
+
+# Scan GitHub for bounties
+python manager.py scan
+
+# Run technical trading signals (demo mode without real API)
+python manager.py trade-scan
+
+# View discovered bounties
+python manager.py query
+
+# View trading status
+python manager.py trade-status
+
+# Full automated run (scan + trade)
+python manager.py run
+
+# Show dashboard
+python manager.py dashboard
+
+# Start scheduler for background jobs (cron-style)
+python manager.py schedule
+```
+
+## GitHub Actions Workflows
+
+Three workflows run on schedule in the cloud:
+
+| Workflow | Schedule | Purpose |
+|----------|----------|---------|
+| `bounty-scan` | Every 6 hours | Discover new bounties |
+| `technical-trading` | Every 2h during market hours | Run trading signals |
+| `full-run` | Every 6 hours | Full scan + trade + report |
+
+### Secrets Required
+Add these to your GitHub repo Settings → Secrets:
+
+| Secret | Purpose |
+|--------|---------|
+| `ALPAKA_API_KEY` | Alpaca API key |
+| `ALPAKA_API_SECRET` | Alpaca API secret |
+| `GITHUB_TOKEN` | Auto-set by Actions (for bounty scanning) |
+| `GMAIL_EMAIL` | Gmail address for scanning |
+| `GMAIL_PASSWORD` | Gmail App Password |
+| `SENDGRID_API_KEY` | SendGrid API key (optional) |
+| `PAX8_API_KEY` | Pax8 billing API key (optional) |
+
+## File Structure
+
+```
+bountybot-framework-v2/
+├── manager.py              # Main CLI entry point
+├── config.py               # Config management + state I/O
+├── config.yaml             # Configuration file
+├── requirements.txt        # Dependencies
+├── README.md               # This file
+├── bountybot/
+│   ├── __init__.py
+│   ├── bounty_scanner.py   # GitHub bounty hunter
+│   ├── trader.py           # Technical trading engine
+│   ├── gmail_monitor.py    # Gmail invoice scanner
+│   ├── mail_sender.py      # Email notifications
+│   ├── scheduler.py        # APScheduler integration
+│   └── dashboard.py        # Text dashboard
+├── state/                  # Persistent state files (auto-created)
+│   ├── bounty_jobs.json
+│   ├── trading_session.json
+│   └── alerts.json
+└── .github/workflows/
+    ├── bounty-scan.yml
+    ├── technical-trading.yml
+    └── full-run.yml
+```
+
+## Trading Indicators
+
+The signal engine evaluates these technical indicators:
+
+| Indicator | Purpose | Signal |
+|-----------|---------|--------|
+| RSI (14) | Momentum oscillator | < 30 = oversold (buy), > 70 = overbought (sell) |
+| MACD | Trend direction | Bullish crossover = buy, bearish = sell |
+| Bollinger Bands | Volatility | Price touching bands = reversal signal |
+| VWAP | Volume-weighted price | Price below VWAP = undervalued |
+| Stochastic | Momentum confirmation | %K < 20 = oversold, > 80 = overbought |
+| ATR | Volatility measure | Used for position sizing |
+| ROC (5) | Price momentum | Negative ROC = potential reversal |
+
+## Demo Mode
+
+When running in sandboxed environments where HTTP(S) is blocked (proxy restrictions):
+- Trading engine automatically enters **demo mode**
+- Price data falls back to realistic simulated data
+- Signal generation and indicators work normally
+- Orders are NOT executed (safe for testing)
+- This only happens in sandboxed environments — production GitHub Actions runners have full internet access
+
+## Security
+
+- API keys stored as GitHub Secrets (encrypted)
+- No credentials in code or config files
+- Paper trading by default (change to live with `paper: false`)
+- State files are local JSON — git-synced between cloud and sandbox
+
+## License
+
+Private repository — sparkbountybot org
+
+---
+
+**Built with 🤖 by BountyBot Framework v2**  
+**Powered by NVIDIA GB10 | 121GB RAM | Python 3.13**  
+**Technical Trading | GitHub Bounty Hunting | Fully Autonomous**
