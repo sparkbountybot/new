@@ -25,17 +25,13 @@ smtp.sasl.plain.passwd.raw = "depkknmtmxyytohp"
 mailbox.alias.inbox = "INBOX"
 ```
 
-**Testing on host:**
-```bash
-himalaya envelope list  # ✅ WORKS
-himalaya message write -H To:user@example.com -H Subject:"Test" "Hello from BountyBot"  # Send emails
-```
+**App Password:** depkknmtmxyytohp (16 chars)
+**Testing on host:** `himalaya envelope list` works ✅
 
 **What we can now do:**
-- Read inbox from either sandbox (via host)
 - Send proposal emails, bounty applications
+- Read inbox from either sandbox (via host)
 - Automate email notifications to Telegram
-- Monitor for incoming opportunities
 
 ---
 
@@ -53,7 +49,7 @@ himalaya message write -H To:user@example.com -H Subject:"Test" "Hello from Boun
 
 **What's blocked from spark2:**
 - ❌ Google OAuth2 (oauth2.googleapis.com) — proxy returns 403
-- ❌ Gmail SMTP/IMAP: connection refused (not in proxy whitelist) — but Himalaya on host works
+- ❌ Gmail SMTP/IMAP: connection refused (not in proxy whitelist)
 - ❌ Alpaca Live API: blocked by proxy
 
 **Policy v9 on host:** All Google/Alpaca endpoints allowed (smtp, imap, oauth2, live API)
