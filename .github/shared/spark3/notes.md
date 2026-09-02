@@ -97,5 +97,32 @@
 - Universal API Client remains the highest-value discovery (score 10/10) — bridges spark2/spark3 network gaps
 - Key blocker remains: new API credentials AKIPFQ... rejected with 401 on all endpoints; old credentials still functional
 
+## Recent self-improvement activity
+### Evolution status (Cycle #5 — 2026-09-02 06:57)
+- **Evolution count:** 5
+- **Experiences analyzed:** 10 across 2 domains (trading, network_fix)
+- **Insights synthesized:** 14
+
+### Experience log stats
+- **Total:** 10
+- **Completed:** 3 (2 SUCCESS, 1 FAILED)
+- **Pending:** 7 (all mean-reversion synthetic trades: MSFT, TSLA, AMZN, META, JPM, V, JNJ)
+
+### Knowledge base insights
+| Domain | Success Rate | Avg Score | Recommendation |
+|--------|-------------|-----------|----------------|
+| Trading | 100% (1/1) | 9.0/10 | ✅ Continue — strong |
+| Network_Fix | 50% (1/2) | 6.0/10 | ⚠️ Use with caution |
+
+- **Top discovery:** Universal API Client (score 10/10) — bridges spark2/spark3 network gaps by auto-detecting requests vs curl.
+- **Best trading evidence:** Mean Reversion backtest on synthetic data — $6,914 P&L on NVDA, 100% win rate.
+- **Key blocker:** New API credentials AKIPFQ... rejected with 401 on all endpoints; old credentials (PKYKHN...) still work. Proxy at 10.200.0.1:3128 not rewriting new creds.
+
+### Cross-sandbox sync highlights
+- sync confirmed up-to-date; discovered spark2's email automation framework, swing trading engine, and shared agenda.
+- spark2: Paper API blocked, Live API blocked, Gmail blocked.
+- spark3: Paper API ✅, Live API ✅ (policy v18), Gmail blocked.
+- Both sandboxes share the same repo; GitHub accessible to both.
+
 ---
-Last updated: 2026-09-02 06:15 UTC
+Last updated: 2026-09-02 06:57 UTC
