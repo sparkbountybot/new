@@ -35,12 +35,12 @@ BASE_DIR = Path("/home/machine_learning")
 LOG_FILE = BASE_DIR / ".trading_log.txt"
 STATE_FILE = BASE_DIR / ".trading_state.json"
 
-# API Keys
-# To use LIVE account, set these env vars or edit defaults below:
-#   ALPACA_API_KEY=AKESB677ODE3GUAVWU24W4647X
-#   ALPACA_SECRET_KEY=8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ
-API_KEY = os.environ.get("ALPACA_API_KEY", "PK7I7UNRDEGHYSOWQMUCT6TM2Z")
-SECRET_KEY = os.environ.get("ALPACA_SECRET_KEY", "H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh")
+# API Keys — defaults to LIVE account
+# Override via env vars to switch to PAPER mode:
+#   ALPACA_API_KEY=PK7I7UNRDEGHYSOWQMUCT6TM2Z
+#   ALPACA_SECRET_KEY=H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh
+API_KEY = os.environ.get("ALPACA_API_KEY", "AKESB677ODE3GUAVWU24W4647X")
+SECRET_KEY = os.environ.get("ALPACA_SECRET_KEY", "8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ")
 
 # Detect live vs paper by API key length (live keys differ)
 PAPER_MODE = API_KEY == "PK7I7UNRDEGHYSOWQMUCT6TM2Z"
@@ -704,6 +704,66 @@ class PositionManager:
         """Count active positions."""
         return len([p for p in open_positions
                    if float(p.get("avg_entry_price", 0)) > 0])
+
+
+# ---------------------------------------------------------------------------
+# Risk Manager — auto-sell on stop-loss / overbought
+# ---------------------------------------------------------------------------
+
+class RiskManager:
+    """Automated risk management — stops losses and exits overbought positions."""
+
+    STOP_LOSS_PCT = 0.15    # auto-sell at 15% unrealized loss
+    OVERBOUGHT_RSI = 70     # auto-sell above 70 RSI
+
+    def check_and_auto_sell(self, engine: "TradingEngine") -> list:
+        """Check all positions for risk and auto-sell if needed.
+        Returns list of executed sells."""
+        sells = []
+        try:
+            positions = engine.api.get_positions()
+        except Exception:
+            return sells
+        for pos in positions:
+            symbol = pos.get("symbol", "")
+            if float(pos.get("entry_price", pos.get("avg_entry_price", 0))) <= 0:
+                continue
+            # Check stop-loss
+            try:
+                entry = float(pos.get("entry_price", pos.get("avg_entry_price", 0)))
+                mkt = float(pos.get("market_price", 0))
+                if mkt > 0 and entry > 0:
+                    pnl_pct = (mkt - entry) / entry
+                    if pnl_pct <= -RiskManager.STOP_LOSS_PCT:
+                        logger.warning(
+                            f"STOP-LOSS triggered: {symbol} "
+                            f"PnL={pnl_pct:.2%} <= -{RiskManager.STOP_LOSS_PCT:.0%}"
+                        )
+                        engine.execute_sell_sell(symbol, mkt)
+                        sells.append({"symbol": symbol, "reason": "stop_loss",
+                                      "pnl": pnl_pct})
+                        continue  # re-check after each sell
+            except Exception as e:
+                logger.error(f"Stop-loss check failed for {symbol}: {e}")
+            # Check overbought RSI
+            bars = engine.fetch_bars_for_symbol(symbol)
+            if bars and len(bars) >= 15:
+                rsi_val = engine.indicators.compute_rsi(bars)
+                if rsi_val and rsi_val > RiskManager.OVERBOUGHT_RSI:
+                    logger.warning(
+                        f"OVERBOUGHT: {symbol} RSI={rsi_val:.1f} "
+                        f"> {RiskManager.OVERBOUGHT_RSI}"
+                    )
+                    try:
+                        pos_info = engine.api.get_position(symbol)
+                        qty = int(float(pos_info.get("qty", 0))) if pos_info else 0
+                        if qty > 0:
+                            engine.execute_sell_sell(symbol, 0)
+                            sells.append({"symbol": symbol, "reason": "overbought_rsi",
+                                          "rsi": rsi_val})
+                    except Exception:
+                        pass
+        return sells
 
 
 # ---------------------------------------------------------------------------
