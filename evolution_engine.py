@@ -1,31 +1,27 @@
 #!/usr/bin/env python3
 """
 Experience-driven self-improvement system.
-Both sandboxes contribute, measure, and evolve together.
+Both sandboxes log decisions, measure outcomes, and evolve together.
 
 Usage:
-    python evolution_engine.py --init       # Initialize system
-    python evolution_engine.py --run        # Run one evolution cycle
-    python evolution_engine.py --status     # Show current state
-    python evolution_engine.py --report     # Full report with insights
+    python evolution.py --record domain action reasoning expected --sandbox spark3
+    python evolution.py --evolve                  # Analyze and update
+    python evolution.py --status                  # Show current state
+    python evolution.py --report                  # Full report
 """
-import json, os, sys, re
+import json, os, sys, re, subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 BASE_DIR = Path(__file__).parent
-
-# === DATA FILES ===
 EXPERIENCE_LOG = "experience_log.json"
-OUTCOMES_LOG = "outcomes_log.json"
 STRATEGY_CONFIG = "strategy_config.json"
 KNOWLEDGE_BASE = "knowledge_base.md"
 EVOLUTION_LOG = "evolution_log.json"
 
 
-# === CORE FUNCTIONS ===
-def read_json(path: str, default: Any = None) -> Any:
+def read_json(path, default=None):
     """Read JSON file, return default if missing."""
     p = Path(BASE_DIR) / path
     if p.exists():
@@ -34,14 +30,23 @@ def read_json(path: str, default: Any = None) -> Any:
     return default if default is not None else {}
 
 
-def write_json(path: str, data: Any) -> None:
+def write_json(path, data):
     """Write data as JSON."""
     p = Path(BASE_DIR) / path
     with open(p, 'w') as f:
         json.dump(data, f, indent=2)
 
 
-def load_or_create_strategies() -> Dict:
+def append_json_list(path, item):
+    """Append item to a JSON list file, creating if needed."""
+    data = read_json(path, [])
+    if isinstance(data, list):
+        data.append(item)
+        write_json(path, data)
+    return data
+
+
+def load_or_create_strategies():
     """Load strategy config or create defaults."""
     config = read_json(STRATEGY_CONFIG, {})
     
@@ -77,19 +82,31 @@ def load_or_create_strategies() -> Dict:
                 "worst_conditions": [],
                 "recommended": True,
             },
+            "network_fix": {
+                "enabled": True,
+                "success_rate": 0.0,
+                "experience_count": 0,
+                "avg_score": 0.0,
+                "best_conditions": [],
+                "worst_conditions": [],
+                "recommended": True,
+            },
+            "bounty_hunt": {
+                "enabled": True,
+                "success_rate": 0.0,
+                "experience_count": 0,
+                "avg_score": 0.0,
+                "best_conditions": [],
+                "worst_conditions": [],
+                "recommended": True,
+            },
         }
         config["evolution_count"] = 0
     
     return config
 
 
-def record_experience(
-    domain: str,
-    action: str,
-    reasoning: str,
-    expected_outcome: str,
-    sandbox: str = "spark3"
-) -> str:
+def record_experience(domain, action, reasoning, expected_outcome, sandbox="spark3"):
     """Record a significant decision/action."""
     exp_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{domain}_{action[:20].replace(' ', '_')}"
     
@@ -115,12 +132,7 @@ def record_experience(
     return exp_id
 
 
-def record_outcome(
-    experience_id: str,
-    actual_result: str,
-    score: float,
-    notes: str = ""
-) -> None:
+def record_outcome(experience_id, actual_result, score, notes=""):
     """Record the measured outcome of an experience."""
     outcome = {
         "experience_id": experience_id,
@@ -130,24 +142,18 @@ def record_outcome(
         "notes": notes,
     }
     
-    log = read_json(OUTCOMES_LOG, [])
+    log = read_json(EXPERIENCE_LOG, [])
     if isinstance(log, list):
-        log.append(outcome)
-        write_json(OUTCOMES_LOG, log)
-    
-    # Also update the experience in the main log
-    exp_log = read_json(EXPERIENCE_LOG, [])
-    if isinstance(exp_log, list):
-        for exp in exp_log:
+        for exp in log:
             if isinstance(exp, dict) and exp.get("id") == experience_id:
                 exp["outcome"] = actual_result
                 exp["score"] = score
                 exp["notes"] = notes
                 break
-        write_json(EXPERIENCE_LOG, exp_log)
+        write_json(EXPERIENCE_LOG, log)
 
 
-def run_evolution() -> Optional[int]:
+def run_evolution():
     """Run the evolution cycle: analyze experiences, update strategies, synthesize insights."""
     print("=" * 70)
     print(f"🧬 EVOLUTION CYCLE — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -158,10 +164,10 @@ def run_evolution() -> Optional[int]:
     
     if not isinstance(exp_log, list) or not exp_log:
         print("No experiences to analyze. Record some first.")
-        return None
+        return
     
     # Group experiences by domain
-    domain_stats: Dict[str, Dict] = {}
+    domain_stats = {}
     for exp in exp_log:
         if not isinstance(exp, dict):
             continue
@@ -272,10 +278,7 @@ def run_evolution() -> Optional[int]:
     return config["evolution_count"]
 
 
-def _synthesize_insights(
-    domain_stats: Dict[str, Dict],
-    config: Dict
-) -> List[str]:
+def _synthesize_insights(domain_stats, config):
     """Generate human-readable insights from analysis."""
     insights = []
     
@@ -284,7 +287,7 @@ def _synthesize_insights(
             continue
         
         success_rate = stats["successful"] / stats["completed"] if stats["completed"] > 0 else 0
-        avg_score = sum(stats["scores"]) / len(stats["scores"]) if stats["scores"] else 0
+        avg_score = (sum(stats["scores"]) / len(stats["scores"])) if stats["scores"] else 0
         
         insights.append(f"\n### {domain_name.title()}")
         insights.append(f"- **Success rate:** {stats['successful']}/{stats['completed']} ({success_rate:.0%})")
@@ -308,7 +311,7 @@ def _synthesize_insights(
     return insights
 
 
-def _save_knowledge_base(insights: List[str], evolution_count: int) -> None:
+def _save_knowledge_base(insights, evolution_count):
     """Save insights to knowledge base."""
     kb_header = f"""# Knowledge Base — Self-Improvement System
 ## Auto-generated insights from experience-driven learning
@@ -323,11 +326,9 @@ def _save_knowledge_base(insights: List[str], evolution_count: int) -> None:
         f.write(kb_body)
 
 
-# === STATUS/REPORTING ===
-def show_status() -> None:
+def show_status():
     """Show current system state."""
     exp_log = read_json(EXPERIENCE_LOG, [])
-    outcome_log = read_json(OUTCOMES_LOG, [])
     config = load_or_create_strategies()
     
     print("=" * 70)
@@ -340,9 +341,6 @@ def show_status() -> None:
         print(f"⏳ Pending: {pending}")
         print(f"✅ Completed: {len(exp_log) - pending}")
     
-    if isinstance(outcome_log, list):
-        print(f"\n📈 Outcomes measured: {len(outcome_log)}")
-    
     print(f"\n⚙️  Strategies:")
     for name, strat in config.get("strategies", {}).items():
         if isinstance(strat, dict):
@@ -354,7 +352,7 @@ def show_status() -> None:
     print(f"\n🔄 Evolution count: {config.get('evolution_count', 0)}")
 
 
-def show_report() -> None:
+def show_report():
     """Generate full report."""
     exp_log = read_json(EXPERIENCE_LOG, [])
     config = load_or_create_strategies()
@@ -367,7 +365,7 @@ def show_report() -> None:
         print(f"\n📝 Total Experiences: {len(exp_log)}")
         
         # By domain
-        domains: Dict[str, Dict] = {}
+        domains = {}
         for exp in exp_log:
             if not isinstance(exp, dict):
                 continue
@@ -387,7 +385,7 @@ def show_report() -> None:
                 print(f"    {domain:20s}: {stats['total']} total, {stats['completed']} completed, avg_score: {avg_score:.1f}")
         
         # By sandbox
-        sandboxes: Dict[str, Dict] = {}
+        sandboxes = {}
         for exp in exp_log:
             if not isinstance(exp, dict):
                 continue
@@ -419,13 +417,15 @@ def show_report() -> None:
                 print(f"    {exp['id']}: score={exp['score']}, action={exp.get('action', 'N/A')[:60]}")
 
 
-# === CLI ===
 if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description="Experience-driven self-improvement")
     parser.add_argument("--init", action="store_true", help="Initialize the system")
     parser.add_argument("--run", action="store_true", help="Run one evolution cycle")
+    parser.add_argument("--evolve", action="store_true", help="Run evolution cycle (alias for --run)")
+    parser.add_argument("--status", action="store_true", help="Show current state")
+    parser.add_argument("--report", action="store_true", help="Full report")
     parser.add_argument("--record", action="store_true", help="Record an experience")
     parser.add_argument("--domain", type=str, default="", help="Domain (trading, bounty, discovery)")
     parser.add_argument("--action", type=str, default="", help="Action taken")
@@ -433,9 +433,6 @@ if __name__ == "__main__":
     parser.add_argument("--expected", type=str, default="", help="Expected outcome")
     parser.add_argument("--outcome", type=str, default="", help="Actual outcome")
     parser.add_argument("--score", type=float, default=0, help="Score 0-10")
-    parser.add_argument("--evolve", action="store_true", help="Run evolution cycle (alias for --run)")
-    parser.add_argument("--status", action="store_true", help="Show current state")
-    parser.add_argument("--report", action="store_true", help="Full report")
     parser.add_argument("--sandbox", type=str, default="spark3", help="Sandbox identifier")
     
     args = parser.parse_args()
@@ -446,7 +443,6 @@ if __name__ == "__main__":
         config["evolution_count"] = config.get("evolution_count", 0)
         write_json(STRATEGY_CONFIG, config)
         write_json(EXPERIENCE_LOG, [])
-        write_json(OUTCOMES_LOG, [])
         write_json(EVOLUTION_LOG, {"entries": []})
         
         kb = f"""# Knowledge Base — Self-Improvement System
@@ -501,8 +497,7 @@ _No experiences recorded yet. Start trading or bounty hunting to build knowledge
     else:
         print("Experience-driven self-improvement system")
         print("Usage:")
-        print("  python evolution_engine.py --init       # Initialize system")
-        print("  python evolution_engine.py --run        # Run evolution cycle")
-        print("  python evolution_engine.py --status     # Show state")
-        print("  python evolution_engine.py --record     # Record experience")
-        print("  python evolution_engine.py --report     # Full report")
+        print("  python evolution.py --init       # Initialize system")
+        print("  python evolution.py --run        # Run evolution cycle")
+        print("  python evolution.py --status     # Show state")
+        print("  python evolution.py --report     # Full report")
