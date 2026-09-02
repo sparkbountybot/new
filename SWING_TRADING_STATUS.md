@@ -48,8 +48,8 @@ NVDA is the clear winner. We need to:
 5. **Bounty pipeline** — scan GitHub → score → submit → get paid
 
 ## Credentials
-- Paper: `PKYKHN5LV53HDV2GXRSDA6WJM6` ✅ working
-- Live: `AKSRSUD3YE3SNNAQBFDQTVIEDG` ⏳ needs network policy
+- Paper: `PK7I7UNRDEGHYSOWQMUCT6TM2Z` ✅ working
+- Live: `PK7I7UNRDEGHYSOWQMUCT6TM2Z` ⏳ needs network policy
 
 ## Network
 - Paper API: `paper-api.alpaca.markets` ✅ working

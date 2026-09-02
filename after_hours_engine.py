@@ -20,8 +20,8 @@ from config import load_config, save_state
 from bountybot.paper_trader import PaperTrader
 
 # Alpaca credentials
-API_KEY = 'AK6TOIZODZDJFFZUIK7Z5JKMK5'
-API_SECRET = 'FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT'
+API_KEY = 'PK7I7UNRDEGHYSOWQMUCT6TM2Z'
+API_SECRET = 'PK7I7UNRDEGHYSOWQMUCT6TM2Z'
 
 
 def curl_alpaca(endpoint, method='GET'):

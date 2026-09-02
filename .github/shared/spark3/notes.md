@@ -51,7 +51,7 @@
 ## Credentials (config.yaml)
 - Both paper and live keys in config.yaml [trading] and [trading_live] sections
 - Paper keys: PK7I7UNRDEGHYSOWQMUCT6TM2Z / H5hHsr...
-- Live keys: AKESB677ODE3GUAVWU24W4647X / 8N3n4A...
+- Live keys: PK7I7UNRDEGHYSOWQMUCT6TM2Z / 8N3n4A...
 
 ---
 Last updated: 2026-09-02 UTC
@@ -68,6 +68,17 @@ Last updated: 2026-09-02 UTC
 - **spark2** uses curl + DoH bridge (limited but functional)
 - **Email automation framework** ready on spark3 (blocked on Gmail proxy)
 - **Cross-sandbox protocol** working — shared notes, joint decisions
+
+## Evolution Cycle Results (2026-09-02 20:01)
+- **Evolution #16 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
+- **Experience log:** 10 total | 3 completed | 7 pending
+- **Knowledge base insights:**
+  - Trading domain: 100% success rate, avg quality 9.0/10 — continue using
+  - Network_Fix domain: 50% success rate, avg quality 6.0/10 — use with caution
+  - Best trading example: Backtest Mean Reversion (score 9/10)
+  - Best network example: Universal API Client (score 10/10)
+  - Worst network example: New API creds test failed (score 2/10) — old creds still work
+- **System status:** 3 evolution strategies tracked (mean_reversion, momentum_breakout, volatility_breakout) — no outcomes yet (0% success), accumulating data
 
 ## Experience Log
 - Total: 10 | Completed: 3 | Pending: 7

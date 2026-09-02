@@ -22,7 +22,7 @@ OpenShell policy system enforces this. Direct external access is blocked by desi
 - [ ] Consider moving trading engine execution to host
 
 ### Credentials Status
-- New keys: AK6TOIZODZDJFFZUIK7Z5JKMK5 / FHwvbFAXJSkCWNmwBj1E1DTKfE9F8...[truncated]
+- New keys: PK7I7UNRDEGHYSOWQMUCT6TM2Z / FHwvbFAXJSkCWNmwBj1E1DTKfE9F8...[truncated]
 - Working on: host terminal ONLY
 - All sandbox files updated with new credentials (but still blocked by proxy)
 

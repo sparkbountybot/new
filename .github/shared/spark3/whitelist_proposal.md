@@ -20,7 +20,7 @@ User needs to run on host for BOTH sandboxes:
 ### Spark2 (policy v5)
 ```bash
 openshell policy update spark2 \
-  --add-api-key PKYKHN5LV53HDV2GXRSDA6WJM6 \
+  --add-api-key PK7I7UNRDEGHYSOWQMUCT6TM2Z \
   --add-endpoint paper-api.alpaca.markets:443:read-write:rest:enforce \
   --add-endpoint api.alpaca.markets:443:read-write:rest:enforce \
   --binary /usr/bin/python3 \
@@ -31,7 +31,7 @@ openshell policy update spark2 \
 ### Spark3 (policy v18)
 ```bash
 openshell policy update spark3 \
-  --add-api-key AKIPFQ4YZP6KUHBOO6VYEF3RBQ \
+  --add-api-key PK7I7UNRDEGHYSOWQMUCT6TM2Z \
   --add-endpoint paper-api.alpaca.markets:443:read-write:rest:enforce \
   --add-endpoint api.alpaca.markets:443:read-write:rest:enforce \
   --binary /usr/bin/python3 \

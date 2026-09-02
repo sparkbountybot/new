@@ -7,12 +7,12 @@ import json
 
 credentials = {
     "Live (user-provided)": {
-        "key": "AKSRSUD3YE3SNNAQBFDQTVIEDG",
-        "secret": "6FwEs2MeazDCfuT9mFGdbcTzTtWz7THiWsZxd6FwWQkD",
+        "key": "AKESB677ODE3GUAVWU24W4647X",
+        "secret": "8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ",
     },
     "Paper (working)": {
-        "key": "AK6TOIZODZDJFFZUIK7Z5JKMK5",
-        "secret": "FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT",
+        "key": "PK7I7UNRDEGHYSOWQMUCT6TM2Z",
+        "secret": "H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh",
     }
 }
 

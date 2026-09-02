@@ -308,8 +308,8 @@ class BacktestEngine:
 
 if __name__ == '__main__':
     # Load credentials from environment
-    api_key = os.getenv('ALPACA_API_KEY', 'AK6TOIZODZDJFFZUIK7Z5JKMK5')
-    api_secret = os.getenv('ALPACA_API_SECRET', 'FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT')
+    api_key = os.getenv('ALPACA_API_KEY', 'PK7I7UNRDEGHYSOWQMUCT6TM2Z')
+    api_secret = os.getenv('ALPACA_API_SECRET', 'PK7I7UNRDEGHYSOWQMUCT6TM2Z')
     
     # Symbols to backtest
     symbols = [

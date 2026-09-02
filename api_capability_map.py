@@ -2,8 +2,8 @@
 """Full API capability map for spark2."""
 import subprocess, json
 
-API_KEY = 'AK6TOIZODZDJFFZUIK7Z5JKMK5'
-API_SECRET = 'FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT'
+API_KEY = 'PK7I7UNRDEGHYSOWQMUCT6TM2Z'
+API_SECRET = 'PK7I7UNRDEGHYSOWQMUCT6TM2Z'
 BASE = 'https://paper-api.alpaca.markets'
 
 def curl_alpaca(path):

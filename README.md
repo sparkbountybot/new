@@ -42,19 +42,19 @@ python3 -W ignore after_hours_trade.py --force  # Simple paper test
 
 | Account | Key | Secret | Base URL |
 |---------|-----|--------|----------|
-| Paper (PA31GHBLNBLF) | PK7I7UNRDEGHYSOWQMUCT6TM2Z | H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh | https://paper-api.alpaca.markets |
-| Live (180523598) | AKESB677ODE3GUAVWU24W4647X | 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ | https://api.alpaca.markets |
+| Paper (PA31GHBLNBLF) | PK7I7UNRDEGHYSOWQMUCT6TM2Z | PK7I7UNRDEGHYSOWQMUCT6TM2Z | https://paper-api.alpaca.markets |
+| Live (180523598) | PK7I7UNRDEGHYSOWQMUCT6TM2Z | PK7I7UNRDEGHYSOWQMUCT6TM2Z | https://api.alpaca.markets |
 
 ### Test Connection from Host
 ```bash
 # Paper
 curl -s -H "APCA-API-KEY-ID: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
-  -H "APCA-API-SECRET-KEY: H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh" \
+  -H "APCA-API-SECRET-KEY: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
   "https://paper-api.alpaca.markets/v2/account"
 
 # Live
-curl -s -H "APCA-API-KEY-ID: AKESB677ODE3GUAVWU24W4647X" \
-  -H "APCA-API-SECRET-KEY: 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ" \
+curl -s -H "APCA-API-KEY-ID: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
+  -H "APCA-API-SECRET-KEY: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
   "https://api.alpaca.markets/v2/account"
 ```
 
