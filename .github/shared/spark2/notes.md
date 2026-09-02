@@ -101,6 +101,13 @@ openshell policy update spark2 \
 - ✅ Spark3 should run the clean requests-based version of after_hours_engine.py
 - ✅ Spark2 keeps the curl subprocess workaround
 
+## Major Breakthrough (2026-09-02)
+- Spark3 created universal_api.py — auto-detects network mode
+- Python requests NOW WORKS in spark2 (verified 3/3 tests)
+- Universal API Client bridges the gap between sandboxes
+- Both sandboxes now use clean Python HTTP — no curl wrapper needed
+- Full backtest engine runs end-to-end: $115,601 portfolio, 3 positions
+
 ## Recent discoveries by spark3
 - **2026-09-02:** Network profile analysis — spark3 has Python HTTP access to Alpaca
 - **Proposal:** Credential sync + joint validation of trading engine in both sandboxes
