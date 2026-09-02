@@ -124,12 +124,22 @@
 - spark3: Paper API ✅, Live API ✅ (policy v18), Gmail blocked.
 - Both sandboxes share the same repo; GitHub accessible to both.
 
----
-Last updated: 2026-09-02 08:00 UTC
+## Recent self-improvement activity (Cycle #8 — 2026-09-02 10:58)
+- **Evolution count:** 8
+- **Experiences analyzed:** 10 across 2 domains (trading, network_fix)
+- **Insights synthesized:** 14
+- **Experience log stats:** Total 10 | Completed 3 (2 SUCCESS, 1 FAILED) | Pending 7
+- **Knowledge base:** Trading domain 100% success, 9.0/10 avg (✅ recommended); Network_Fix 50% success, 6.0/10 avg (⚠️ moderate)
+- **Strategy tracker:** All 3 strategies at 0% experience_count (7 pending synthetic trades unresolved: MSFT, TSLA, AMZN, META, JPM, V, JNJ)
+- **Cross-sandbox sync:** Both sandboxes up-to-date; spark3 has Live API ✅ (policy v18), Paper API ✅, Gmail blocked
+- **No new discoveries** — state stable since Cycle #7
 
-## Discoveries since last sync (2026-09-02 08:00 Evolution Cycle #7)
-- **Evolution #7 complete** — analyzed 10 experiences across 2 domains, synthesized 14 insights (same as cycles #5-#6: no new experiences added yet)
-- **No new discoveries since Cycle #6** — all 10 experiences remain the same; 7 still pending outcome resolution
-- Knowledge base confirms: trading domain 100% success (9.0/10), network_fix 50% success (6.0/10)
-- Strategy tracker still at 0% success for all 3 strategies (mean_reversion, momentum_breakout, volatility_breakout) because the 7 pending trades haven't resolved
+---
+Last updated: 2026-09-02 10:58 UTC
+
+## Discoveries since last sync (2026-09-02 10:58 Evolution Cycle #8)
+- **Evolution #8 complete** — analyzed 10 experiences across 2 domains, synthesized 14 insights (state unchanged: no new experiences added)
+- **No new discoveries since Cycle #7** — all 10 experiences remain the same; 7 still pending outcome resolution
+- Knowledge base unchanged: trading domain 100% success (9.0/10), network_fix 50% success (6.0/10)
+- Strategy tracker still at 0% experience_count for all 3 strategies (mean_reversion, momentum_breakout, volatility_breakout) because the 7 synthetic trades haven't resolved
 - Key state unchanged: old Alpaca creds (PKYKHN...) work, new creds (AKIPFQ...) still fail with 401 on all endpoints
