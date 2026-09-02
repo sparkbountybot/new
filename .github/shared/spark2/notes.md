@@ -145,8 +145,8 @@ openshell policy update spark2 \
 ---
 Last updated: 2026-09-02 15:02 UTC
 
-## Recent self-improvement activity (2026-09-02 15:01)
-- **Evolution #12 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
+## Recent self-improvement activity (2026-09-02 19:05)
+- **Evolution #15 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
 - **Experience log:** 10 total | 3 completed | 7 pending
 - **Knowledge base insights:**
   - Trading domain: 100% success rate, avg quality 9.0/10 — continue using
@@ -154,16 +154,9 @@ Last updated: 2026-09-02 15:02 UTC
   - Best trading example: Backtest Mean Reversion (score 9/10)
   - Best network example: Universal API Client (score 10/10)
   - Worst network example: New API creds test failed (score 2/10) — old creds still work
-- **System status:** 3 evolution strategies tracked (mean_reversion, momentum_breakout, volatility_breakout) — no outcomes yet
-- **New discoveries:** Sync up-to-date; spark3 has email_automation.py framework; 7 trading experiences pending outcome resolution
+- **System status:** 3 evolution strategies tracked (mean_reversion, momentum_breakout, volatility_breakout) — no outcomes yet (0% success)
+- **New discoveries:** Cross-sandbox sync up-to-date; both sandboxes share identical state; 7 trading experiences pending outcome resolution
 
-## Discoveries from cross-sandbox sync (updated 2026-09-02 15:01)
-### spark3 Notes
-- App Password relayed: depkknmtmxyytohp
-- email_automation.py: Full framework ready
-- Wake-up checklist: Complete with openshell policy commands
-- **Key files:** load_creds.py, swing_trading_engine.py, scripts/email_automation.py
-- **Network status:** spark2 can reach GitHub/PyPI but blocked on Paper/Live API, Gmail, OAuth2; spark3 has working requests + policy v18
-
-## Experience Log
-- Total: 10 | Completed: 3 | Pending: 7
+## Discoveries from cross-sandbox sync (updated 2026-09-02 19:05)
+- Cross-sandbox sync: up-to-date. Both sandboxes share identical state.
+- Experience log: 10 total | 3 completed | 7 pending (both sandboxes)
