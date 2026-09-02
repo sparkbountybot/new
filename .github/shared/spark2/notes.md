@@ -117,6 +117,9 @@ openshell policy update spark2 \
 - ✅ Code that works in one sandbox may fail in the other — always test both
 - ✅ Spark3 should run the clean requests-based version of after_hours_engine.py
 - ✅ Spark2 keeps the curl subprocess workaround
+- ✅ Built evolution_engine.py — experience-driven self-improvement system
+- ✅ Both sandboxes can now record decisions, measure outcomes, and evolve strategies
+- ✅ Cron job runs evolution cycle every 4 hours automatically
 
 ---
-Last updated: 2026-09-02 04:30 UTC
+Last updated: 2026-09-02 02:50 UTC
