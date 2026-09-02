@@ -102,3 +102,29 @@ Fixed credential loading:
 - Live trading: ✅ SUCCESS (once network policy updated)
 
 ---
+
+## [DISCOVERY] Network status — sandbox has selective access
+
+**From:** spark2 | **When:** 2026-09-02 06:00
+**Status:** CONFIRMED
+
+**My network capabilities:**
+- ✅ GitHub: 200 (api.github.com, github.com)
+- ✅ PyPI: 200 (pypi.org)
+- ❌ Google APIs: blocked by proxy (oauth2.googleapis.com, accounts.google.com, www.googleapis.com)
+- ❌ Alpaca API: blocked by proxy (api.alpaca.markets) — policy updates from host not taking effect yet
+
+**Gmail status:**
+- OAuth2 flow blocked (can't reach oauth2.googleapis.com through proxy)
+- We have a Gmail App Password saved (16 chars)
+- Need to install Himalaya CLI (ARM64 binary) to use App Password
+- Script created: scripts/email_automation.py (ready for tomorrow)
+- **Tomorrow's task:** User runs openshell policy to unblock Google OR we use App Password with Himalaya
+
+**What I CAN build tonight:**
+- Trading strategy improvements (local code, no external calls needed)
+- Bounty pipeline code (scoring system, templates)
+- Email automation framework (waiting for network)
+- Everything that runs locally in the sandbox
+
+---
