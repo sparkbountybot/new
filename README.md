@@ -1,11 +1,12 @@
 # BountyBot Framework v2 — Quick Cheat Sheet
 
-## Status (UPDATED 2026-09-01)
+## Status (UPDATED 2026-09-02)
 
 **✅ WORKING END-TO-END**
-- Network: DNS via curl, Alpaca API via curl subprocess
-- Real account: $115,585 ACTIVE paper account
-- After-hours trading: Tested with real account balance
+- Network: DNS via curl DoH, API calls via curl subprocess
+- **Paper Account** (PA31GHBLNBLF): $116,733 equity — ACTIVE (buying power: $98,651)
+- **Live Account** (180523598): $44,910 equity — ACTIVE (buying power: $137,321)
+- Both accounts authenticated via curl from host terminal
 - Paper trading engine: Executes orders with realistic fills
 
 ## Quick Start
@@ -37,11 +38,24 @@ python3 -W ignore after_hours_trade.py --force  # Simple paper test
 - Paper executes: Market orders with position sizing (2% risk, 3 max positions)
 - Tracks: P&L, portfolio value, daily performance
 
-### Real Account Integration
+### Account Credentials (config.yaml)
+
+| Account | Key | Secret | Base URL |
+|---------|-----|--------|----------|
+| Paper (PA31GHBLNBLF) | PK7I7UNRDEGHYSOWQMUCT6TM2Z | H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh | https://paper-api.alpaca.markets |
+| Live (180523598) | AKESB677ODE3GUAVWU24W4647X | 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ | https://api.alpaca.markets |
+
+### Test Connection from Host
 ```bash
-# Fetch real account via curl
-curl -s -H "APCA-API-KEY-ID: YOUR_KEY" -H "APCA-API-SECRET-KEY: YOUR_SECRET" \
+# Paper
+curl -s -H "APCA-API-KEY-ID: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
+  -H "APCA-API-SECRET-KEY: H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh" \
   "https://paper-api.alpaca.markets/v2/account"
+
+# Live
+curl -s -H "APCA-API-KEY-ID: AKESB677ODE3GUAVWU24W4647X" \
+  -H "APCA-API-SECRET-KEY: 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ" \
+  "https://api.alpaca.markets/v2/account"
 ```
 
 ## Monitoring
@@ -52,11 +66,14 @@ python3 manager.py history
 ```
 
 ## Network
-- **Curl works**: DNS via DoH, API calls via curl subprocess
-- **Python HTTP blocked**: Use `subprocess.run(['curl', ...])` for API calls
-- **Policy**: dns.google, paper-api.alpaca.markets, 35.194.67.18 whitelisted
 
-### Policy Commands
+**Sandbox: spark2**
+- ✅ DNS: works via `curl` DoH (`dns.google/resolve`)
+- ✅ curl subprocess: works with `--resolve` flag (DNS resolved via DoH)
+- ❌ Python requests: DNS resolution blocked — use curl subprocess or universal_api.py bridge
+- ❌ Google services (smtp, imap, oauth2): BLOCKED by proxy
+
+**Policy commands (run from host):**
 ```bash
 openshell policy update spark2 \
   --add-endpoint dns.google:443:read-write:rest:enforce \
@@ -67,6 +84,7 @@ openshell policy update spark2 \
 
 openshell policy update spark2 \
   --add-endpoint paper-api.alpaca.markets:443:read-write:rest:enforce \
+  --add-endpoint api.alpaca.markets:443:read-write:rest:enforce \
   --add-endpoint 35.194.67.18:443:read-write:rest:enforce \
   --binary /usr/bin/python3 --binary /usr/local/bin/python3 \
   --binary /usr/bin/curl --binary /usr/local/bin/curl \
@@ -79,8 +97,9 @@ openshell policy update spark2 \
 ├── after_hours_engine.py    # Main after-hours trading pipeline
 ├── after_hours_trade.py      # Simple paper trading wrapper
 ├── test_paper.py             # Test with real API balance
-├── manager.py                # CLI entry point
+├── universal_api.py          # Network auto-detection (curl + DoH bridge)
 ├── config.yaml               # Main config (has real API keys)
+├── manager.py                # CLI entry point
 ├── state/
 │   ├── after_hours_session.json
 │   ├── paper_trade_session.json
@@ -91,9 +110,10 @@ openshell policy update spark2 \
 ```
 
 ## Troubleshooting
-- Python HTTP blocked → Use curl subprocess
-- No signals → Price range within normal bounds (no extreme RSI)
-- API fails → Check policy version, re-apply if needed
+- Python HTTP blocked → Use curl subprocess or universal_api.py
+- DNS dead in sandbox → DoH works via curl: `curl https://dns.google/resolve?name=HOST&type=A`
+- API 401 → Check credentials in config.yaml match the account (paper vs live)
+- API 403 → Endpoint not whitelisted in OpenShell policy
 - Need rebuild → See REBUILD.md
 
 ## Rebuild (if needed)

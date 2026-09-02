@@ -39,9 +39,10 @@ openshell policy update spark2 \
   --binary /usr/local/bin/curl \
   --wait
 
-# Alpaca API endpoint
+# Alpaca API endpoints (paper + live)
 openshell policy update spark2 \
   --add-endpoint paper-api.alpaca.markets:443:read-write:rest:enforce \
+  --add-endpoint api.alpaca.markets:443:read-write:rest:enforce \
   --add-endpoint 35.194.67.18:443:read-write:rest:enforce \
   --binary /usr/bin/python3 \
   --binary /usr/local/bin/python3 \

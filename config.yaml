@@ -10,19 +10,18 @@ gmail:
   check_interval_seconds: 300
 
 trading:
-  alpaca_api_key: AK6TOIZODZDJFFZUIK7Z5JKMK5
-  alpaca_secret_key: FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT
+  alpaca_api_key: PK7I7UNRDEGHYSOWQMUCT6TM2Z
+  alpaca_secret_key: H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh
   base_url: https://paper-api.alpaca.markets
   paper: true
   max_position_pct: 0.5  # reckless mode
   max_total_risk: 0.15
   watchlist: [AAPL, MSFT, NVDA, TSLA, AMZN, META, GOOGL, JPM, V, JNJ]
 
-# Live trading — credentials invalid, need new ones from Alpaca dashboard
-# Once updated, change paper: false below and update base_url to api.alpaca.markets
+# Live trading credentials
 trading_live:
-  alpaca_api_key: [PENDING_NEW_CREDENTIALS]
-  alpaca_secret_key: [PENDING_NEW_CREDENTIALS]
+  alpaca_api_key: AKESB677ODE3GUAVWU24W4647X
+  alpaca_secret_key: 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ
   base_url: https://api.alpaca.markets
   paper: false
   max_position_pct: 0.5
