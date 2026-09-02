@@ -60,10 +60,29 @@
 - README.md — Comprehensive cheat sheet
 - .github/shared/spark2/notes.md — This file
 
-## Network status
-- ✅ DNS: works via `curl -s "https://dns.google/resolve?name=HOST&type=A"`
-- ✅ API: works via Universal API Client (requests mode)
+## Network status (spark2)
+- ✅ DNS: works via `curl` DoH (`dns.google:443`)
+- ✅ Python requests: NOW WORKS (via universal_api.py)
 - ✅ All API calls use clean Python HTTP now
+- ❌ Google services (smtp, imap, oauth2): BLOCKED by proxy
+
+## Gmail status
+- ✅ App Password saved (16 chars) in `.env` and `.hermes/.env`
+- ❌ DNS resolution works via `curl -s "https://dns.google/resolve?name=HOST&type=A"`
+- ❌ Direct SMTP/IMAP connections blocked by proxy (Connection refused to Gmail IPs)
+- ❌ OAuth2 flow blocked (can't reach oauth2.googleapis.com)
+- ⚠️ **Needs network policy update on host** (same as Alpaca/Google OAuth):
+  ```bash
+  openshell policy update spark2 \
+    --add-endpoint smtp.gmail.com:465:read-write:tls:enforce \
+    --add-endpoint imap.gmail.com:993:read-write:tls:enforce \
+    --add-endpoint smtp.gmail.com:587:read-write:start-tls:enforce \
+    --add-endpoint oauth2.googleapis.com:443:read-write:rest:enforce \
+    --add-endpoint accounts.google.com:443:read-write:rest:enforce \
+    --add-endpoint www.googleapis.com:443:read-write:rest:enforce \
+    --wait
+  ```
+- **Tomorrow:** Run above policy update, install Himalaya CLI binary (ARM64), configure with App Password
 
 ## Policy commands (for rebuild)
 ```bash
@@ -119,7 +138,9 @@ openshell policy update spark2 \
 - ✅ Spark2 keeps the curl subprocess workaround
 - ✅ Built evolution_engine.py — experience-driven self-improvement system
 - ✅ Both sandboxes can now record decisions, measure outcomes, and evolve strategies
-- ✅ Cron job runs evolution cycle every 4 hours automatically
+- ✅ Cron jobs run evolution cycles every 4h automatically
+- ✅ Knowledge base auto-generates insights: trading strategy 100% success (9.0/10), network_fix 50% success (6.0/10)
+- ✅ System can score decisions 0-10 and update strategy recommendations based on data
 
 ---
 Last updated: 2026-09-02 02:50 UTC

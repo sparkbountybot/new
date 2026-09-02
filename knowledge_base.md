@@ -1,12 +1,21 @@
 # Knowledge Base — Self-Improvement System
 ## Auto-generated insights from experience-driven learning
-## Last evolved: 2026-09-02 02:53
-## Evolution count: 0
+## Last evolved: 2026-09-02 02:57
+## Evolution count: 3
 
-## Current Strategies
-- **Mean Reversion**: Default recommendation threshold 60% confidence
-- **Momentum Breakout**: Default recommendation threshold 65% confidence
-- **Volatility Breakout**: Default recommendation threshold 65% confidence
 
-## Learnings
-_No experiences recorded yet. Start trading or bounty hunting to build knowledge._
+### Trading
+- **Success rate:** 1/1 (100%)
+- **Avg quality score:** 9.0/10
+- **Total P&L:** $0.00
+- **Best example:** Backtest Mean Reversion strategy on synthetic data (score: 9)
+- **Worst example:** Backtest Mean Reversion strategy on synthetic data (score: 9)
+- **Recommendation:** ✅ Continue using trading — strong performance
+
+### Network_Fix
+- **Success rate:** 1/2 (50%)
+- **Avg quality score:** 6.0/10
+- **Total P&L:** $0.00
+- **Best example:** Universal API Client auto-detects network mode (requests vs curl) (score: 10)
+- **Worst example:** Test new API credentials on Alpaca endpoints (score: 2)
+- **Recommendation:** ⚠️ Use network_fix with caution — moderate performance
