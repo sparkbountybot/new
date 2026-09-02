@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-09-02T01:47:40.565884",
+  "equity": 115430.95,
+  "trades": [
+    {
+      "symbol": "MSFT",
+      "shares": 32,
+      "entry": 430.54,
+      "order": "585b0490-ae07-4db9-9a74-b0ade61f00d1"
+    },
+    {
+      "symbol": "TSLA",
+      "shares": 34,
+      "entry": 398.52,
+      "order": "997e73a4-ee6f-4eb6-8dbe-599de8f6a45c"
+    },
+    {
+      "symbol": "AMZN",
+      "shares": 68,
+      "entry": 201.94,
+      "order": "5352146d-751b-4b49-8a0e-97252b80b3bb"
+    },
+    {
+      "symbol": "META",
+      "shares": 21,
+      "entry": 634.72,
+      "order": "852b8b2a-a3b6-4dd7-89fc-88eaee0e59ab"
+    },
+    {
+      "symbol": "JPM",
+      "shares": 58,
+      "entry": 236.37,
+      "order": "27c3e459-1735-416d-ab6f-32e7018b68f4"
+    },
+    {
+      "symbol": "V",
+      "shares": 43,
+      "entry": 321.03,
+      "order": "a7b9cfb4-b71e-4575-a64c-5cf2c8b1d94d"
+    },
+    {
+      "symbol": "JNJ",
+      "shares": 89,
+      "entry": 154.92,
+      "order": "be0a01af-ac7c-45bf-92c1-73c701cc3d5c"
+    }
+  ]
+}
