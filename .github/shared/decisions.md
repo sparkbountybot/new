@@ -1,31 +1,33 @@
 # Shared Decisions — Spark2 ↔ Spark3
 
-## 2026-09-02 18:30 — ALPACA FULLY CONNECTED (MONUMENTAL)
-**Status: COMPLETE**
+## 2026-09-02 22:25 — AUTONOMOUS ENGINE FIXED
+**Status: WORKING — LIVE MODE**
 
-**What happened:**
-- New API keys generated and tested from host terminal:
-  - **Paper** (PK7I7UNR...QMUCT6TM2Z): ACTIVE, account PA31GHBLNBLF
-  - **Live** (AKESB677...WU24W4647X): ACTIVE, account 180523598
-- Keys saved to config.yaml [trading] and [trading_live] sections
-- README.md cheat sheet updated with full credential table
-- REBUILD.md updated to include live API endpoint
-- Trading engine written (1130 lines) and committed to GitHub
+**Problem:** Engine was trying broken endpoints (SMA, bars, quotes, last trade) — all return 404 on free tier. Yahoo Finance blocked by proxy.
 
-**Engine features:**
-- Scans 10 stocks every 5 min with RSI/MACD/Bollinger/Trend indicators
-- Composite scoring: BUY ≥0.6, SELL ≤−0.4, HOLD otherwise
-- Risk management: max 8 positions, 15% equity each, 15% stop loss, 25% take profit
-- SMA safety check (pauses if equity < 2x SMA)
-- Defaults to LIVE account, paper mode switchable via env vars
+**Solution:** Rewrote engine to use only working Alpaca endpoints:
+- `/v2/account` — account info, equity, buying power ✅
+- `/v2/positions` — positions with P&L, entry, current_price ✅
+- `/v2/orders` — order management ✅
+- `/v2/positions/{symbol}` — sell positions ✅
 
-**Key decision:** User wants full automation with zero manual commands. Engine needs to run on something with network access.
+**Engine capabilities:**
+- Manages existing positions with stop loss (15%) and take profit (25%)
+- Risk: max 8 positions, 15% equity each
+- No price lookups needed — uses `current_price` from positions endpoint
+- Can sell positions but cannot buy (no price endpoint available on free tier)
+- Runs every 5 min in continuous mode, or `--run-once` for cron
 
-**Next steps:**
-1. Deploy engine to spark3 (policy v18 allows api.alpaca.markets)
-2. Run engine in sandbox and verify it can access live API
-3. Set up cron job for continuous trading cycles
-4. User confirmed: "I am not running commands" — engine needs autonomous deployment
+**Test results:**
+- $44,911.90 equity | $137,325 buying power
+- 7 positions active (AES, CAG, CVX, INTC, KEY, META, SGOV)
+- No stop loss or take profit triggered on latest run
+- Engine works natively in both sandboxes with Python requests
+
+**Key decision:** Trading engine is operational. Focus shifts to:
+1. Enabling buy signals when price data is available (needs Alpaca upgrade or proxy whitelist)
+2. Continuous daemon mode (cron or background process)
+3. Email alerts for trade execution
 
 ---
 
