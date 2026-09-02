@@ -296,22 +296,36 @@ def create_alpaca_client(key=None, secret=None, paper=True):
     Falls back to alternative env var names if APCA_ prefix not found.
     """
     if not key or not secret:
-        # Try config.yaml (where credentials are stored at [trading] section)
+        # Check config.yaml
         config_yaml = Path(__file__).parent / "config.yaml"
         if config_yaml.exists():
             try:
                 import yaml as _yaml
                 with open(config_yaml) as _f:
                     cfg = _yaml.safe_load(_f) or {}
-                    trading = cfg.get("trading", {})
-                    if trading.get("alpaca_api_key"):
-                        key = key or trading["alpaca_api_key"]
-                        secret = secret or trading["alpaca_secret_key"]
-                        if paper:
-                            # Paper credentials in config.yaml
-                            print(f"  📍 Paper creds loaded from config.yaml [trading]")
-                        else:
-                            print(f"  📍 Live creds loaded from config.yaml [trading]")
+                    if paper:
+                        trading = cfg.get("trading", {})
+                        if trading.get("alpaca_api_key") and trading["alpaca_api_key"] not in ["", None]:
+                            key = key or trading["alpaca_api_key"]
+                            secret = secret or trading["alpaca_secret_key"]
+                            if key:
+                                print(f"  📍 Paper creds loaded from config.yaml [trading]")
+                    else:
+                        # Live trading: try [trading_live] first, then fall back to [trading]
+                        trading_live = cfg.get("trading_live", {})
+                        trading = cfg.get("trading", {})
+                    
+                        if trading_live.get("alpaca_api_key") and trading_live["alpaca_api_key"] not in ["[PENDING_NEW_CREDENTIALS]", "", None]:
+                            key = key or trading_live["alpaca_api_key"]
+                            secret = secret or trading_live["alpaca_secret_key"]
+                            if key:
+                                print(f"  📍 Live creds loaded from config.yaml [trading_live]")
+                        elif trading.get("alpaca_api_key") and trading["alpaca_api_key"] not in ["[PENDING_NEW_CREDENTIALS]", "", None]:
+                            # Fallback: use [trading] section as live creds (not recommended)
+                            key = key or trading["alpaca_api_key"]
+                            secret = secret or trading["alpaca_secret_key"]
+                            if key:
+                                print(f"  ⚠️  Live creds from [trading] section — verify these are live keys!")
             except Exception as e:
                 print(f"  ⚠️  Warning: could not load config.yaml: {e}")
     
