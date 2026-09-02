@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
 Autonomous Trading Engine — LIVE MODE
-- Scans watchlist, checks positions, manages risk
-- Uses SMA indicator from Alpaca v2 (free tier compatible)
-- Risk: max 8 positions, 15% equity each, 15% stop, 25% take profit
-- Cron-friendly: --run-once for one cycle
+Manages existing positions with stop loss / take profit.
+No price lookups needed — uses current_price from positions.
 """
 
 import os
-import sys
 import json
 import time
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 
 CONFIG_PATH = "/sandbox/new/config.yaml"
 TRADE_LOG = "/sandbox/new/data/trades.json"
 
 class TradingEngine:
     def __init__(self):
-        self.config = self._load_config()
+        import yaml
+        with open(CONFIG_PATH) as f:
+            self.config = yaml.safe_load(f)
+        
         self.paper_mode = os.environ.get("ALPACA_PAPER", "").lower() in ("true", "1", "yes")
         
         if self.paper_mode:
@@ -46,11 +46,6 @@ class TradingEngine:
         self.positions = []
         self.trades = self._load_trades()
         self._print_info()
-    
-    def _load_config(self):
-        import yaml
-        with open(CONFIG_PATH) as f:
-            return yaml.safe_load(f)
     
     def _load_trades(self):
         os.makedirs(os.path.dirname(TRADE_LOG), exist_ok=True)
@@ -98,7 +93,7 @@ class TradingEngine:
         except:
             self.orders = []
     
-    def get_account(self) -> dict:
+    def get_account(self):
         account = self._get("/v2/account")
         if not account or not isinstance(account, dict):
             return {"equity": 0, "cash": 0, "buying_power": 0, "portfolio_value": 0}
@@ -123,92 +118,8 @@ class TradingEngine:
             }
         return pos
     
-    def get_quote(self, symbol):
-        """Get current quote."""
-        try:
-            resp = requests.get(
-                f"{self.base}/v2/quotes/{symbol}",
-                headers=self.headers,
-                params={"size": "1"},
-                timeout=10,
-            )
-            if resp.status_code == 200:
-                quotes = resp.json()
-                if isinstance(quotes, list) and len(quotes) > 0:
-                    q = quotes[0]
-                    return {
-                        "symbol": symbol,
-                        "bid": float(q.get("bp", 0)),
-                        "ask": float(q.get("ap", 0)),
-                        "last": float(q.get("lp", 0)),
-                    }
-        except:
-            pass
-        return None
-    
-    def get_sma(self, symbol, period=20):
-        """Get SMA from Alpaca v2 indicator endpoint."""
-        try:
-            resp = requests.get(
-                f"{self.base}/v2/indicators/sma",
-                headers=self.headers,
-                params={
-                    "symbol": symbol,
-                    "timeframe": "1D",
-                    "period": str(period),
-                    "market_type": "stocks",
-                },
-                timeout=10,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if isinstance(data, dict) and "values" in data and len(data["values"]) > 0:
-                    return float(data["values"][0])
-        except:
-            pass
-        return None
-    
-    def get_price_data(self, symbol):
-        """Get price data from Yahoo Finance as fallback."""
-        try:
-            resp = requests.get(
-                f"https://query1.finance.yahoo.com/v8/finance/{symbol}/chart?range=30d&interval=1d",
-                headers={"User-Agent": "Mozilla/5.0"},
-                timeout=10,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                result = data.get("chart", {}).get("result", [{}])[0]
-                meta = result.get("meta", {})
-                timestamps = result.get("timestamp", [])
-                closes = result.get("indicators", {}).get("quote", [{}])[0].get("close", [])
-                
-                if closes and len(closes) > 0:
-                    closes = [c for c in closes if c]  # Remove None values
-                    if closes:
-                        return {
-                            "current": float(meta.get("regularMarketPrice", closes[-1])),
-                            "sma_20": sum(closes[-20:]) / min(20, len(closes)),
-                            "sma_50": sum(closes[-50:]) / min(50, len(closes)) if len(closes) >= 10 else closes[-1],
-                            "all_closes": closes,
-                        }
-        except Exception as e:
-            pass
-        return None
-    
-    def get_market_status(self):
-        """Check if market is open."""
-        try:
-            resp = requests.get(f"{self.base}/v2/marketstatus/now", headers=self.headers, timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                return data.get("markets", {}).get("stock", {}).get("trading", False)
-        except:
-            pass
-        return True  # Default to open
-    
     def run_cycle(self):
-        """Run one trading cycle."""
+        """Run one trading cycle — manage existing positions."""
         print(f"\n{'='*60}")
         print(f"  TRADING CYCLE — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"  Mode: {self.mode.upper()}")
@@ -221,7 +132,7 @@ class TradingEngine:
         
         print(f"\n💰 Account: ${equity:,.2f} equity | ${buying_power:,.2f} buying power")
         
-        # SMA safety check
+        # Safety check
         if equity < 5000:
             print(f"\n⚠️  WARNING: Equity ${equity:,.2f} below $5,000. Pausing.\n")
             return
@@ -237,55 +148,22 @@ class TradingEngine:
         
         # Check each position for stop loss / take profit
         print(f"\n🛡️  Checking risk management...")
+        actions = []
         for symbol, pos in list(positions.items()):
             if pos["pl_pct"] <= -self.stop_loss * 100:
                 print(f"  🚨 STOP LOSS: {symbol} at {pos['pl_pct']:.1f}%")
-                self.execute_sell(symbol)
+                actions.append(("SELL", symbol, pos))
             elif pos["pl_pct"] >= self.take_profit * 100:
                 print(f"  🎯 TAKE PROFIT: {symbol} at {pos['pl_pct']:.1f}%")
+                actions.append(("SELL", symbol, pos))
+        
+        # Execute actions (sells first to free up buying power)
+        for action, symbol, pos in actions:
+            if action == "SELL":
                 self.execute_sell(symbol)
         
         # Refresh positions after sells
         positions = self.get_positions()
-        
-        # Scan watchlist for buys
-        print(f"\n🔍 Scanning watchlist...")
-        for symbol in self.watchlist:
-            if symbol in positions:
-                print(f"  ⏭️ {symbol}: Already hold")
-                continue
-            
-            if len(positions) >= self.max_positions:
-                print(f"  ⏭️ {symbol}: Position limit reached")
-                break
-            
-            # Get SMA indicator
-            sma_20 = self.get_sma(symbol, 20)
-            price_data = self.get_price_data(symbol)
-            
-            if not price_data:
-                print(f"  ⏭️ {symbol}: No price data")
-                continue
-            
-            current_price = price_data["current"]
-            sma20 = price_data.get("sma_20", current_price)
-            
-            # Buy signal: price above SMA_20 with momentum
-            if current_price > sma20 * 1.02:
-                # Check buying power
-                max_invest = equity * self.max_equity_pct
-                if max_invest < 100:
-                    continue
-                
-                qty = int(max_invest / current_price)
-                if qty < 1:
-                    continue
-                
-                print(f"  📈 BUY SIGNAL: {symbol} @ ${current_price:.2f} (above SMA20=${sma20:.2f})")
-                self.execute_buy(symbol, current_price)
-                # Refresh equity after buy
-                account = self.get_account()
-                equity = account["equity"]
         
         # Final status
         self.positions = self._get("/v2/positions") or []
@@ -298,44 +176,6 @@ class TradingEngine:
             "positions": len(positions_final),
             "equity": equity,
         }
-    
-    def execute_buy(self, symbol, price):
-        """Execute a buy order."""
-        account = self.get_account()
-        equity = account["equity"]
-        max_invest = equity * self.max_equity_pct
-        qty = int(max_invest / price)
-        
-        if qty < 1:
-            print(f"  ⚠️ Cannot buy {symbol}: qty={qty}")
-            return None
-        
-        try:
-            order = self._post("/v2/orders", {
-                "symbol": symbol,
-                "qty": qty,
-                "side": "buy",
-                "type": "limit",
-                "limit_price": str(round(price * 1.01, 2)),  # 1% above for fill
-                "time_in_force": "day",
-            })
-            
-            if order:
-                self.trades.append({
-                    "timestamp": datetime.now().isoformat(),
-                    "action": "BUY",
-                    "symbol": symbol,
-                    "qty": qty,
-                    "price": round(price, 2),
-                    "total": round(qty * price, 2),
-                    "mode": self.mode,
-                })
-                self._save_trades()
-                print(f"  ✅ BUY {qty} {symbol} @ ${price:.2f} (${qty*price:,.2f})")
-            return order
-        except Exception as e:
-            print(f"  ❌ Buy failed: {e}")
-            return None
     
     def execute_sell(self, symbol):
         """Execute a sell order."""
