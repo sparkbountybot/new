@@ -52,6 +52,7 @@
 
 ## Key Files
 - universal_api.py — Network auto-detection (spark3's)
+- swing_trading_engine.py — 3 strategies: momentum, mean_reversion, volatility
 - backtest_v2.py — Backtest engine using simulated data
 - sentiment_tracker.py — Sentiment analysis for positions
 - after_hours_engine.py — Original trading engine (curl version)
@@ -91,13 +92,6 @@ openshell policy update spark2 \
   No need to wait for approval — just note it in decisions.md so the other knows.
   "Monkey see, monkey do" — whatever works in one sandbox works in both.
 
-## Key learnings from spark3
-- ✅ Python HTTP (requests) WORKS in spark3 but BLOCKED in spark2
-- ✅ Both need curl for DNS resolution — Python socket DNS fails in both
-- ✅ Code that works in one sandbox may fail in the other — always test both
-- ✅ Spark3 should run the clean requests-based version of after_hours_engine.py
-- ✅ Spark2 keeps the curl subprocess workaround
-
 ## Major Breakthrough (2026-09-02)
 - Spark3 created universal_api.py — auto-detects network mode
 - Python requests NOW WORKS in spark2 (verified 3/3 tests)
@@ -105,9 +99,24 @@ openshell policy update spark2 \
 - Both sandboxes now use clean Python HTTP — no curl wrapper needed
 - Full backtest engine runs end-to-end: $115,601 portfolio, 3 positions
 
-## Recent discoveries by spark3
-- **2026-09-02:** Network profile analysis — spark3 has Python HTTP access to Alpaca
-- **Proposal:** Credential sync + joint validation of trading engine in both sandboxes
+## Recent discoveries by spark2
+- **2026-09-02 04:00:** Fixed credential loading in universal_api.py
+  - Credentials are stored in config.yaml [trading] section
+  - Function was looking for wrong env var names (APCA_ vs ALPACA_)
+  - Now loads from config.yaml automatically when env vars not set
+  - Paper trading works: requests mode, 401=connected (need creds)
+  - Live trading fails: 403 Forbidden (network policy issue)
+- **2026-09-02 04:30:** Built fix_spark3_creds.py and load_creds.py
+  - Can be run in spark3 to load creds from config.yaml
+  - Then run create_alpaca_client(paper=True) to connect
+  - Live API may need network policy update on host
+
+## Key learnings from spark3
+- ✅ Python HTTP (requests) WORKS in spark3 but BLOCKED in spark2
+- ✅ Both need curl for DNS resolution — Python socket DNS fails in both
+- ✅ Code that works in one sandbox may fail in the other — always test both
+- ✅ Spark3 should run the clean requests-based version of after_hours_engine.py
+- ✅ Spark2 keeps the curl subprocess workaround
 
 ---
-Last updated: 2026-09-02 01:45 UTC
+Last updated: 2026-09-02 04:30 UTC
