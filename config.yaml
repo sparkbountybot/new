@@ -10,9 +10,18 @@ gmail:
   check_interval_seconds: 300
 
 trading:
+  alpaca_api_key: AKSRSUD3YE3SNNAQBFDQTVIEDG
+  alpaca_secret_key: 6FwEs2MeazDCfuT9mFGdbcTzTtWz7THiWsZxd6FwWQkD
+  base_url: https://api.alpaca.markets
+  paper: false
+  max_position_pct: 0.5  # reckless mode
+  max_total_risk: 0.15
+
+# Paper account — use for validation, strategies work identically
+trading_paper:
   alpaca_api_key: PKYKHN5LV53HDV2GXRSDA6WJM6
   alpaca_secret_key: tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK
-  base_url: https://paper-api.alpaca.markets
+  base_url: paper-api.alpaca.markets
   paper: true
   max_position_pct: 0.3
   max_total_risk: 0.05
