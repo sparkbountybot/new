@@ -293,6 +293,7 @@ def create_alpaca_client(key=None, secret=None, paper=True):
     """Create a pre-configured Alpaca client.
     
     Auto-detects credentials from environment or config file.
+    Falls back to alternative env var names if APCA_ prefix not found.
     """
     if not key or not secret:
         # Try config.yaml (where credentials are stored at [trading] section)
@@ -306,20 +307,40 @@ def create_alpaca_client(key=None, secret=None, paper=True):
                     if trading.get("alpaca_api_key"):
                         key = key or trading["alpaca_api_key"]
                         secret = secret or trading["alpaca_secret_key"]
+                        if paper:
+                            # Paper credentials in config.yaml
+                            print(f"  📍 Paper creds loaded from config.yaml [trading]")
+                        else:
+                            print(f"  📍 Live creds loaded from config.yaml [trading]")
             except Exception as e:
-                print(f"  Warning: could not load config.yaml: {e}")
+                print(f"  ⚠️  Warning: could not load config.yaml: {e}")
     
-    # Also try environment variables
+    # Also try environment variables (both APCA_ and ALPACA_ prefixes)
     if not key or not secret:
+        # Primary: APCA_ prefix (official Alpaca naming)
         key = key or os.environ.get("APCA_API_KEY_ID", "")
         secret = secret or os.environ.get("APCA_API_SECRET_KEY", "")
+        
+        # Fallback: ALPACA_ prefix (what many .env files use)
+        if not key or not secret:
+            if not key:
+                key = os.environ.get("ALPACA_API_KEY", "") or os.environ.get("ALPACA_API_KEY_ID", "")
+            if not secret:
+                secret = os.environ.get("ALPACA_API_SECRET", "") or os.environ.get("ALPACA_API_SECRET_KEY", "")
+        
+        if key and secret:
+            if not paper:
+                print(f"  📍 Live creds loaded from environment variables")
+            else:
+                print(f"  📍 Paper creds loaded from environment variables")
     
     if not key or not secret:
         raise RuntimeError(
             "No Alpaca API credentials found. Set either:\n"
-            "  1. config.yaml [trading].alpaca_api_key / alpaca_secret_key\n"
-            "  2. Environment variables: APCA_API_KEY_ID + APCA_API_SECRET_KEY\n"
-            "  3. Or pass directly: create_alpaca_client(key='...', secret='...')"
+            "  1. config.yaml [trading] section with alpaca_api_key / alpaca_secret_key\n"
+            "  2. Environment variables: APCA_API_KEY_ID + APCA_API_SECRET_KEY (or ALPACA_API_KEY + ALPACA_API_SECRET)\n"
+            "  3. Or pass directly: create_alpaca_client(key='...', secret='...')\n"
+            "     or create_alpaca_client(paper=False) for live trading credentials."
         )
     
     base = "https://paper-api.alpaca.markets" if paper else "https://api.alpaca.markets"
