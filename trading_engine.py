@@ -559,37 +559,97 @@ class SignalGenerator:
                         macd_data: Optional[Dict[str, float]],
                         bb: Optional[Dict[str, float]],
                         trend: Optional[float]) -> Signal:
-        """Generate composite BUY/SELL/HOLD signal."""
-        s_rsi = self.score_rsi(rsi_val)
-        s_macd = self.score_macd(macd_data)
-        s_bb = self.score_bollinger(bb)
-        s_trend = self.score_trend(trend)
-
-        composite = (
-            WEIGHT_RSI * s_rsi +
-            WEIGHT_MACD * s_macd +
-            WEIGHT_BB * s_bb +
-            WEIGHT_TREND * s_trend
+        """Generate composite BUY/SELL/HOLD signal using integer scoring."""
+        # Weighted float score (legacy, for reference)
+        s_rsi_f = self.score_rsi(rsi_val)
+        s_macd_f = self.score_macd(macd_data)
+        s_bb_f = self.score_bollinger(bb)
+        s_trend_f = self.score_trend(trend)
+        composite_f = (
+            WEIGHT_RSI * s_rsi_f +
+            WEIGHT_MACD * s_macd_f +
+            WEIGHT_BB * s_bb_f +
+            WEIGHT_TREND * s_trend_f
         )
 
-        # Determine action
-        if composite >= BUY_SCORE_THRESHOLD:
+        # ── Integer composite scoring (±10 scale, threshold ±4) ──
+        score = 0
+        details = []
+
+        # RSI: -3..+3
+        if rsi_val is not None:
+            if rsi_val < 30:
+                score += 3; details.append("RSI_oversold(+3)")
+            elif rsi_val < 40:
+                score += 2; details.append("RSI_low(+2)")
+            elif rsi_val > 70:
+                score += -3; details.append("RSI_overbought(-3)")
+            elif rsi_val > 60:
+                score += -2; details.append("RSI_high(-2)")
+            elif rsi_val > 50:
+                score += -1; details.append("RSI_slightly_high(-1)")
+            else:
+                score += 1; details.append("RSI_neutral_low(+1)")
+
+        # MACD: -3..+3
+        if macd_data:
+            h = macd_data.get("histogram", 0)
+            mv = macd_data.get("macd", 0)
+            sv = macd_data.get("signal", 0)
+            if h > 0 and mv > sv:
+                score += 3; details.append("MACD_bullish(+3)")
+            elif h > 0:
+                score += 2; details.append("MACD_positive(+2)")
+            elif h < 0 and mv < sv:
+                score += -3; details.append("MACD_bearish(-3)")
+            elif h < 0:
+                score += -2; details.append("MACD_negative(-2)")
+            else:
+                details.append("MACD_neutral(0)")
+
+        # Bollinger: -2..+2
+        if bb:
+            pct_b = bb.get("pct_b", 0.5)
+            if pct_b < 0.2:
+                score += 2; details.append("BB_below(+2)")
+            elif pct_b < 0.4:
+                score += 1; details.append("BB_low_pctb(+1)")
+            elif pct_b > 0.8:
+                score += -2; details.append("BB_above(-2)")
+            elif pct_b > 0.6:
+                score += -1; details.append("BB_high_pctb(-1)")
+            else:
+                details.append("BB_middle(0)")
+
+        # Trend: -2..+2
+        if trend is not None:
+            if trend > 0.05:
+                score += 2; details.append("Trend_strong_up(+2)")
+            elif trend > 0:
+                score += 1; details.append("Trend_up(+1)")
+            elif trend < -0.05:
+                score += -2; details.append("Trend_strong_down(-2)")
+            elif trend < 0:
+                score += -1; details.append("Trend_down(-1)")
+            else:
+                details.append("Trend_neutral(0)")
+
+        # Signal classification from integer score
+        if score >= 4:
             action = Signal.BUY
-        elif composite <= SELL_SCORE_THRESHOLD:
+        elif score <= -4:
             action = Signal.SELL
         else:
             action = Signal.HOLD
 
-        signal = Signal(symbol, action, composite, {
+        signal = Signal(symbol, action, score, {
+            "composite_float": round(composite_f, 4),
+            "composite_int": score,
             "rsi": rsi_val,
-            "rsi_score": round(s_rsi, 4),
             "macd": macd_data,
-            "macd_score": round(s_macd, 4),
             "bollinger": bb,
-            "bb_score": round(s_bb, 4),
             "trend": trend,
-            "trend_score": round(s_trend, 4),
-            "composite": round(composite, 4),
+            "details": details,
         })
         return signal
 
@@ -781,6 +841,7 @@ class TradingEngine:
         self.state = self.state_mgr.load()
         self.equity = 0.0
         self.position_mgr: Optional[PositionManager] = None
+        self.risk_mgr: Optional[RiskManager] = None
         self.running = False
 
     def initialize(self) -> bool:
@@ -809,6 +870,7 @@ class TradingEngine:
             self.position_mgr = PositionManager(
                 self.equity, self.api, self.state_mgr
             )
+            self.risk_mgr = RiskManager()
             return True
 
         except Exception as e:
@@ -970,12 +1032,46 @@ class TradingEngine:
             logger.error(f"Failed to submit SELL order for {symbol}: {e}")
             return None
 
+    def execute_sell_sell(self, symbol: str, price: float) -> Optional[Dict]:
+        """Sell all shares of a symbol (used by RiskManager for forced liquidation)."""
+        pos_qty = self.position_mgr.current_position_qty(symbol)
+        if pos_qty <= 0:
+            logger.info(f"No position in {symbol} for forced sell.")
+            return None
+        try:
+            order = self.api.submit_order(
+                symbol=symbol,
+                qty=pos_qty,
+                side="sell",
+                type="market",
+                time_in_force="day",
+            )
+            order_id = order.get("id", "unknown")
+            logger.trade(f"FORCED SELL: {symbol} {pos_qty} shares @ ~${price:.2f} (order_id={order_id})")
+            self.state_mgr.record_trade(symbol, "SELL", pos_qty, price or 0, order_id)
+            return order
+        except Exception as e:
+            logger.error(f"Failed forced SELL for {symbol}: {e}")
+            return None
+
     def run_scan(self) -> int:
         """Run a full scan cycle. Returns number of orders placed."""
         logger.info("-" * 40)
         logger.info("Starting scan cycle")
 
         self.position_mgr.current_equity()
+
+        # ── Step 1: Risk management — auto-sell on stop-loss / overbought ──
+        risk_sells = []
+        if self.risk_mgr:
+            risk_sells = self.risk_mgr.check_and_auto_sell(self)
+            if risk_sells:
+                logger.info(f"Risk auto-sells: {len(risk_sells)} positions closed")
+
+        # Refresh equity after risk sells
+        self.position_mgr.current_equity()
+
+        # ── Step 2: Full technical scan ──
         signals = self.scan_universe()
 
         orders_placed = 0
