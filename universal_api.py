@@ -151,6 +151,7 @@ class UniversalClient:
         self.api_key = api_key or os.environ.get("APCA_API_KEY_ID", "")
         self.api_secret = api_secret or os.environ.get("APCA_API_SECRET_KEY", "")
         self.status = NetworkStatus()
+        self._creds_loaded = False  # track whether we have API credentials
         
         if self.status.best_mode == "none":
             raise RuntimeError("No network capability detected. Check sandbox policy.")
@@ -159,13 +160,26 @@ class UniversalClient:
     
     def _headers(self):
         """Generate auth headers."""
+        headers = {"Accept": "application/json"}
         if self.api_key and self.api_secret:
-            return {
+            headers.update({
                 "APCA-API-KEY-ID": self.api_key,
                 "APCA-API-SECRET-KEY": self.api_secret,
-                "Accept": "application/json",
-            }
-        return {"Accept": "application/json"}
+            })
+        return headers
+    
+    def _has_creds(self):
+        """Check if credentials are loaded."""
+        return bool(self.api_key and self.api_secret)
+    
+    def _require_creds(self, endpoint):
+        """Raise a clear error if credentials are needed but not present."""
+        if not self._has_creds():
+            raise RuntimeError(
+                f"No API credentials for {endpoint}. "
+                "Set APCA_API_KEY_ID and APCA_API_SECRET_KEY env vars, "
+                "or pass key= and secret= to create_alpaca_client()."
+            )
     
     def _curl_cmd(self, endpoint, method="GET", body=None):
         """Build curl command for API call."""
@@ -295,44 +309,88 @@ def create_alpaca_client(key=None, secret=None, paper=True):
                     secret = secret or cfg.get("alpaca", {}).get("secret", "")
     
     if not key or not secret:
-        # Return a client with empty creds — it'll still work for public endpoints
-        return UniversalClient()
+        # Return a client without creds — API calls will raise clear errors
+        client = UniversalClient()
+        client._creds_loaded = False
+        return client
     
     base = "https://paper-api.alpaca.markets" if paper else "https://api.alpaca.markets"
-    return UniversalClient(base_url=base, api_key=key, api_secret=secret)
+    client = UniversalClient(base_url=base, api_key=key, api_secret=secret)
+    client._creds_loaded = True
+    return client
 
 
 if __name__ == "__main__":
-    # Test mode — run diagnostics and show what's available
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Universal API Client — network auto-detection")
+    parser.add_argument(
+        "--auto-detect",
+        action="store_true",
+        help="Run network diagnostics and print capability report (default behavior)"
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Run a live API test (GET /v2/account)"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["requests", "curl", "auto"],
+        default="auto",
+        help="Force HTTP mode (default: auto-detect)"
+    )
+    args = parser.parse_args()
+    
+    # Default behavior: show diagnostics
+    mode_override = args.mode
+    
     print("=" * 50)
-    print("  Universal API Client — Diagnostics")
+    print("  Universal API Client")
     print("=" * 50)
     
     status = NetworkStatus()
     print(status.report())
     print()
     
-    # Try creating an actual client
-    print("\n🔧 Attempting to create client...")
-    try:
-        client = create_alpaca_client()
-        print(f"  Client mode: {client.mode}")
-        print(f"  Status: {client.status.report()}")
-        
-        # Try a test call
-        print("\n📡 Testing API call...")
-        account = client.get_account()
-        if account and isinstance(account, dict):
-            status_val = account.get("status", "UNKNOWN")
-            equity = account.get("equity", 0)
-            print(f"  ✅ Status: {status_val}")
-            print(f"  ✅ Equity: ${equity:,.2f}" if equity else "  ✅ Status: ACTIVE")
-        else:
-            print(f"  Account response: {account}")
-    except Exception as e:
-        print(f"  ⚠️  Could not complete: {e}")
+    best = status.best_mode
     
-    print("\n✅ Universal API Client ready.")
-    print(f"   Mode: {NetworkStatus().best_mode}")
-    print(f"   Use: from universal_api import create_alpaca_client")
-    print(f"        client = create_alpaca_client()")
+    if args.test or args.auto_detect:
+        print(f"\n🔧 Creating client (mode: {best if mode_override == 'auto' else mode_override})...")
+        try:
+            if mode_override != "auto":
+                # Force a specific mode — hack the status object
+                status.requests_works = (mode_override == "requests")
+                status.curl_works = (mode_override == "curl")
+                status.dns_works = False
+                best = mode_override
+            
+            client = create_alpaca_client()
+            # Override mode if forced
+            if mode_override != "auto":
+                client.mode = mode_override
+                client.status = status
+            
+            print(f"  Client mode: {client.mode}")
+            
+            if args.test:
+                print("\n📡 Testing API call...")
+                account = client.get_account()
+                if account and isinstance(account, dict):
+                    status_val = account.get("status", "UNKNOWN")
+                    equity = account.get("equity", 0)
+                    print(f"  ✅ Status: {status_val}")
+                    if equity:
+                        print(f"  ✅ Equity: ${equity:,.2f}")
+                    else:
+                        print(f"  ✅ Account: {status_val}")
+                        print(f"  ✅ Response keys: {list(account.keys())[:5]}")
+                else:
+                    print(f"  Response: {str(account)[:200]}")
+        except Exception as e:
+            print(f"  ⚠️  Failed: {e}")
+            print(f"  Note: may need APCA_API_KEY_ID and APCA_API_SECRET_KEY env vars")
+    
+    print(f"\n✅ Ready. Mode: {best}")
+    print(f"   Import: from universal_api import create_alpaca_client")
+    print(f"   Usage:  client = create_alpaca_client()")
