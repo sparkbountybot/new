@@ -14,20 +14,20 @@
 ## API Capability Map
 
 ### WHAT WORKS via curl subprocess (spark2)
-| Endpoint | Status | Data Available |
-|---|---|---|
-| /v2/account | ✅ | Account info, portfolio value, cash, buying power |
-| /v2/positions | ✅ | All open positions with P&L, entry price, qty |
-| /v2/orders | ✅ | Order history (open, completed, cancelled) |
+|| Endpoint | Status | Data Available |
+||---|---|---|
+|| /v2/account | ✅ | Account info, portfolio value, cash, buying power |
+|| /v2/positions | ✅ | All open positions with P&L, entry price, qty |
+|| /v2/orders | ✅ | Order history (open, completed, cancelled) |
 
 ### WHAT'S BLOCKED
-| Endpoint | Status |
-|---|---|
-| /v2/bars/* | ❌ Not Found |
-| /v2/quotes/* | ❌ Not Found |
-| /v2/last/stocks/* | ❌ Not Found |
-| /v2/bars/{symbol}/* | ❌ Not Found |
-| /v3/bars/* | ❌ endpoint not found |
+|| Endpoint | Status |
+||---|---|
+|| /v2/bars/* | ❌ Not Found |
+|| /v2/quotes/* | ❌ Not Found |
+|| /v2/last/stocks/* | ❌ Not Found |
+|| /v2/bars/{symbol}/* | ❌ Not Found |
+|| /v3/bars/* | ❌ endpoint not found |
 
 ### EXTERNAL DATA — ALL BLOCKED IN SPARK2
 - Yahoo Finance: ❌ (exit code 56)
@@ -143,11 +143,10 @@ openshell policy update spark2 \
 - ✅ System can score decisions 0-10 and update strategy recommendations based on data
 
 ---
-Last updated: 2026-09-02 06:58 UTC
+Last updated: 2026-09-02 15:02 UTC
 
-
-## Recent self-improvement activity (2026-09-02 11:00)
-- **Evolution #9 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
+## Recent self-improvement activity (2026-09-02 15:01)
+- **Evolution #12 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
 - **Experience log:** 10 total | 3 completed | 7 pending
 - **Knowledge base insights:**
   - Trading domain: 100% success rate, avg quality 9.0/10 — continue using
@@ -158,101 +157,13 @@ Last updated: 2026-09-02 06:58 UTC
 - **System status:** 3 evolution strategies tracked (mean_reversion, momentum_breakout, volatility_breakout) — no outcomes yet
 - **New discoveries:** Sync up-to-date; spark3 has email_automation.py framework; 7 trading experiences pending outcome resolution
 
-## Discoveries from cross-sandbox sync (updated 2026-09-02 15:00)
-## spark3 Notes
-
-
-### network_status
-
+## Discoveries from cross-sandbox sync (updated 2026-09-02 15:01)
+### spark3 Notes
 - App Password relayed: depkknmtmxyytohp
 - email_automation.py: Full framework ready
 - Wake-up checklist: Complete with openshell policy commands
+- **Key files:** load_creds.py, swing_trading_engine.py, scripts/email_automation.py
+- **Network status:** spark2 can reach GitHub/PyPI but blocked on Paper/Live API, Gmail, OAuth2; spark3 has working requests + policy v18
 
 ## Experience Log
-- Total: 10 experiences
-- Completed: 3
-- Pending: 7
-## spark3 Notes
-
-
-### key_files
-
-- `load_creds.py` — Loads creds from config.yaml, tests connections
-- `swing_trading_engine.py` — 3 strategies (momentum, mean-reversion, volatility)
-- `scripts/email_automation.py` — Full email framework
-- `.github/shared/decisions.md` — Shared agenda with wake-up checklist
-- `.github/shared/spark2/notes.md` — spark2's workspace notes
-
-### network_status
-
-| Endpoint | spark2 | spark3 |
-|----------|--------|--------|
-| GitHub | ✅ | ✅ |
-| PyPI | ✅ | ? |
-| Paper API | ❌ (blocked) | ✅ (requests) |
-| Live API | ❌ (blocked) | ✅ (policy v18) |
-| Gmail SMTP/IMAP | ❌ (blocked) | ❌ (blocked) |
-| OAuth2 | ❌ (blocked) | ❌ (blocked) |
-| DNS (Python) | ❌ | ❌ |
-| DNS (curl DoH) | ✅ | ? |
-
-## Experience Log
-- Total: 10 experiences
-- Completed: 3
-- Pending: 7
-## spark3 Notes
-
-
-### key_files
-
-- `load_creds.py` — Loads creds from config.yaml, tests connections
-- `swing_trading_engine.py` — 3 strategies (momentum, mean-reversion, volatility)
-- `scripts/email_automation.py` — Full email framework
-- `.github/shared/decisions.md` — Shared agenda with wake-up checklist
-- `.github/shared/spark2/notes.md` — spark2's workspace notes
-
-### network_status
-
-| Endpoint | spark2 | spark3 |
-|----------|--------|--------|
-| GitHub | ✅ | ✅ |
-| PyPI | ✅ | ? |
-| Paper API | ❌ (blocked) | ✅ (requests) |
-| Live API | ❌ (blocked) | ✅ (policy v18) |
-| Gmail SMTP/IMAP | ❌ (blocked) | ❌ (blocked) |
-| OAuth2 | ❌ (blocked) | ❌ (blocked) |
-| DNS (Python) | ❌ | ❌ |
-| DNS (curl DoH) | ✅ | ? |
-
-## Experience Log
-- Total: 10 experiences
-- Completed: 3
-- Pending: 7
-## spark3 Notes
-
-
-### key_files
-
-- `load_creds.py` — Loads creds from config.yaml, tests connections
-- `swing_trading_engine.py` — 3 strategies (momentum, mean-reversion, volatility)
-- `scripts/email_automation.py` — Full email framework
-- `.github/shared/decisions.md` — Shared agenda with wake-up checklist
-- `.github/shared/spark2/notes.md` — spark2's workspace notes
-
-### network_status
-
-| Endpoint | spark2 | spark3 |
-|----------|--------|--------|
-| GitHub | ✅ | ✅ |
-| PyPI | ✅ | ? |
-| Paper API | ❌ (blocked) | ✅ (requests) |
-| Live API | ❌ (blocked) | ✅ (policy v18) |
-| Gmail SMTP/IMAP | ❌ (blocked) | ❌ (blocked) |
-| OAuth2 | ❌ (blocked) | ❌ (blocked) |
-| DNS (Python) | ❌ | ❌ |
-| DNS (curl DoH) | ✅ | ? |
-
-## Experience Log
-- Total: 10 experiences
-- Completed: 3
-- Pending: 7
+- Total: 10 | Completed: 3 | Pending: 7
