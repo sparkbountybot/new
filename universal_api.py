@@ -295,24 +295,32 @@ def create_alpaca_client(key=None, secret=None, paper=True):
     Auto-detects credentials from environment or config file.
     """
     if not key or not secret:
-        # Try to load from environment
-        key = os.environ.get("APCA_API_KEY_ID", "")
-        secret = os.environ.get("APCA_API_SECRET_KEY", "")
-        
-        if not key or not secret:
-            # Try config file
-            config_path = Path(__file__).parent / "config.json"
-            if config_path.exists():
-                with open(config_path) as f:
-                    cfg = json.load(f)
-                    key = key or cfg.get("alpaca", {}).get("key", "")
-                    secret = secret or cfg.get("alpaca", {}).get("secret", "")
+        # Try config.yaml (where credentials are stored at [trading] section)
+        config_yaml = Path(__file__).parent / "config.yaml"
+        if config_yaml.exists():
+            try:
+                import yaml as _yaml
+                with open(config_yaml) as _f:
+                    cfg = _yaml.safe_load(_f) or {}
+                    trading = cfg.get("trading", {})
+                    if trading.get("alpaca_api_key"):
+                        key = key or trading["alpaca_api_key"]
+                        secret = secret or trading["alpaca_secret_key"]
+            except Exception as e:
+                print(f"  Warning: could not load config.yaml: {e}")
+    
+    # Also try environment variables
+    if not key or not secret:
+        key = key or os.environ.get("APCA_API_KEY_ID", "")
+        secret = secret or os.environ.get("APCA_API_SECRET_KEY", "")
     
     if not key or not secret:
-        # Return a client without creds — API calls will raise clear errors
-        client = UniversalClient()
-        client._creds_loaded = False
-        return client
+        raise RuntimeError(
+            "No Alpaca API credentials found. Set either:\n"
+            "  1. config.yaml [trading].alpaca_api_key / alpaca_secret_key\n"
+            "  2. Environment variables: APCA_API_KEY_ID + APCA_API_SECRET_KEY\n"
+            "  3. Or pass directly: create_alpaca_client(key='...', secret='...')"
+        )
     
     base = "https://paper-api.alpaca.markets" if paper else "https://api.alpaca.markets"
     client = UniversalClient(base_url=base, api_key=key, api_secret=secret)
@@ -327,6 +335,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--auto-detect",
         action="store_true",
+        default=True,  # show diagnostics by default
         help="Run network diagnostics and print capability report (default behavior)"
     )
     parser.add_argument(
@@ -342,7 +351,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     
-    # Default behavior: show diagnostics
     mode_override = args.mode
     
     print("=" * 50)
@@ -375,21 +383,38 @@ if __name__ == "__main__":
             
             if args.test:
                 print("\n📡 Testing API call...")
-                account = client.get_account()
-                if account and isinstance(account, dict):
-                    status_val = account.get("status", "UNKNOWN")
-                    equity = account.get("equity", 0)
-                    print(f"  ✅ Status: {status_val}")
-                    if equity:
-                        print(f"  ✅ Equity: ${equity:,.2f}")
+                try:
+                    account = client.get_account()
+                    if account and isinstance(account, dict):
+                        status_val = account.get("status", "UNKNOWN")
+                        equity = account.get("equity", 0)
+                        cash = account.get("cash", 0)
+                        bp = account.get("buying_power", 0)
+                        print(f"  ✅ Status: {status_val}")
+                        try:
+                            if equity: print(f"  ✅ Equity: ${float(equity):,.2f}")
+                        except: print(f"  ✅ Equity: {equity}")
+                        try:
+                            if cash: print(f"  ✅ Cash: ${float(cash):,.2f}")
+                        except: print(f"  ✅ Cash: {cash}")
+                        print(f"  ✅ ID: {account.get('id', 'N/A')}")
+                        try:
+                            if bp: print(f"  ✅ Buying Power: ${float(bp):,.2f}")
+                        except: print(f"  ✅ Buying Power: {bp}")
                     else:
-                        print(f"  ✅ Account: {status_val}")
-                        print(f"  ✅ Response keys: {list(account.keys())[:5]}")
+                        print(f"  Response: {str(account)[:200]}")
+                except Exception as e:
+                    print(f"  ❌ API call failed: {e}")
+                    print(f"     (This is expected if credentials are missing from config.yaml)")
+            else:
+                if client._has_creds():
+                    print(f"  ✅ Credentials loaded from config.yaml")
                 else:
-                    print(f"  Response: {str(account)[:200]}")
+                    print(f"  ⚠️  No credentials loaded — credentials should be in config.yaml [trading] section")
+        except RuntimeError as e:
+            print(f"  ❌ {e}")
         except Exception as e:
-            print(f"  ⚠️  Failed: {e}")
-            print(f"  Note: may need APCA_API_KEY_ID and APCA_API_SECRET_KEY env vars")
+            print(f"  ⚠️  Unexpected error: {e}")
     
     print(f"\n✅ Ready. Mode: {best}")
     print(f"   Import: from universal_api import create_alpaca_client")
