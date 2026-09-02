@@ -88,5 +88,14 @@
 3. **Then:** Configure email client
 4. **Then:** Build trading/bounty tools that work in both sandboxes
 
+## Discoveries since last sync (2026-09-02 04:00 Evolution Cycle #4)
+- Evolution engine completed 4th cycle: analyzed 10 experiences across 2 domains (trading, network_fix), synthesized 14 insights
+- 10 experiences logged in experience_log.json: 8 trading trades (all pending outcomes), 1 successful backtest (score 10/10), 1 failed API test (score 2/10)
+- Knowledge base shows: trading domain 100% success (9.0/10 avg), network_fix 50% success (6.0/10 avg)
+- 3 strategies tracked (mean_reversion, momentum_breakout, volatility_breakout) — all at 0% completion because pending trades haven't resolved yet
+- 7 of 10 experiences still pending outcome verification (the synthetic backtest trades: MSFT, TSLA, AMZN, META, JPM, V, JNJ)
+- Universal API Client remains the highest-value discovery (score 10/10) — bridges spark2/spark3 network gaps
+- Key blocker remains: new API credentials AKIPFQ... rejected with 401 on all endpoints; old credentials still functional
+
 ---
 Last updated: 2026-09-02 06:15 UTC
