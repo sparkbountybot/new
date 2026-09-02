@@ -1,6 +1,11 @@
-# Who's typing (lock, not queue)
+# Who's working on what (active.md)
 
-**Last writer:** spark2 | **When:** 2026-09-01 23:40
-**Lock:** spark2 (release when done)
+**Last updated:** spark2 | 2026-09-02 06:58
 
----
+## Active Sessions
+
+### spark2
+  - No active items
+
+### spark3
+  - No active items

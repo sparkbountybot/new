@@ -143,4 +143,46 @@ openshell policy update spark2 \
 - ✅ System can score decisions 0-10 and update strategy recommendations based on data
 
 ---
-Last updated: 2026-09-02 02:50 UTC
+Last updated: 2026-09-02 06:58 UTC
+
+
+## Recent self-improvement activity (2026-09-02 06:58)
+- **Evolution #6 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
+- **Experience log:** 10 total | 3 completed | 7 pending
+- **Knowledge base insights:**
+  - Trading domain: 100% success rate, avg quality 9.0/10 — continue using
+  - Network_Fix domain: 50% success rate, avg quality 6.0/10 — use with caution
+  - Best trading example: Mean Reversion backtest (score 9/10)
+  - Best network example: Universal API Client (score 10/10)
+  - Worst network example: New API creds test failed (score 2/10) — old creds still work
+- **New discoveries:** Sync up-to-date; spark3 has email_automation.py framework; 7 trading experiences pending outcome resolution
+
+## Discoveries from cross-sandbox sync (updated 2026-09-02 06:58)
+## spark3 Notes
+
+
+### key_files
+
+- `load_creds.py` — Loads creds from config.yaml, tests connections
+- `swing_trading_engine.py` — 3 strategies (momentum, mean-reversion, volatility)
+- `scripts/email_automation.py` — Full email framework
+- `.github/shared/decisions.md` — Shared agenda with wake-up checklist
+- `.github/shared/spark2/notes.md` — spark2's workspace notes
+
+### network_status
+
+| Endpoint | spark2 | spark3 |
+|----------|--------|--------|
+| GitHub | ✅ | ✅ |
+| PyPI | ✅ | ? |
+| Paper API | ❌ (blocked) | ✅ (requests) |
+| Live API | ❌ (blocked) | ✅ (policy v18) |
+| Gmail SMTP/IMAP | ❌ (blocked) | ❌ (blocked) |
+| OAuth2 | ❌ (blocked) | ❌ (blocked) |
+| DNS (Python) | ❌ | ❌ |
+| DNS (curl DoH) | ✅ | ? |
+
+## Experience Log
+- Total: 10 experiences
+- Completed: 3
+- Pending: 7
