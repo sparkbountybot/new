@@ -250,8 +250,8 @@ def execute_trades(signals, client):
 
 if __name__ == '__main__':
     # Set up credentials from environment
-    api_key = os.getenv('ALPACA_API_KEY_ID', 'PKYKHN5LV53HDV2GXRSDA6WJM6')
-    api_secret = os.getenv('APCA_API_SECRET_KEY', 'tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK')
+    api_key = os.getenv('ALPACA_API_KEY_ID', 'AK6TOIZODZDJFFZUIK7Z5JKMK5')
+    api_secret = os.getenv('APCA_API_SECRET_KEY', 'FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT')
     
     print("🚀 After-Hours Trading Engine (Universal API version)")
     print(f"  Portfolio: $115,567.70 (real account)")

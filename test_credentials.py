@@ -11,8 +11,8 @@ credentials = {
         "secret": "6FwEs2MeazDCfuT9mFGdbcTzTtWz7THiWsZxd6FwWQkD",
     },
     "Paper (working)": {
-        "key": "PKYKHN5LV53HDV2GXRSDA6WJM6",
-        "secret": "tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK",
+        "key": "AK6TOIZODZDJFFZUIK7Z5JKMK5",
+        "secret": "FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT",
     }
 }
 

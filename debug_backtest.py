@@ -13,8 +13,8 @@ from strategies import MomentumStrategy, MeanReversionStrategy, VolatilityBreako
 
 # Test fetching data for one stock
 symbol = "AAPL"
-api_key = "PKYKHN5LV53HDV2GXRSDA6WJM6"
-api_secret = "tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK"
+api_key = "AK6TOIZODZDJFFZUIK7Z5JKMK5"
+api_secret = "FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT"
 base_url = "paper-api.alpaca.markets"
 
 end = datetime.utcnow().strftime('%Y-%m-%d')

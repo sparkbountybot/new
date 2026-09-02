@@ -8,8 +8,8 @@ from bountybot.paper_trader import PaperTrader
 
 def curl_api(endpoint, headers=None):
     """Make API call using curl subprocess."""
-    api_key = 'PKYKHN5LV53HDV2GXRSDA6WJM6'
-    secret = 'tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK'
+    api_key = 'AK6TOIZODZDJFFZUIK7Z5JKMK5'
+    secret = 'FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT'
     
     cmd = ['curl', '-s', '--max-time', '5', '-X', 'GET',
            '-H', f'APCA-API-KEY-ID: {api_key}',

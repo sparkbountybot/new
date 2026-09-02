@@ -112,8 +112,8 @@ print("\n=== Current Paper Account State ===")
 def curl_alpaca(path):
     url = f'https://paper-api.alpaca.markets{path}'
     cmd = (f'curl -s --max-time 5 "{url}" '
-           f'-H "APCA-API-KEY-ID: PKYKHN5LV53HDV2GXRSDA6WJM6" '
-           f'-H "APCA-API-SECRET-KEY: tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK"')
+           f'-H "APCA-API-KEY-ID: AK6TOIZODZDJFFZUIK7Z5JKMK5" '
+           f'-H "APCA-API-SECRET-KEY: FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT"')
     result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
     return result.stdout
 

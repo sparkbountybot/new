@@ -7,8 +7,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from strategies import MeanReversionStrategy, Bar
 
 # === CONFIG ===
-API_KEY = os.environ.get("ALPACA_API_KEY_ID", "PKYKHN5LV53HDV2GXRSDA6WJM6")
-API_SECRET = os.environ.get("ALPACA_API_SECRET_KEY", "tzU24QxdnsugiCB5DUWb5bMZdVifBY5rfEhr2by4DiK")
+API_KEY = os.environ.get("ALPACA_API_KEY_ID", "AK6TOIZODZDJFFZUIK7Z5JKMK5")
+API_SECRET = os.environ.get("ALPACA_API_SECRET_KEY", "FHwvbFAXJSkCWNmwBj1E1DTKfE9F8vz8hXrj6rRcGMLT")
 BASE_URL = "paper-api.alpaca.markets"
 WATCHLIST = ["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "META", "GOOGL", "JPM", "V", "JNJ"]
 RISK_PER_TRADE = 0.12  # 12% of equity per trade
