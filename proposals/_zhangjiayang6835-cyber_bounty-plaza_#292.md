@@ -31,4 +31,4 @@ sparkbountybot
 
 ---
 
-Email: jdjioe5@gmail.com, u003ejdjioe5@gmail.com
+Email: jdjioe5@gmail.com
