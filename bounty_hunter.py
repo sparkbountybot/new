@@ -544,6 +544,37 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
     print(f"  📁 Drafts saved to: {PROPOSALS_DIR}/")
     print("=" * 70)
 
+    # ---- FORMATTED ALERT SUMMARY (for cron delivery) ----
+    from datetime import datetime as dt_now
+    now_str = dt_now.now().strftime("%Y-%m-%d %H:%M")
+    print(f"\n🎯 BOUNTY HUNT RESULTS — {now_str}")
+    print("=" * 50)
+    print(f"Found: {len(all_issues)} bounties | "
+          f"Drafts: {len(proposals)} proposals | "
+          f"Emails sent: {len(sent)}")
+    print()
+
+    top5 = proposals[:5]
+    for i, p in enumerate(top5, 1):
+        reward_str = f"${p['reward']}" if p['reward'] > 0 else "As listed"
+        print(f"{i}. {p['repo'].split('/')[-1] if '/' in p['repo'] else p['repo']}"
+              f" / #{p['issue']} — {reward_str}")
+        print(f"   Title: {p['title'][:80]}")
+        print(f"   Why: {', '.join(p['reasons'][:2])}")
+        print(f"   URL: {p['url']}")
+        print()
+
+    if sent:
+        print(f"✅ Emails sent: {len(sent)}")
+        for s in sent:
+            print(f"   → {s}")
+    else:
+        print("❌ Emails sent: 0 (SMTP blocked by sandbox proxy)")
+        print("   Drafts saved to /sandbox/new/data/proposals/")
+
+    print()
+    print("=" * 50)
+
     # Save full results
     results = {
         'timestamp': timestamp,
