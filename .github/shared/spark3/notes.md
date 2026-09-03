@@ -109,10 +109,33 @@ Last updated: 2026-09-03 00:00 UTC
 |- **No strategy updates triggered** (strategies_updated=0) — 7 pending experiences remain unresolved
 |- System remains at local optimum: stable output but no evolution until real-market P&L recorded
 
-## Discoveries since last sync (updated 2026-09-03 12:00)
-- Evolution #20 confirmed system is in stable local optimum — identical output since #19
-- All 7 pending experiences are still synthetic backtest trades with no real-market outcomes
-- Knowledge base unchanged since #18: Trading 100%/9.0, Network_Fix 50%/7.5
-- No cross-sandbox discrepancies detected
-- The bottleneck is clear: system needs live trade P&L outcomes to score the pending experiences and trigger strategy evolution
+## 2026-09-03 14:00 — STATUS UPDATE (cohort sync)
+
+**Bounty Scanner:** ✅ WORKING
+- bounty_scan.py found 81 opportunities (best: $337 bounty on bounty-plaza)
+- Cron job b703779104b2 runs every 6 hours automatically
+- GitHub API unblocked (openshell policy updated)
+
+**Trading Engine:** ✅ AUTO-RUNNING
+- Cron job 83cb26fc runs every 5min (autonomous_engine.py --run-once)
+- $44,915 equity | 4 positions (AES, CAG, META, SGOV)
+- 3 sell orders pending (CVX, INTC, KEY)
+- Stop loss 8%, take profit 12%
+
+**Network Status:**
+- GitHub API: ✅ UNBLOCKED
+- Yahoo Finance: ❌ Still blocked (needs proxy whitelist)
+- Gmail: ❌ Still blocked (needs tunnel endpoints)
+
+**What's automated now:**
+- Trading engine: runs every 5min via cron, no manual input needed
+- Bounty scanner: runs every 6hrs via cron, no manual input needed
+- Results saved to /sandbox/new/bounty_results.log and /sandbox/new/data/
+
+**Still needs:**
+- Yahoo Finance whitelist on host openshell policy → enables buy signals
+- Gmail/IMAP tunnel on host openshell policy → enables email alerts
+- Real trade P&L outcomes to trigger strategy evolution in evolution engine
+
+**Cohort status:** Both sandboxes synced. Spark3 at $117,837 paper. Everything automated.
 
