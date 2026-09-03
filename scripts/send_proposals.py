@@ -188,8 +188,9 @@ def main():
 
     if failed:
         print("\n❌ Failed to send:")
-        for f in failed:
-            print(f"   → {f['email']}: {f.get('message', 'Unknown error')}")
+        for item in failed:
+            email = item.get('email', 'N/A')
+            print(f"   → {email}: {item.get('message', 'Unknown error')}")
 
     # Return appropriate exit code
     if sent and not failed:

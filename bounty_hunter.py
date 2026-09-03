@@ -53,10 +53,33 @@ def extract_reward(text):
         except:
             pass
     return max_amount
-
 def extract_emails(text):
+    """Extract email addresses from text, decoding HTML entities first"""
+    import html as html_module
+    # First decode HTML entities (like &#x3C; -> <, &#x3E; -> >)
+    text = html_module.unescape(text)
+    # Also handle numeric character references like &#60; -> <
+    text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), text)
+    # Handle hex character references like &#x3C; -> < (already handled by unescape, but just in case)
+    text = re.sub(r'&#x([0-9a-fA-F]+);', lambda m: chr(int(m.group(1), 16)), text)
+    # Remove any remaining entity-like artifacts that might prefix emails
+    # GitHub sometimes encodes as u003e (hex 3E = >)
+    text = re.sub(r'\bu003(?:[eE])\b', '', text)
+    text = re.sub(r'\bu003e([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', r'\1', text)
+    # Extract emails - be more permissive initially
     emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
-    return list(set(emails))
+    # Clean up: remove any HTML artifacts that might have slipped through
+    clean_emails = []
+    for email in emails:
+        email = email.strip('<>&"\'')
+        # Remove any non-ASCII characters
+        email = re.sub(r'[^\x20-\x7E]', '', email)
+        # Filter out emails that look like entity artifacts (e.g., u003e prefix)
+        if re.match(r'^u\d{4,}', email):
+            continue
+        if email and '@' in email:
+            clean_emails.append(email)
+    return list(dict.fromkeys(clean_emails))  # unique, preserving order
 
 def parse_search_results(html):
     issues = []
