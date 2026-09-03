@@ -487,47 +487,32 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
 
     print()
 
-    # Phase 4: Try to send emails
-    print("[4/4] Attempting to send emails...")
+    # Phase 4: Output full proposals (email blocked by proxy, cron delivery is primary)
+    print("[4/4] Generating proposals (email blocked by proxy — outputting to alert)...")
+
+    # Build the alert message that includes full proposal text
+    # This is what gets delivered via cron to your chat
+    alert_lines = []
+
+    for i, prop in enumerate(proposals[:5]):  # Top 5 only
+        alert_lines.append(f"\n=== PROPOSAL #{i+1}: {prop['title'][:60]} ===")
+        alert_lines.append(f"Repo: {prop['repo']}/{prop['issue']}")
+        alert_lines.append(f"Reward: ${prop['reward']}" if prop['reward'] else "Reward: As listed")
+        alert_lines.append(f"Score: {prop['score']} | Reason: {', '.join(prop['reasons'][:3])}")
+        alert_lines.append(f"\n--- Full Proposal Text ---\n")
+        alert_lines.append(prop['email_body'])
+        alert_lines.append(f"\n--- End Proposal ---")
+        alert_lines.append(f"\nProposal file: {prop['file']}")
+
+    alert_text = "\n".join(alert_lines)
+
     sent = []
     failed = []
-
-    try:
-        app_password = open('/sandbox/new/.env').read()
-        for line in app_password.splitlines():
-            if line.startswith('GMAIL_APP_PASSWORD='):
-                app_password = line.split('=', 1)[1].strip()
-                break
-    except:
-        app_password = None
-
-    if app_password:
-        print(f"  Gmail App Password found — attempting to send emails...")
-        for prop in proposals[:3]:  # Top 3 only
-            if not prop['email_to']:
-                failed.append(f"{prop['repo']}/#{prop['issue']}: No email found")
-                continue
-
-            to_email = prop['email_to'][0]
-            success, msg = send_email(
-                'smtp.gmail.com', 587,
-                FROM_EMAIL, app_password,
-                prop['email_subject'], prop['email_body'],
-                to_email
-            )
-
-            if success:
-                sent.append(f"{prop['repo']}/#{prop['issue']} → {to_email}")
-                prop['sent'] = True
-            else:
-                failed.append(f"{prop['repo']}/#{prop['issue']}: {msg}")
-                prop['sent'] = False
-                prop['email_error'] = msg
-    else:
-        print("  No Gmail App Password — saving emails as drafts only")
-        for prop in proposals:
-            prop['sent'] = False
-
+    for p in proposals:
+        p['sent'] = False
+    print(f"  Drafts: {len(proposals)} proposals saved")
+    print(f"  📧 Email: blocked by sandbox proxy (all SMTP/Gmail/SendGrid blocked)")
+    print(f"  📨 Primary delivery: cron alert with full proposal text below")
     print()
 
     # Summary
@@ -574,6 +559,12 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
 
     print()
     print("=" * 50)
+
+    # Full proposal text for top bounties (delivered via cron)
+    if alert_text:
+        print(f"\n📨 FULL PROPOSALS (top 5)\n{'='*50}")
+        print(alert_text)
+        print("\n" + "="*50)
 
     # Save full results
     results = {

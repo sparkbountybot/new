@@ -31,4 +31,4 @@ sparkbountybot
 
 ---
 
-Email: u003cdh8939693@gmail.com, dh8939693@gmail.com
+Email: dh8939693@gmail.com, u003cdh8939693@gmail.com
