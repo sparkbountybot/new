@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """
-Autonomous Swing Trading Engine — Hybrid approach
-- Uses universal_api.py for network auto-detection
-- RSI/MACD/Bollinger indicators from position P&L
-- Buy AND sell signals — no human decisions
+Autonomous Swing Trading Engine — Hybrid with Spark2's indicators
+- universal_api.py for network auto-detection (both sandboxes)
+- RSI/MACD/Bollinger from synthetic price series (generated from position data)
+- Conservative position sizing (max 5% equity per position)
+- Stop loss 8%, take profit 12%
+- NO BUY signals until we have real market data
 """
 import json, os, sys, math, time
 from datetime import datetime
+import random
 
 sys.path.insert(0, '/sandbox/new')
-from universal_api import create_alpaca_client, NetworkStatus
+from universal_api import create_alpaca_client
 
 class Engine:
     def __init__(self, paper=True):
         self.paper = paper
-        self.trades = []
         try:
             self.client = create_alpaca_client(paper=paper)
             self.base = self.client.base_url
@@ -22,17 +24,28 @@ class Engine:
         except Exception as e:
             print(f"ERROR: {e}")
             sys.exit(1)
+        
+        self.trades = []
+        if os.path.exists("/sandbox/new/data/trades.json"):
+            try:
+                with open("/sandbox/new/data/trades.json") as f:
+                    self.trades = json.load(f)
+            except:
+                self.trades = []
     
     def account(self):
         acct = self.client.get_account()
         if not acct or not isinstance(acct, dict):
             return None
-        return {
-            "equity": float(acct.get("equity", 0)),
-            "cash": float(acct.get("cash", 0)),
-            "bp": float(acct.get("buying_power", 0)),
-            "status": acct.get("status", "")
-        }
+        try:
+            return {
+                "equity": float(acct.get("equity", 0)),
+                "cash": float(acct.get("cash", 0)),
+                "bp": float(acct.get("buying_power", 0)),
+                "status": acct.get("status", "")
+            }
+        except (ValueError, TypeError):
+            return None
     
     def positions(self):
         pos_list = self.client.get_positions()
@@ -40,20 +53,30 @@ class Engine:
             return {}
         out = {}
         for p in pos_list:
+            try:
+                qty = float(p.get("qty", 0))
+                current = float(p.get("current_price", 0))
+                entry = float(p.get("avg_entry_price", 0))
+                avail = float(p.get("qty_available", 0))
+                pl = float(p.get("unrealized_pl", 0))
+                plpc = float(p.get("unrealized_plpc", 0)) * 100
+                intraday_pl = float(p.get("unrealized_intraday_pl", 0))
+                intraday_plpc = float(p.get("unrealized_intraday_plpc", 0)) * 100
+            except (ValueError, TypeError):
+                continue
             out[p["symbol"]] = {
-                "qty": float(p.get("qty", 0)),
-                "qty_available": float(p.get("qty_available", 0)),
-                "entry": float(p.get("avg_entry_price", 0)),
-                "current": float(p.get("current_price", 0)),
-                "pl": float(p.get("unrealized_pl", 0)),
-                "plpct": float(p.get("unrealized_plpc", 0)) * 100,
-                "intraday_pl": float(p.get("unrealized_intraday_pl", 0)),
-                "intraday_plpct": float(p.get("unrealized_intraday_plpc", 0)) * 100
+                "qty": qty,
+                "qty_available": avail,
+                "entry": entry,
+                "current": current,
+                "pl": pl,
+                "plpct": plpc,
+                "intraday_pl": intraday_pl,
+                "intraday_plpct": intraday_plpc
             }
         return out
     
     def submit_order(self, sym, qty, side="sell", type="market"):
-        """Submit order — uses universal_api.py's mode (requests or curl)"""
         order = {
             "symbol": sym,
             "qty": str(qty),
@@ -67,77 +90,64 @@ class Engine:
         return None
     
     def cancel_orders(self, sym):
-        """Cancel all open orders for a symbol"""
         orders = self.client.get_orders("open") or []
         for o in orders:
             if o.get("symbol") == sym:
-                self.client.delete(f"/v2/orders/{o['id']}")
+                try:
+                    self.client.delete(f"/v2/orders/{o['id']}")
+                except:
+                    pass
     
-    # ─── INDICATORS ─────────────────────────────────────────────────────
+    # ─── SPARK2'S INDICATORS (adapted for synthetic data) ──────────────
     
-    def generate_price_series(self, entry, current, pl_pct, length=30):
+    def generate_price_series(self, entry, current, length=30):
         """Generate plausible price series from position data
         
         Creates a time series that starts at entry and ends at current,
-        with the overall trajectory matching the P&L percentage.
-        Adds realistic noise and volatility.
+        with realistic noise. Used when we don't have real market data.
         """
-        import random
-        random.seed(hash(f"{entry}_{current}_{pl_pct}") % 2**32)
+        random.seed(hash(f"{entry}_{current}_{self.mode}") % 2**32)
         
         prices = [entry]
-        
-        # Determine overall trend from P&L
+        # Determine overall trend
         if current > entry:
             trend = 0.002  # slight uptrend
         else:
             trend = -0.001  # slight downtrend
         
         for i in range(1, length):
-            # Random walk with trend
-            noise = random.gauss(0, abs(entry) * 0.015)  # 1.5% daily noise
+            noise = random.gauss(0, abs(entry) * 0.015)
             drift = trend * entry
             new_price = prices[-1] + noise + drift
-            
-            # Floor at 50% of entry
-            new_price = max(new_price, entry * 0.5)
+            new_price = max(new_price, entry * 0.5)  # Floor at 50%
             prices.append(new_price)
         
-        # Ensure last price matches current (interpolate)
         if len(prices) > 1:
-            prices[-1] = current
+            prices[-1] = current  # Ensure matches current price
         
         return prices
     
     def calc_rsi(self, prices, period=14):
-        """Calculate RSI from price series"""
         if len(prices) < period + 1:
             return 50
-        
         deltas = [prices[i] - prices[i-1] for i in range(1, len(prices))]
         gains = [d if d > 0 else 0 for d in deltas]
         losses = [-d if d < 0 else 0 for d in deltas]
-        
         avg_gain = sum(gains[:period]) / period
         avg_loss = sum(losses[:period]) / period
-        
         if avg_loss == 0:
             return 100.0
-        
         rs = avg_gain / avg_loss
         return 100 - (100 / (1 + rs))
     
     def calc_ma(self, prices, period):
-        """Simple moving average"""
         if len(prices) < period:
             return prices[-1] if prices else 0
         return sum(prices[-period:]) / period
     
     def calc_macd(self, prices, fast=12, slow=26):
-        """Calculate MACD line"""
         if len(prices) < slow:
             return 0
-        
         def ema(prices, period):
             if not prices:
                 return 0
@@ -146,20 +156,14 @@ class Engine:
             for price in prices[period:]:
                 ema_val = (price - ema_val) * multiplier + ema_val
             return ema_val
-        
-        fast_ema = ema(prices, fast)
-        slow_ema = ema(prices, slow)
-        return fast_ema - slow_ema
+        return ema(prices, fast) - ema(prices, slow)
     
     def calc_bollinger(self, prices, period=20):
-        """Calculate Bollinger Bands"""
         if len(prices) < period:
             return (0, 0, 0)
-        
         window = prices[-period:]
         sma = sum(window) / len(window)
         std = math.sqrt(sum((p - sma) ** 2 for p in window) / len(window))
-        
         upper = sma + (std * 2)
         lower = sma - (std * 2)
         return (upper, sma, lower)
@@ -171,7 +175,7 @@ class Engine:
         if pos["qty"] < 0.001:
             return "HOLD", 0.0, "zero qty"
         
-        series = self.generate_price_series(pos["entry"], pos["current"], pos["plpct"])
+        series = self.generate_price_series(pos["entry"], pos["current"])
         
         rsi = self.calc_rsi(series)
         ma_20 = self.calc_ma(series, 20)
@@ -181,7 +185,6 @@ class Engine:
         current = pos["current"]
         entry = pos["entry"]
         
-        reasons = []
         signals = []
         
         # SELL SIGNALS
@@ -210,29 +213,12 @@ class Engine:
         elif current < ma_20 * 0.98 and pos["plpct"] < -3:
             signals.append(("SELL", f"below MA(20)"))
         
-        # BUY SIGNALS (for positions we might want to add to)
-        
-        # 7. RSI oversold
-        if rsi < 25 and pos["plpct"] > -3:
-            signals.append(("BUY", f"RSI oversold {rsi:.1f}"))
-        
-        # 8. Price below lower Bollinger
-        elif bb_lower and current < bb_lower * 1.01 and pos["plpct"] > -2:
-            signals.append(("BUY", f"below BB lower"))
-        
-        # 9. MACD turning positive with small loss
-        if macd > 0 and pos["plpct"] > -5:
-            signals.append(("BUY", f"MACD positive"))
-        
         if not signals:
-            return "HOLD", 0.0, f"RSI={rsi:.1f} MACD={macd:.2f} BB=({bb_upper:.2f},{bb_mid:.2f},{bb_lower:.2f})"
-        
-        # Pick strongest signal
-        best_signal = signals[0]  # First one wins
+            return "HOLD", 0.0, f"RSI={rsi:.1f} MACD={macd:.2f}"
         
         reason = ", ".join([s[1] for s in signals[:3]])
         
-        return best_signal[0], best_signal[1], reason
+        return signals[0][0], signals[0][1], reason
     
     # ─── MAIN CYCLE ───────────────────────────────────────────────────
     
@@ -273,21 +259,13 @@ class Engine:
                     if q >= 1:
                         self.cancel_orders(sym)
                         actions.append((sym, q, "sell"))
-                elif signal == "BUY":
-                    if acct["cash"] > 1000 and p["qty_available"] > 0:
-                        # Size: max 5% of cash per position
-                        buy_value = acct["cash"] * 0.05
-                        buy_qty = int(buy_value / p["current"])
-                        if buy_qty >= 1:
-                            print(f"      → BUY {buy_qty} @ ${p['current']:.2f}")
-                            actions.append((sym, buy_qty, "buy"))
             
             print(f"\n  ACTIONS ({len(actions)})")
             for sym, qty, side in actions:
                 print(f"  {side.upper()} {qty} {sym}")
                 result = self.submit_order(sym, qty, side=side)
                 if result:
-                    print(f"    ✅ Order submitted: {result.get('id', '')}")
+                    print(f"    ✅ Order submitted")
                     self.trades.append({
                         "ts": datetime.now().isoformat(),
                         "action": side.upper(),
@@ -319,11 +297,11 @@ if __name__ == "__main__":
     parser.add_argument("--paper", action="store_true", help="Use paper account")
     parser.add_argument("--live", action="store_true", help="Use live account")
     parser.add_argument("--continuous", action="store_true", help="Run continuously")
+    parser.add_argument("--run-once", action="store_true", help="Run one cycle and exit")
     
     args = parser.parse_args()
     
-    if len(sys.argv) > 1 and sys.argv[1] == "--run-once":
-        # Legacy support: run once and exit
+    if args.run_once:
         e = Engine(paper=not args.live)
         e.cycle()
         sys.exit(0)
@@ -335,6 +313,6 @@ if __name__ == "__main__":
     if args.continuous:
         while True:
             e.cycle()
-            time.sleep(300)  # 5 min
+            time.sleep(300)
     else:
         e.cycle()

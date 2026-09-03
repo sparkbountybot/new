@@ -1,16 +1,9 @@
 [
   {
-    "ts": "2026-09-03T15:46:54.081411",
-    "action": "BUY",
-    "symbol": "NVDA",
-    "qty": 14,
-    "mode": "PAPER"
-  },
-  {
-    "ts": "2026-09-03T15:46:54.368001",
-    "action": "BUY",
+    "ts": "2026-09-03T15:51:15.549779",
+    "action": "SELL",
     "symbol": "TSLA",
-    "qty": 8,
+    "qty": 76,
     "mode": "PAPER"
   }
 ]

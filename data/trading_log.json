@@ -170,3 +170,14 @@
 [2026-09-03 15:45:28] [INFO]   NVDA: 128 @ $227.52 (P&L: $+1387.17)
 [2026-09-03 15:45:28] [INFO]   TSLA: 68 @ $381.50 (P&L: $+1670.21)
 [2026-09-03 15:45:28] [INFO] State saved. Done.
+[2026-09-03 15:50:27] [INFO] TRADE CYCLE START — PAPER — 2026-09-03 15:50:27
+[2026-09-03 15:50:27] [INFO] Account: $122,726.98 equity | $393,893.84 BP | Status: ACTIVE
+[2026-09-03 15:50:28] [INFO] Cycle complete — 2 open positions
+[2026-09-03 15:50:28] [INFO]   NVDA: 142 @ $227.38 (P&L: $+1369.34)
+[2026-09-03 15:50:28] [INFO]   TSLA: 76 @ $383.31 (P&L: $+1803.65)
+[2026-09-03 15:50:28] [INFO] State saved. Done.
+[2026-09-03 15:55:28] [INFO] TRADE CYCLE START — PAPER — 2026-09-03 15:55:28
+[2026-09-03 15:55:28] [INFO] Account: $122,672.19 equity | $451,914.24 BP | Status: ACTIVE
+[2026-09-03 15:55:30] [INFO] Cycle complete — 1 open positions
+[2026-09-03 15:55:30] [INFO]   NVDA: 142 @ $227.57 (P&L: $+1395.62)
+[2026-09-03 15:55:30] [INFO] State saved. Done.
