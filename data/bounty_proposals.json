@@ -1,0 +1,193 @@
+{
+  "timestamp": "2026-09-03T20:50:14.120851",
+  "total_found": 89,
+  "proposals_drafted": 10,
+  "emails_sent": 0,
+  "proposals": [
+    {
+      "rank": 1,
+      "score": 45,
+      "repo": "/Trauma-Station/Trauma-Station",
+      "issue": 4419,
+      "title": "BOUNTY - $10000 bug fix",
+      "url": "https://github.com/Trauma-Station/Trauma-Station/issues/4419",
+      "reward": 10000.0,
+      "reasons": [
+        "$10000.0",
+        "no comments yet"
+      ],
+      "email_to": [],
+      "email_subject": "Proposal: Trauma-Station #4419 \u2014 BOUNTY - $10000 bug fix",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: BOUNTY - $10000 bug fix\n\n**Project:** /Trauma-Station/Trauma-Station\n**Issue:** #4419 \u2014 BOUNTY - $10000 bug fix\n**URL:** https://github.com/Trauma-Station/Trauma-Station/issues/4419\n**Reward:** $10000.0\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 14 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_Trauma-Station_Trauma-Station_#4419.md"
+    },
+    {
+      "rank": 2,
+      "score": 40,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 310,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise i",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/310",
+      "reward": 2500.0,
+      "reasons": [
+        "$2500.0",
+        "no comments yet"
+      ],
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #310 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise i\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #310 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise i\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/310\n**Reward:** $2500.0\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 14 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#310.md",
+      "sent": false,
+      "email_error": "[Errno -3] Temporary failure in name resolution"
+    },
+    {
+      "rank": 3,
+      "score": 40,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 255,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise improve ac",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/255",
+      "reward": 2500.0,
+      "reasons": [
+        "$2500.0",
+        "no comments yet"
+      ],
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #255 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise improve ac\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #255 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise improve ac\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/255\n**Reward:** $2500.0\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 14 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#255.md"
+    },
+    {
+      "rank": 4,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 254,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/254",
+      "reward": 1500.0,
+      "reasons": [
+        "$1500.0",
+        "no comments yet"
+      ],
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #254 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #254 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/254\n**Reward:** $1500.0\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 14 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#254.md"
+    },
+    {
+      "rank": 5,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 295,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] CORS Misconfiguratio",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/295",
+      "reward": 0,
+      "reasons": [
+        "matches skill (config)",
+        "no comments yet"
+      ],
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #295 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] CORS Misconfiguratio\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #295 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] CORS Misconfiguratio\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/295\n**Reward:** As listed\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 7 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#295.md"
+    },
+    {
+      "rank": 6,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 311,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/311",
+      "reward": 1500.0,
+      "reasons": [
+        "$1500.0",
+        "no comments yet"
+      ],
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #311 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #311 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/311\n**Reward:** $1500.0\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 14 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#311.md"
+    },
+    {
+      "rank": 7,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 302,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] Python Pickle Deseri",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/302",
+      "reward": 0,
+      "reasons": [
+        "matches skill (python)",
+        "no comments yet"
+      ],
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #302 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] Python Pickle Deseri\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #302 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] Python Pickle Deseri\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/302\n**Reward:** As listed\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 7 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#302.md"
+    },
+    {
+      "rank": 8,
+      "score": 30,
+      "repo": "/os-santiago/homedir",
+      "issue": 1518,
+      "title": "[Security] POST  api bounty-hunters resolve-issue allows unauthenticated bounty point inflation",
+      "url": "https://github.com/os-santiago/homedir/issues/1518",
+      "reward": 0,
+      "reasons": [
+        "matches skill (api)",
+        "no comments yet"
+      ],
+      "email_to": [
+        "u003cdh8939693@gmail.com",
+        "dh8939693@gmail.com"
+      ],
+      "email_subject": "Proposal: homedir #1518 \u2014 [Security] POST  api bounty-hunters resolve-issue allows una",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Security] POST  api bounty-hunters resolve-issue allows unauthenticated bounty point inflation\n\n**Project:** /os-santiago/homedir\n**Issue:** #1518 \u2014 [Security] POST  api bounty-hunters resolve-issue allows unauthenticated bounty point inflation\n**URL:** https://github.com/os-santiago/homedir/issues/1518\n**Reward:** As listed\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 7 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_os-santiago_homedir_#1518.md"
+    },
+    {
+      "rank": 9,
+      "score": 50,
+      "repo": "/Scottcjn/rustchain-bounties",
+      "issue": 442,
+      "title": "Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)",
+      "url": "https://github.com/Scottcjn/rustchain-bounties/issues/442",
+      "reward": 0,
+      "reasons": [
+        "beginner-friendly",
+        "matches skill (test)",
+        "no comments yet"
+      ],
+      "email_to": [],
+      "email_subject": "Proposal: rustchain-bounties #442 \u2014 Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)\n\n**Project:** /Scottcjn/rustchain-bounties\n**Issue:** #442 \u2014 Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)\n**URL:** https://github.com/Scottcjn/rustchain-bounties/issues/442\n**Reward:** As listed\n\n**How I'd approach this:**\n\n1. Review the current test coverage and identify gaps\n2. Write comprehensive tests for the required functionality\n3. Ensure tests follow existing project patterns and conventions\n4. Submit a PR with full test coverage\n\nI specialize in writing thorough test suites that catch regressions and ensure reliability.**Timeline:** I can begin immediately and deliver within 7 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_Scottcjn_rustchain-bounties_#442.md"
+    },
+    {
+      "rank": 10,
+      "score": 18,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 626,
+      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/626",
+      "reward": 337.0,
+      "reasons": [
+        "$337.0",
+        "no comments yet"
+      ],
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #626 \u2014 [Bounty] [BOUNTY] [$337] Mapping bounty",
+      "email_body": "Hello,\n\nI'm interested in your bounty opportunity: [Bounty] [BOUNTY] [$337] Mapping bounty\n\n**Project:** /zhangjiayang6835-cyber/bounty-plaza\n**Issue:** #626 \u2014 [Bounty] [BOUNTY] [$337] Mapping bounty\n**URL:** https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/626\n**Reward:** $337.0\n\n**How I'd approach this:**\n\n1. Analyze the current codebase and understand the requirements\n2. Develop a solution following project conventions and best practices\n3. Include tests and documentation where applicable\n4. Submit a PR with a complete implementation\n\nI have strong software development experience and have successfully contributed to open-source projects.**Timeline:** I can begin immediately and deliver within 7 days.\n\nLooking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n",
+      "file": "/sandbox/new/data/proposals/_zhangjiayang6835-cyber_bounty-plaza_#626.md"
+    }
+  ]
+}
