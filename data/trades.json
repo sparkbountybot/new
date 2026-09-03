@@ -25,5 +25,14 @@
     "price": 21.8,
     "pl": -2.0068,
     "mode": "LIVE"
+  },
+  {
+    "ts": "2026-09-03T08:31:46.203820",
+    "action": "SELL",
+    "symbol": "CAG",
+    "qty": 1,
+    "price": 16.27,
+    "pl": 1.8001,
+    "mode": "LIVE"
   }
 ]
