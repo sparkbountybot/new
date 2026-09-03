@@ -1,27 +1,15 @@
 {
   "trades": [],
-  "last_run": "2026-09-02T22:32:21.642667",
-  "equity": 44906.69,
+  "last_run": "2026-09-03T13:35:25.547329",
+  "equity": 44936.81,
   "positions": [
     {
       "symbol": "AES",
       "qty": "6.72486413"
     },
     {
-      "symbol": "CAG",
-      "qty": "1"
-    },
-    {
-      "symbol": "CVX",
-      "qty": "22"
-    },
-    {
       "symbol": "INTC",
-      "qty": "2.383808524"
-    },
-    {
-      "symbol": "KEY",
-      "qty": "1"
+      "qty": "0.383808524"
     },
     {
       "symbol": "META",
