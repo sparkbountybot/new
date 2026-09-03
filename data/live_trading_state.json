@@ -1,12 +1,8 @@
 {
   "trades": [],
-  "last_run": "2026-09-03T19:35:32.485020",
-  "equity": 44933.02,
+  "last_run": "2026-09-03T19:50:33.384176",
+  "equity": 44933.22,
   "positions": [
-    {
-      "symbol": "AAPL",
-      "qty": "6"
-    },
     {
       "symbol": "SGOV",
       "qty": "0.730246452"
