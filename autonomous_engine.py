@@ -72,30 +72,35 @@ class Engine:
             print(f"  SELL {q} {sym} @ ${pos[sym]['current']:.2f} PL: ${pos[sym]['pl']:.2f}")
     
     def cycle(self):
-        acct = self.account()
-        print(f"\n{self.mode} CYCLE {datetime.now().strftime('%H:%M')} | E:${acct['equity']:,.0f} BP:${acct['bp']:,.0f}")
-        
-        if acct["equity"] < 5000:
-            print("  Skipping: equity <$5K")
-            return
-        
-        sells = []
-        for sym, pos in self.positions().items():
-            if pos["plpct"] <= -self.stop_loss * 100:
-                print(f"  STOP LOSS: {sym} {pos['plpct']:.1f}%")
-                sells.append(sym)
-            elif pos["plpct"] >= self.take_profit * 100:
-                print(f"  TAKE PROFIT: {sym} {pos['plpct']:.1f}%")
-                sells.append(sym)
-        
-        for s in sells:
-            self.sell(s)
-        
-        # Final status
-        ps = self.positions()
-        print(f"  Positions: {len(ps)}")
-        for sym, p in ps.items():
-            print(f"    {sym}: {p['qty']:.2f} @ ${p['current']:.2f} PL: ${p['pl']:+,.0f} ({p['plpct']:+.1f}%)")
+        try:
+            acct = self.account()
+            print(f"\n{self.mode} CYCLE {datetime.now().strftime('%H:%M')} | E:${acct['equity']:,.0f} BP:${acct['bp']:,.0f}", flush=True)
+            
+            if acct["equity"] < 5000:
+                print("  Skipping: equity <$5K", flush=True)
+                return
+            
+            sells = []
+            for sym, pos in self.positions().items():
+                if pos["plpct"] <= -self.stop_loss * 100:
+                    print(f"  STOP LOSS: {sym} {pos['plpct']:.1f}%", flush=True)
+                    sells.append(sym)
+                elif pos["plpct"] >= self.take_profit * 100:
+                    print(f"  TAKE PROFIT: {sym} {pos['plpct']:.1f}%", flush=True)
+                    sells.append(sym)
+            
+            for s in sells:
+                self.sell(s)
+            
+            # Final status
+            ps = self.positions()
+            print(f"  Positions: {len(ps)}", flush=True)
+            for sym, p in ps.items():
+                print(f"    {sym}: {p['qty']:.2f} @ ${p['current']:.2f} PL: ${p['pl']:+,.0f} ({p['plpct']:+.1f}%)", flush=True)
+        except Exception as e:
+            print(f"\nERROR in cycle: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
 
 if __name__ == "__main__":
     e = Engine()

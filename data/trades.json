@@ -1,0 +1,29 @@
+[
+  {
+    "ts": "2026-09-03T02:13:27.805716",
+    "action": "SELL",
+    "symbol": "CVX",
+    "qty": 22,
+    "price": 211.9113,
+    "pl": 622.8552,
+    "mode": "LIVE"
+  },
+  {
+    "ts": "2026-09-03T02:13:28.300504",
+    "action": "SELL",
+    "symbol": "INTC",
+    "qty": 2,
+    "price": 90.17,
+    "pl": -35.041985,
+    "mode": "LIVE"
+  },
+  {
+    "ts": "2026-09-03T02:13:28.795201",
+    "action": "SELL",
+    "symbol": "KEY",
+    "qty": 1,
+    "price": 21.8,
+    "pl": -2.0068,
+    "mode": "LIVE"
+  }
+]
