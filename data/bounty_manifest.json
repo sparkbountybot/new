@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-09-03T22:00:00",
+  "total_found": 3,
+  "proposals": [
+    {
+      "rank": 1,
+      "score": 85,
+      "repo": "test-repo/test",
+      "issue": 1,
+      "title": "Documentation improvement needed",
+      "url": "https://github.com/test-repo/test/issues/1",
+      "reward": 100,
+      "email_to": ["test@example.com"],
+      "email_subject": "Proposal: test #1 - Documentation improvement"
+    }
+  ],
+  "status": "ready_to_send"
+}
