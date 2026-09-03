@@ -1,0 +1,20 @@
+# Live Trading Status
+# Last updated: 2026-09-03 14:00 UTC
+
+## Account
+- Equity: $44,935
+- Positions: 4 (AES, CAG, META, SGOV)
+- Pending sells: 0 (all filled)
+
+## Automated Jobs
+- Trading cron: every 5min (job 83cb26fc)
+- Bounty cron: every 6hrs (job b703779104b2)
+
+## Network
+- GitHub: ✅ unblocked
+- Yahoo: ❌ blocked (needs openshell policy)
+- Gmail: ❌ blocked (needs openshell policy)
+
+## To-Do (one-time host commands)
+- openshell policy update spark2 --add-endpoint query1.finance.yahoo.com:443:read-write:rest:enforce
+- openshell policy update spark2 --add-endpoint imap.gmail.com:993:read-write:tunnel:enforce

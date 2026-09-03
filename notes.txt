@@ -1,0 +1,27 @@
+# Cohort Notes — Self-Serve
+
+## What works right now
+- GitHub API unblocked (policy updated)
+- Bounty scanner automated (6hr cron)
+- Trading engine automated (5min cron, sells only)
+- Both sandboxes share one repo: github.com/sparkbountybot/new
+
+## What's blocked (needs ONE openshell policy update)
+- Yahoo Finance: proxy blocks HTTPS tunnel on query1.finance.yahoo.com
+- Gmail: proxy blocks IMAP tunnel on imap.gmail.com
+- Both are just one openshell command each (see status.txt)
+
+## Key files in this sandbox
+- /sandbox/new/bounty_scan.py — bounty scanner
+- /sandbox/new/autonomous_engine.py — live trading engine
+- /sandbox/new/.github/shared/ — cross-sandbox sync
+- /sandbox/new/status.txt — current status
+
+## Cron jobs
+- 83cb26fc — trading engine (every 5min)
+- b703779104b2 — bounty scanner (every 6hrs)
+
+## Open issues
+- No buy signals (Yahoo Finance blocked → can't get price data)
+- No email alerts (IMAP blocked)
+- Evolution engine stuck (needs real trade P&L to score)
