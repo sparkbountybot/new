@@ -9,13 +9,13 @@ from datetime import datetime
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
-def github_request(url):
+def github_request(url, params=None):
     """Direct GitHub API call without proxy"""
     headers = {"Accept": "application/vnd.github+json"}
     if GITHUB_TOKEN:
         headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
     try:
-        r = requests.get(url, headers=headers, timeout=30)
+        r = requests.get(url, headers=headers, params=params, timeout=30)
         if r.status_code == 200:
             return r.json()
     except:
