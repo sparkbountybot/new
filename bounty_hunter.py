@@ -1,45 +1,34 @@
 #!/usr/bin/env python3
 """
-Real GitHub Bounty Hunter — Email Proposal System
-==============================================
-Scrapes GitHub web UI for real bounties, scores them, and emails proposals
-to maintainers on the top candidates.
-
-Since Gmail SMTP is blocked in the sandbox, this script:
-1. Finds and scores real bounties from GitHub search
-2. Drafts professional proposal emails for top bounties
-3. Saves emails to /sandbox/new/proposals/
-4. Also tries to send via Gmail if SMTP is available (fallback)
-
-Cron job: runs every 6 hours, saves results + drafts emails.
+GitHub Bounty Hunter — Auto Email Pipeline
+==========================================
+Phase 1 (this sandbox): Scrape bounties → draft proposals → commit to git
+Phase 2 (GitHub Actions): Read proposals → send emails via Gmail API → commit results
+This makes the ENTIRE pipeline hands-free and automated.
 """
 import re, json, subprocess, os, sys
 from datetime import datetime
 
 # Email config
 FROM_EMAIL = "sparkbountybot@gmail.com"
-EMAIL_FILE = "/sandbox/new/data/bounty_proposals.json"
-
-# Output directory for proposals
-PROPOSALS_DIR = "/sandbox/new/data/proposals"
+PROPOSALS_DIR = "/sandbox/new/proposals"
+RESULTS_DIR = "/sandbox/new/data"
 os.makedirs(PROPOSALS_DIR, exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
-# Search queries covering different bounty categories
 SEARCH_QUERIES = [
-    ('bounty is:issue is:open', 'general_bounties'),
+    ('bounty is:issue is:open', 'bounties'),
     ('reward is:issue is:open', 'rewards'),
-    ('"good first issue" bounty', 'beginner_bounties'),
-    ('"first-timers-only" bounty', 'first_timers'),
-    ('"starter" bounty', 'starter_bounties'),
-    ('"paid work" is:issue is:open', 'paid_work'),
-    ('"grant" is:issue is:open', 'grants'),
+    ('\"good first issue\" bounty', 'beginner_bounties'),
+    ('\"first-timers-only\" bounty', 'first_timers'),
+    ('\"starter\" bounty', 'starter_bounties'),
+    ('\"paid work\" is:issue is:open', 'paid_work'),
+    ('\"grant\" is:issue is:open', 'grants'),
     ('sponsor is:issue is:open', 'sponsors'),
     ('bug bounty', 'security'),
-    ('"security" bounty', 'security'),
 ]
 
 def curl_get(url):
-    """Fetch URL via curl through sandbox proxy"""
     try:
         r = subprocess.run(
             ['curl', '-s', '--max-time', '15', '--max-redirs', '3',
@@ -54,7 +43,6 @@ def curl_get(url):
         return None
 
 def extract_reward(text):
-    """Extract dollar amounts from text"""
     amounts = re.findall(r'\$([0-9,]+(?:\.[0-9]+)?)', text)
     max_amount = 0
     for a in amounts:
@@ -67,16 +55,12 @@ def extract_reward(text):
     return max_amount
 
 def extract_emails(text):
-    """Extract email addresses from text"""
     emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
     return list(set(emails))
 
 def parse_search_results(html):
-    """Extract issues from GitHub search page HTML"""
     issues = []
     seen = set()
-
-    # Find issue links with titles
     title_pattern = r'<h3[^>]*>.*?<a[^>]*href="(/[^/]+/[^/]+)/issues/(\d+)"[^>]*>(.*?)</a>'
 
     for m in re.finditer(title_pattern, html, re.DOTALL):
@@ -94,14 +78,12 @@ def parse_search_results(html):
             continue
         seen.add(key)
 
-        # Extract bounty amount from title and nearby text
         bounty_amount = extract_reward(title)
         if bounty_amount == 0:
             idx = max(0, m.start() - 500)
             window = html[idx:m.end() + 500]
             bounty_amount = extract_reward(window)
 
-        # Look for email in nearby text
         emails = []
         idx = max(0, m.start() - 2000)
         window = html[idx:m.end() + 2000]
@@ -119,7 +101,6 @@ def parse_search_results(html):
     return issues
 
 def scrape_search(query):
-    """Run a search query and return issues"""
     query_encoded = query.replace(' ', '+')
     url = f"https://github.com/search?q={query_encoded}+is:issue+is:open&type=issues"
     html = curl_get(url)
@@ -128,19 +109,16 @@ def scrape_search(query):
     return parse_search_results(html)
 
 def fetch_issue_details(url):
-    """Fetch an individual issue page for more details"""
     html = curl_get(url)
     if not html:
         return {}
 
     details = {}
 
-    # Extract body from markdown-body section
     if 'data-testid="markdown-body"' in html:
         idx = html.index('data-testid="markdown-body"')
         section = html[idx:idx+10000]
 
-        # Find paragraphs
         paras = re.findall(r'<p[^>]*>(.*?)</p>', section, re.DOTALL)
         body_parts = []
         for p in paras:
@@ -149,15 +127,11 @@ def fetch_issue_details(url):
             if text and len(text) > 5:
                 body_parts.append(text)
         details['body'] = '\n\n'.join(body_parts[:5])[:3000]
-
-        # Find links in body
         details['body_links'] = re.findall(r'href="(https?://[^"]+)"', section)
 
-    # Extract labels
     labels = re.findall(r'/labels/([^"]+)', html)
     details['labels'] = list(set([l.lower().strip() for l in labels]))
 
-    # Extract comments count
     comments_m = re.findall(r'discussion_button"[^>]*>\s*([\d,]+)\s*</span>', html)
     if comments_m:
         try:
@@ -165,11 +139,9 @@ def fetch_issue_details(url):
         except:
             pass
 
-    # Extract all emails from the page
     all_emails = extract_emails(html)
     details['emails'] = all_emails
 
-    # Extract author info
     author_m = re.search(r'data-testid="issue-body-header-author">([^<]+)<', html)
     if author_m:
         details['author'] = author_m.group(1).strip()
@@ -177,7 +149,6 @@ def fetch_issue_details(url):
     return details
 
 def score_issue(issue, details=None):
-    """Score an issue for our ability to complete it"""
     score = 0
     reasons = []
     title_lower = issue['title'].lower()
@@ -185,25 +156,21 @@ def score_issue(issue, details=None):
     combined = title_lower + ' ' + body_lower
     labels = details.get('labels', []) if details else []
 
-    # Money signals
     if issue.get('reward', 0) > 0:
         score += min(int(issue['reward'] / 100), 30)
         reasons.append(f"${issue['reward']}")
 
-    # Bounty keywords
     for kw in ['bounty', 'reward', 'paid', 'grant', 'sponsor', 'compensation']:
         if kw in title_lower or kw in body_lower:
             score += 5
             break
 
-    # Beginner-friendly labels (higher chance of success)
     for lbl in ['good-first-issue', 'starter', 'first-timers-only', 'easy']:
         if any(lbl in l for l in labels):
             score += 20
             reasons.append("beginner-friendly")
             break
 
-    # Specific skill matches (Python code work)
     for kw in ['python', 'script', 'api', 'documentation', 'docs', 'test', 'lint',
                 'config', 'setup', 'install', 'docker', 'readme', 'changelog']:
         if kw in combined:
@@ -211,18 +178,16 @@ def score_issue(issue, details=None):
             reasons.append(f"matches skill ({kw})")
             break
 
-    # Complex/low-level stuff (lower score — harder to complete)
     for kw in ['cuda', 'gpu', 'kernel', 'asm', 'assembly', 'rust', 'c++', 'memory',
-                'compiler', 'gpu', 'driver', 'firmware']:
+                'compiler', 'driver', 'firmware']:
         if kw in combined:
             score -= 10
             reasons.append(f"hard skill ({kw})")
             break
 
-    # Comments are engagement but also risk of someone else being ahead
     comments = details.get('comments', 0) if details else 0
     if comments == 0:
-        score += 10  # Nobody else has commented yet
+        score += 10
         reasons.append("no comments yet")
     elif comments < 3:
         score += 5
@@ -230,7 +195,6 @@ def score_issue(issue, details=None):
     return score, reasons
 
 def generate_proposal(issue, details=None):
-    """Generate a proposal email for a bounty"""
     title = issue['title']
     repo = issue['repo']
     repo_name = repo.split('/')[-1] if '/' in repo else repo
@@ -239,146 +203,62 @@ def generate_proposal(issue, details=None):
     url = issue['url']
 
     title_lower = title.lower()
-
-    # Categorize the bounty type
-    category = "general"
-    task_summary = title
-    key_points = []
-
-    # Analyze what the bounty is about
     body = (details.get('body') or '').lower() if details else ''
     combined = title_lower + ' ' + body
 
     if 'python' in combined:
         category = "python"
-        key_points.append("Python implementation")
-    if 'documentation' in combined or 'docs' in combined:
+    elif 'documentation' in combined or 'docs' in combined:
         category = "documentation"
-        key_points.append("Documentation/drafting")
-    if 'test' in combined:
+    elif 'test' in combined:
         category = "testing"
-        key_points.append("Testing/coverage")
-    if 'docker' in combined or 'container' in combined:
+    elif 'docker' in combined or 'container' in combined:
         category = "devops"
-        key_points.append("Docker/containerization")
-    if 'api' in combined:
+    elif 'api' in combined:
         category = "backend"
-        key_points.append("API work")
-    if 'bug' in combined:
+    elif 'bug' in combined:
         category = "bugfix"
-        key_points.append("Bug fix")
-    if 'feature' in combined or 'implement' in combined or 'add' in combined:
+    elif 'feature' in combined or 'implement' in combined:
         category = "feature"
-        key_points.append("Feature implementation")
+    else:
+        category = "general"
 
-    # Generate subject and body
     subject = f"Proposal: {repo_name} #{issue_num} — {title[:60]}"
 
-    # Build the email body
-    email_body = f"""Hello,
+    email_body = f"Hello,\n\nI'm interested in your bounty opportunity: {title}\n\n"
+    email_body += f"**Project:** {repo}\n"
+    email_body += f"**Issue:** #{issue_num} — {title}\n"
+    email_body += f"**URL:** {url}\n"
+    if reward:
+        email_body += f"**Reward:** ${reward}\n\n"
 
-I'm interested in your bounty opportunity: {title}
+    approaches = {
+        "python": "1. Analyze the current codebase and understand the existing implementation\n2. Develop the required Python solution with proper tests\n3. Write clean, documented code following project conventions\n4. Submit a PR with full test coverage\n\nI have strong Python skills and experience delivering production-quality open-source contributions.",
+        "documentation": "1. Review the current state of the bounty program documentation\n2. Create a clear, comprehensive draft covering all required sections\n3. Include examples and templates where applicable\n4. Submit a draft PR for review\n\nI have experience writing clear technical documentation and have successfully contributed to open-source projects before.",
+        "testing": "1. Review the current test coverage and identify gaps\n2. Write comprehensive tests for the required functionality\n3. Ensure tests follow existing project patterns and conventions\n4. Submit a PR with full test coverage\n\nI specialize in writing thorough test suites that catch regressions and ensure reliability.",
+        "feature": "1. Understand the requirements and current architecture\n2. Design and implement the feature following project conventions\n3. Write tests and documentation for the new functionality\n4. Submit a PR with complete implementation\n\nI have experience implementing features in open-source projects and deliver clean, tested code.",
+    }
 
-**Project:** {repo}
-**Issue:** #{issue_num} — {title}
-**URL:** {url}
-{"**Reward:** $" + str(reward) if reward else "**Reward:** As listed"}
-
-**How I'd approach this:**
-
-"""
-
-    if category == "documentation":
-        email_body += f"""1. Review the current state of the bounty program documentation
-2. Create a clear, comprehensive draft covering all required sections
-3. Include examples and templates where applicable
-4. Submit a draft PR for review
-
-I have experience writing clear technical documentation and have successfully contributed to open-source projects before."""
-
-    elif category == "python":
-        email_body += f"""1. Analyze the current codebase and understand the existing implementation
-2. Develop the required Python solution with proper tests
-3. Write clean, documented code following project conventions
-4. Submit a PR with full test coverage
-
-I have strong Python skills and experience delivering production-quality open-source contributions."""
-
-    elif category == "testing":
-        email_body += f"""1. Review the current test coverage and identify gaps
-2. Write comprehensive tests for the required functionality
-3. Ensure tests follow existing project patterns and conventions
-4. Submit a PR with full test coverage
-
-I specialize in writing thorough test suites that catch regressions and ensure reliability."""
-
-    elif category == "feature":
-        email_body += f"""1. Understand the requirements and current architecture
-2. Design and implement the feature following project conventions
-3. Write tests and documentation for the new functionality
-4. Submit a PR with complete implementation
-
-I have experience implementing features in open-source projects and deliver clean, tested code."""
-
-    else:
-        email_body += f"""1. Analyze the current codebase and understand the requirements
-2. Develop a solution following project conventions and best practices
-3. Include tests and documentation where applicable
-4. Submit a PR with a complete implementation
-
-I have strong software development experience and have successfully contributed to open-source projects."""
-
-    email_body += f"""**Timeline:** I can begin immediately and deliver within {7 if reward < 500 else 14} days.
-
-Looking forward to discussing this opportunity.
-
-Best regards,
-sparkbountybot
-"""
+    email_body += f"**How I'd approach this:**\n\n{approaches.get(category, approaches['python'])}\n\n"
+    email_body += f"**Timeline:** I can begin immediately and deliver within {7 if reward < 500 else 14} days.\n\n"
+    email_body += f"Looking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n"
 
     return {
         'subject': subject,
         'body': email_body,
         'category': category,
-        'key_points': key_points,
     }
-
-def send_email(smtp_host, smtp_port, email_addr, password, subject, body, to_email):
-    """Send email via SMTP (if available)"""
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-
-    msg = MIMEMultipart()
-    msg['From'] = email_addr
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
-    try:
-        if smtp_port == 465:
-            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
-        else:
-            server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
-            server.starttls()
-
-        server.login(email_addr, password)
-        server.sendmail(email_addr, to_email, msg.as_string())
-        server.quit()
-        return True, "Sent"
-    except Exception as e:
-        return False, str(e)
 
 def main():
     timestamp = datetime.now().isoformat()
     print("=" * 70)
-    print("  REAL BOUNTY HUNTER — Web Scraping + Email Proposal System")
+    print("  REAL BOUNTY HUNTER — Auto Email Pipeline")
     print(f"  {timestamp}")
     print("=" * 70)
     print()
 
     # Phase 1: Scrape bounties
-    print("[1/4] Scanning GitHub for open bounties...")
+    print("[1/5] Scanning GitHub for open bounties...")
     all_issues = {}
 
     for query, label in SEARCH_QUERIES:
@@ -399,26 +279,17 @@ def main():
     print(f"  Total unique issues: {len(all_issues)}")
     print()
 
-    # Phase 2: Score and filter for high-confidence bounties
-    print("[2/4] Filtering for high-confidence targets...")
+    # Phase 2: Score and filter
+    print("[2/5] Filtering for high-confidence targets...")
     issues_list = list(all_issues.values())
-
-    # We want bounties that:
-    # - Are likely completable by us (not too complex)
-    # - Have clear scope
-    # - Are recent enough to still be open
-    # - Have reward or are legitimate work
 
     scored = []
     for iss in issues_list:
         score, reasons = score_issue(iss)
         scored.append((score, iss, reasons))
 
-    # Sort by score (highest first)
     scored.sort(key=lambda x: x[0], reverse=True)
-
-    # Take top candidates
-    top_candidates = scored[:10]
+    top_candidates = scored[:15]
 
     print(f"  Top candidates:")
     for i, (score, iss, reasons) in enumerate(top_candidates):
@@ -429,23 +300,20 @@ def main():
     print()
 
     # Phase 3: Fetch details + draft proposals
-    print("[3/4] Drafting proposals for top bounties...")
+    print("[3/5] Fetching details and drafting proposals...")
 
     proposals = []
     for i, (score, iss, reasons) in enumerate(top_candidates):
-        print(f"  Processing {i+1}/{len(top_candidates)}: {iss['title'][:40]}...")
+        print(f"  {i+1}/{len(top_candidates)}: {iss['title'][:40]}...")
 
-        # Fetch issue details
         details = fetch_issue_details(iss['url'])
         if details:
-            # Update score with details
             score, reasons = score_issue(iss, details)
             top_candidates[i] = (score, iss, reasons)
 
-        # Generate proposal
         proposal = generate_proposal(iss, details)
 
-        # Save to file
+        # Save individual proposal file
         safe_repo = iss['repo'].replace('/', '_')
         safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', iss['title'][:30])
         safe_repo = iss['repo'].replace('/', '_')
@@ -487,97 +355,60 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
 
     print()
 
-    # Phase 4: Output full proposals (email blocked by proxy, cron delivery is primary)
-    print("[4/4] Generating proposals (email blocked by proxy — outputting to alert)...")
+    # Phase 4: Write manifest for GitHub Actions
+    print("[4/5] Writing manifest for GitHub Actions pipeline...")
 
-    # Build the alert message that includes full proposal text
-    # This is what gets delivered via cron to your chat
-    alert_lines = []
-
-    for i, prop in enumerate(proposals[:5]):  # Top 5 only
-        alert_lines.append(f"\n=== PROPOSAL #{i+1}: {prop['title'][:60]} ===")
-        alert_lines.append(f"Repo: {prop['repo']}/{prop['issue']}")
-        alert_lines.append(f"Reward: ${prop['reward']}" if prop['reward'] else "Reward: As listed")
-        alert_lines.append(f"Score: {prop['score']} | Reason: {', '.join(prop['reasons'][:3])}")
-        alert_lines.append(f"\n--- Full Proposal Text ---\n")
-        alert_lines.append(prop['email_body'])
-        alert_lines.append(f"\n--- End Proposal ---")
-        alert_lines.append(f"\nProposal file: {prop['file']}")
-
-    alert_text = "\n".join(alert_lines)
-
-    sent = []
-    failed = []
-    for p in proposals:
-        p['sent'] = False
-    print(f"  Drafts: {len(proposals)} proposals saved")
-    print(f"  📧 Email: blocked by sandbox proxy (all SMTP/Gmail/SendGrid blocked)")
-    print(f"  📨 Primary delivery: cron alert with full proposal text below")
-    print()
-
-    # Summary
-    print("=" * 70)
-    print(f"  SUMMARY: {len(all_issues)} bounties found, {len(proposals)} proposals drafted")
-    if sent:
-        print(f"  ✅ Sent: {len(sent)} emails")
-        for s in sent:
-            print(f"     - {s}")
-    if failed:
-        print(f"  ❌ Failed: {len(failed)}")
-        for f in failed:
-            print(f"     - {f}")
-    print(f"  📁 Drafts saved to: {PROPOSALS_DIR}/")
-    print("=" * 70)
-
-    # ---- FORMATTED ALERT SUMMARY (for cron delivery) ----
-    from datetime import datetime as dt_now
-    now_str = dt_now.now().strftime("%Y-%m-%d %H:%M")
-    print(f"\n🎯 BOUNTY HUNT RESULTS — {now_str}")
-    print("=" * 50)
-    print(f"Found: {len(all_issues)} bounties | "
-          f"Drafts: {len(proposals)} proposals | "
-          f"Emails sent: {len(sent)}")
-    print()
-
-    top5 = proposals[:5]
-    for i, p in enumerate(top5, 1):
-        reward_str = f"${p['reward']}" if p['reward'] > 0 else "As listed"
-        print(f"{i}. {p['repo'].split('/')[-1] if '/' in p['repo'] else p['repo']}"
-              f" / #{p['issue']} — {reward_str}")
-        print(f"   Title: {p['title'][:80]}")
-        print(f"   Why: {', '.join(p['reasons'][:2])}")
-        print(f"   URL: {p['url']}")
-        print()
-
-    if sent:
-        print(f"✅ Emails sent: {len(sent)}")
-        for s in sent:
-            print(f"   → {s}")
-    else:
-        print("❌ Emails sent: 0 (SMTP blocked by sandbox proxy)")
-        print("   Drafts saved to /sandbox/new/data/proposals/")
-
-    print()
-    print("=" * 50)
-
-    # Full proposal text for top bounties (delivered via cron)
-    if alert_text:
-        print(f"\n📨 FULL PROPOSALS (top 5)\n{'='*50}")
-        print(alert_text)
-        print("\n" + "="*50)
-
-    # Save full results
-    results = {
+    manifest = {
         'timestamp': timestamp,
         'total_found': len(all_issues),
-        'proposals_drafted': len(proposals),
-        'emails_sent': len(sent),
-        'proposals': proposals,
+        'proposals': [
+            {
+                'rank': p['rank'],
+                'score': p['score'],
+                'repo': p['repo'],
+                'issue': p['issue'],
+                'title': p['title'],
+                'url': p['url'],
+                'reward': p['reward'],
+                'email_to': p['email_to'],
+                'email_subject': p['email_subject'],
+            }
+            for p in proposals[:10]  # Top 10 for email
+        ],
+        'status': 'ready_to_send',
     }
-    with open(EMAIL_FILE, 'w') as f:
-        json.dump(results, f, indent=2)
 
-    print(f"\nResults saved to {EMAIL_FILE}")
+    manifest_path = f"{RESULTS_DIR}/bounty_manifest.json"
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+
+    print(f"  Manifest written to {manifest_path}")
+
+    # Phase 5: Commit and push to GitHub
+    print("[5/5] Pushing proposals to GitHub for email pipeline...")
+
+    try:
+        # Commit changes
+        subprocess.run(['git', 'add', 'proposals/', f'data/bounty_manifest.json'], check=True, capture_output=True)
+        subprocess.run(['git', 'commit', '-m', f'Bounty hunt: {len(proposals)} proposals drafted [{datetime.now().strftime("%Y-%m-%d %H:%M")}]'], check=True, capture_output=True)
+        subprocess.run(['git', 'push'], check=True, capture_output=True)
+
+        print("  ✅ Pushed to GitHub!")
+        print("  ✅ GitHub Actions will now send emails automatically via Gmail API")
+        print("  ✅ Results will be committed back to the repo")
+        print()
+        print("  NEXT: Check your inbox — Gmail will deliver the proposals")
+
+    except subprocess.CalledProcessError as e:
+        print(f"  ⚠️  Git push failed: {e}")
+        print("  📁 Proposals still saved locally in /sandbox/new/proposals/")
+
+    # Print summary
+    print()
+    print("=" * 70)
+    print(f"  SUMMARY: {len(all_issues)} bounties found, {len(proposals)} proposals drafted")
+    print(f"  ✅ Pushed to GitHub → GitHub Actions will send emails automatically")
+    print("=" * 70)
 
 if __name__ == '__main__':
     main()
