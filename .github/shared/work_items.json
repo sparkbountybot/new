@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "task_id": "TEST-001",
+      "description": "Test coordination between sandboxes",
+      "status": "done",
+      "claimed_by": "spark2",
+      "claimed_at": "2026-09-03T16:14:38.353004+00:00",
+      "estimated_minutes": 10,
+      "result": "System working, ready for real tasks",
+      "completed_at": "2026-09-03T16:16:10.387257+00:00"
+    }
+  ],
+  "last_updated": "2026-09-03T16:16:10.387278+00:00"
+}
