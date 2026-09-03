@@ -7,14 +7,11 @@ on:
     paths:
       - 'data/bounty_manifest.json'
       - 'proposals/*.md'
-    # Only trigger on non-ACTION pushes (skip auto-pushes from this action)
-    # This prevents infinite loops when the action commits results back
   workflow_dispatch:
 
-# Skip this workflow when commits come from sparkbountybot[bot] (GitHub's automated bot)
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# Skip this workflow entirely when the manifest shows it's already been processed
+# The manifest has a 'status' field: 'ready_to_send' → workflow processes it
+# After processing, the script updates status to 'completed' to prevent re-processing
 
 permissions:
   contents: write
@@ -24,8 +21,6 @@ jobs:
   send-proposals:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Skip runs that are automatically triggered by the bot itself (avoid loops)
-    if: "!contains(github.event.head_commit.author.username, 'sparkbountybot')"
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -47,11 +42,11 @@ jobs:
           GMAIL_EMAIL: sparkbountybot@gmail.com
         run: python scripts/send_proposals.py
 
-      - name: Commit results
+      - name: Commit results back to main
         if: always()
         run: |
           git config user.name "sparkbountybot"
           git config user.email "sparkbountybot@gmail.com"
           git add data/sent_log.json data/bounty_manifest.json
-          git commit -m "📧 Email delivery results [run #${{ github.run_number }}]" --no-verify || echo "No changes to commit"
+          git commit -m "📧 Email delivery results [run #${{ github.run_number }}]" || echo "No changes to commit"
           git push --quiet || echo "Push failed (may be empty commit)"

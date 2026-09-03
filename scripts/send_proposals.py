@@ -89,6 +89,11 @@ def main():
     with open(manifest_path) as f:
         manifest = json.load(f)
 
+    # Check if already sent (prevent re-processing)
+    if manifest.get('action_taken') == 'sent':
+        print("⚠️  Emails already sent (action_taken=sent). Skipping.")
+        sys.exit(0)
+
     proposals = manifest.get('proposals', [])
     print(f"Found {len(proposals)} proposals in manifest")
     print()
@@ -165,6 +170,12 @@ def main():
     results_path = Path('data/sent_log.json')
     with open(results_path, 'w') as f:
         json.dump(results, f, indent=2)
+
+    # Mark manifest as sent (prevents re-processing if commit triggers another run)
+    manifest['action_taken'] = 'sent'
+    manifest['action_timestamp'] = datetime.now().isoformat()
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
 
     print("=" * 60)
     print(f"RESULTS: {len(sent)} sent, {len(failed)} failed")
