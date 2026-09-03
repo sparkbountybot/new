@@ -1,17 +1,128 @@
 {
-  "timestamp": "2026-09-03T22:00:00",
-  "total_found": 3,
+  "timestamp": "2026-09-03T23:30:29.424553",
+  "total_found": 82,
   "proposals": [
     {
       "rank": 1,
-      "score": 85,
-      "repo": "test-repo/test",
-      "issue": 1,
-      "title": "Documentation improvement needed",
-      "url": "https://github.com/test-repo/test/issues/1",
-      "reward": 100,
-      "email_to": ["test@example.com"],
-      "email_subject": "Proposal: test #1 - Documentation improvement"
+      "score": 45,
+      "repo": "/Trauma-Station/Trauma-Station",
+      "issue": 4419,
+      "title": "BOUNTY - $10000 bug fix",
+      "url": "https://github.com/Trauma-Station/Trauma-Station/issues/4419",
+      "reward": 10000.0,
+      "email_to": [],
+      "email_subject": "Proposal: Trauma-Station #4419 \u2014 BOUNTY - $10000 bug fix"
+    },
+    {
+      "rank": 2,
+      "score": 40,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 310,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise i",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/310",
+      "reward": 2500.0,
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #310 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
+    },
+    {
+      "rank": 3,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 254,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/254",
+      "reward": 1500.0,
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #254 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
+    },
+    {
+      "rank": 4,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 295,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] CORS Misconfiguratio",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/295",
+      "reward": 0,
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #295 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
+    },
+    {
+      "rank": 5,
+      "score": 30,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 311,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/311",
+      "reward": 1500.0,
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #311 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
+    },
+    {
+      "rank": 6,
+      "score": 50,
+      "repo": "/Scottcjn/rustchain-bounties",
+      "issue": 442,
+      "title": "Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)",
+      "url": "https://github.com/Scottcjn/rustchain-bounties/issues/442",
+      "reward": 0,
+      "email_to": [],
+      "email_subject": "Proposal: rustchain-bounties #442 \u2014 Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)"
+    },
+    {
+      "rank": 7,
+      "score": 18,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 626,
+      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/626",
+      "reward": 337.0,
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #626 \u2014 [Bounty] [BOUNTY] [$337] Mapping bounty"
+    },
+    {
+      "rank": 8,
+      "score": 15,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 283,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [bounty][funding-pending]:",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/283",
+      "reward": 0,
+      "email_to": [
+        "u003ejdjioe5@gmail.com",
+        "jdjioe5@gmail.com"
+      ],
+      "email_subject": "Proposal: bounty-plaza #283 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
+    },
+    {
+      "rank": 9,
+      "score": 15,
+      "repo": "/HHS/simpler-grants-protocol",
+      "issue": 1146,
+      "title": "[Bounty] Document proposed bounty program",
+      "url": "https://github.com/HHS/simpler-grants-protocol/issues/1146",
+      "reward": 0,
+      "email_to": [],
+      "email_subject": "Proposal: simpler-grants-protocol #1146 \u2014 [Bounty] Document proposed bounty program"
+    },
+    {
+      "rank": 10,
+      "score": 15,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 304,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] GraphQL Batch Query",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/304",
+      "reward": 0,
+      "email_to": [],
+      "email_subject": "Proposal: bounty-plaza #304 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
     }
   ],
   "status": "ready_to_send"
