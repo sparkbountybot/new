@@ -5,5 +5,26 @@
     "symbol": "TSLA",
     "qty": 76,
     "mode": "PAPER"
+  },
+  {
+    "ts": "2026-09-03T15:59:54.165661",
+    "action": "SELL",
+    "symbol": "NVDA",
+    "qty": 142,
+    "mode": "PAPER"
+  },
+  {
+    "ts": "2026-09-03T16:06:37.713936",
+    "action": "SELL",
+    "symbol": "SGOV",
+    "qty": 134,
+    "mode": "LIVE"
+  },
+  {
+    "ts": "2026-09-03T16:09:56.304510",
+    "action": "SELL",
+    "symbol": "AES",
+    "qty": 0.72486413,
+    "mode": "LIVE"
   }
 ]

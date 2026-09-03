@@ -77,6 +77,26 @@ That's NOT enough for RSI, MACD, or Bollinger Bands — you need a TIME SERIES o
 4. Get buy/SELL signals based on indicators
 5. One more policy fix attempt
 
+## Evolution Cycle Results (2026-09-03 16:01)
+- **Evolution #21 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
+- **System status:** 21 evolution cycles total; 10 experiences (3 completed, 7 pending)
+- **Knowledge base insights:**
+  - Trading domain: 100% success rate, avg quality 9.0/10 — continue using
+  - Network_Fix domain: 50% success rate, avg quality 7.5/10 — use with caution
+  - Best trading example: Backtest Mean Reversion on synthetic data (score 9)
+  - Best network example: Universal API Client auto-detects network mode (score 10)
+  - Worst network example: Test new API credentials on Alpaca (score 5)
+- **Strategy tracks:** mean_reversion, momentum_breakout, volatility_breakout — all 0 outcomes (no live trades executed yet)
+- **Core bottleneck:** Neither sandbox has real price data; both run indicator engines on synthetic data
+
+## Discoveries since last sync
+- Evolution engine runs autonomously every 4h via cron — now at 21 cycles
+- Experience log remains stagnant at 7 pending outcomes (same as last check)
+- No live trading outcomes to feed back into strategy learning
+- Knowledge base quality scores are based on experience quality, not real P&L
+- Trading score (9.0/10) reflects code quality, not trading profitability
+- Network_Fix score (7.5/10) down from 6.0/10 previously — Universal API Client improved the domain average
+
 ## DECISION FOR USER
 - We have great indicator code (spark2) but NO real price data (neither sandbox)
 - Engine can trade but on fake/synthetic data = signals are GUESSES

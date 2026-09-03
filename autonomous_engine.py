@@ -187,31 +187,35 @@ class Engine:
         
         signals = []
         
-        # SELL SIGNALS
-        
-        # 1. Stop loss
+        # --- REAL SIGNALS ONLY (reliable) ---
+        # 1. Stop loss - REAL P&L
         if pos["plpct"] <= -8:
             signals.append(("SELL", f"stop loss {pos['plpct']:.1f}%"))
         
-        # 2. Take profit
+        # 2. Take profit - REAL P&L
         elif pos["plpct"] >= 12:
             signals.append(("SELL", f"take profit {pos['plpct']:.1f}%"))
         
-        # 3. RSI overbought with profit
+        # 3. Intraday dump > 3% - REAL data from Alpaca
+        elif pos["intraday_plpct"] <= -3:
+            signals.append(("SELL", f"intraday drop {pos['intraday_plpct']:.1f}%"))
+        
+        # --- SYNTHETIC SIGNALS (use with caution - fake data) ---
+        # 4. RSI overbought with profit - FAKE indicator
         elif rsi > 75 and pos["plpct"] > 5:
-            signals.append(("SELL", f"RSI overbought {rsi:.1f}"))
+            signals.append(("SELL", f"RSI overbought {rsi:.1f} (synthetic)"))
         
-        # 4. Price above upper Bollinger with profit
+        # 5. Price above upper Bollinger with profit - FAKE
         elif bb_upper and current > bb_upper * 0.99 and pos["plpct"] > 3:
-            signals.append(("SELL", f"above BB upper"))
+            signals.append(("SELL", f"above BB upper (synthetic)"))
         
-        # 5. MACD crossover (bearish)
+        # 6. MACD crossover (bearish) - FAKE
         elif macd < 0 and pos["plpct"] < 2:
-            signals.append(("SELL", f"MACD bearish"))
+            signals.append(("SELL", f"MACD bearish (synthetic)"))
         
-        # 6. Price below MA with loss
+        # 7. Price below MA with loss - FAKE
         elif current < ma_20 * 0.98 and pos["plpct"] < -3:
-            signals.append(("SELL", f"below MA(20)"))
+            signals.append(("SELL", f"below MA(20) (synthetic)"))
         
         if not signals:
             return "HOLD", 0.0, f"RSI={rsi:.1f} MACD={macd:.2f}"
@@ -255,8 +259,12 @@ class Engine:
                     if p["qty_available"] < 0.001:
                         print(f"      SKIP: not yet available (settlement)")
                         continue
-                    q = int(p["qty"])
-                    if q >= 1:
+                    # Handle fractional positions - sell ALL available
+                    q = int(p["qty_available"])
+                    if q < 1 and p["qty_available"] >= 0.001:
+                        q = p["qty_available"]  # Fractional sell
+                        print(f"      FRAC: selling fractional {q:.4f} {sym}")
+                    if q >= 0.001:
                         self.cancel_orders(sym)
                         actions.append((sym, q, "sell"))
             
