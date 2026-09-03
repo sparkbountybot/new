@@ -1,0 +1,252 @@
+{
+  "timestamp": "2026-09-03T20:25:14.744928",
+  "total_found": 96,
+  "top_issues": [
+    {
+      "rank": 1,
+      "score": 45,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 310,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimisei",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/310",
+      "reward": 2500.0,
+      "reasons": [
+        "$2500.0",
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 2,
+      "score": 35,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 254,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/254",
+      "reward": 1500.0,
+      "reasons": [
+        "$1500.0",
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 3,
+      "score": 35,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 311,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/311",
+      "reward": 1500.0,
+      "reasons": [
+        "$1500.0",
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 4,
+      "score": 11,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 626,
+      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/626",
+      "reward": 337.0,
+      "reasons": [
+        "$337.0",
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 5,
+      "score": 6,
+      "repo": "/openai/codex-security",
+      "issue": 25,
+      "title": "Show scan scope, budget semantics, and expected output before paid work begins",
+      "url": "https://github.com/openai/codex-security/issues/25",
+      "reward": 50.0,
+      "reasons": [
+        "$50.0",
+        "'paid'"
+      ]
+    },
+    {
+      "rank": 6,
+      "score": 6,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 710,
+      "title": "[Bounty] [BOUNTY] [MONEY] [$50] Implement Dodge Rolling",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/710",
+      "reward": 50.0,
+      "reasons": [
+        "$50.0",
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 7,
+      "score": 5,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 283,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [bounty][funding-pending]:",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/283",
+      "reward": 0,
+      "reasons": [
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 8,
+      "score": 5,
+      "repo": "/HHS/simpler-grants-protocol",
+      "issue": 1146,
+      "title": "[Bounty] Document proposed bounty program",
+      "url": "https://github.com/HHS/simpler-grants-protocol/issues/1146",
+      "reward": 0,
+      "reasons": [
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 9,
+      "score": 5,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 295,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] CORS Misconfiguratio",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/295",
+      "reward": 0,
+      "reasons": [
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 10,
+      "score": 5,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 304,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] GraphQL Batch Query",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/304",
+      "reward": 0,
+      "reasons": [
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 11,
+      "score": 5,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 305,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] Server-Side Prototyp",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/305",
+      "reward": 0,
+      "reasons": [
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 12,
+      "score": 5,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 292,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] Zip Slip \u2192 Arbitrary",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/292",
+      "reward": 0,
+      "reasons": [
+        "'bounty'"
+      ]
+    },
+    {
+      "rank": 13,
+      "score": 5,
+      "repo": "/ValveSoftware/Dota2-Gameplay",
+      "issue": 35068,
+      "title": "Ungiven reward",
+      "url": "https://github.com/ValveSoftware/Dota2-Gameplay/issues/35068",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 14,
+      "score": 5,
+      "repo": "/ValveSoftware/Dota2-Gameplay",
+      "issue": 34777,
+      "title": "Reward TI",
+      "url": "https://github.com/ValveSoftware/Dota2-Gameplay/issues/34777",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 15,
+      "score": 5,
+      "repo": "/mokdevel/DarcMods",
+      "issue": 55,
+      "title": "XPReward fixes",
+      "url": "https://github.com/mokdevel/DarcMods/issues/55",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 16,
+      "score": 5,
+      "repo": "/djraj/lotus-rewards-app",
+      "issue": 21,
+      "title": "Reward fulfilment tracking",
+      "url": "https://github.com/djraj/lotus-rewards-app/issues/21",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 17,
+      "score": 5,
+      "repo": "/ValveSoftware/Dota2-Gameplay",
+      "issue": 35141,
+      "title": "Top 1500 TI reward in top 100 reward table.",
+      "url": "https://github.com/ValveSoftware/Dota2-Gameplay/issues/35141",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 18,
+      "score": 5,
+      "repo": "/vic-muna/Focus-App-COMP90018",
+      "issue": 48,
+      "title": "Reward System UI",
+      "url": "https://github.com/vic-muna/Focus-App-COMP90018/issues/48",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 19,
+      "score": 5,
+      "repo": "/Rione-at-Home/Open-Manipulator-X-6",
+      "issue": 9,
+      "title": "Redesign reward function",
+      "url": "https://github.com/Rione-at-Home/Open-Manipulator-X-6/issues/9",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    },
+    {
+      "rank": 20,
+      "score": 5,
+      "repo": "/Wikid82/Hestia",
+      "issue": 37,
+      "title": "Reward store: approval flow + richer reward types",
+      "url": "https://github.com/Wikid82/Hestia/issues/37",
+      "reward": 0,
+      "reasons": [
+        "'reward'"
+      ]
+    }
+  ]
+}

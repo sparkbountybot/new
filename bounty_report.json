@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-09-03",
+  "issues": [
+    {
+      "title": "paid work- optimise NGBoost",
+      "body": "The company I work for is looking for someone to reduce the amount of time NGBoost takes to train and run inference.\nWe will be willing to pay someone to refactor the algorithm (rates are negotiable). All work done will be made openly available. depending on the speedups achieved, a research paper could stem from your work (if that is something you are interested in).\nDeliverable: A version of NGBoost that runs close to the speeds of LightGBM (or faster) by leveraging numba/C++/GPU acceleration or any other relevant acceleration approaches (maybe incorporating LightGBM techniques).\nLink to the company website:\nIf interested and you have the time available, please email me to discuss options, timelines and payment: gsingh@naturalstate.org",
+      "comments": 0,
+      "labels": [],
+      "emails": [
+        "gsingh@naturalstate.org",
+        "gsingh@naturalstate.org",
+        "gsingh@naturalstate.org",
+        "gsingh@naturalstate.org",
+        "u003egsingh@naturalstate.org",
+        "gsingh@naturalstate.org"
+      ],
+      "url": "https://github.com/stanfordmlgroup/ngboost/issues/298"
+    },
+    {
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise/i",
+      "body": "GitHub\n[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise/improve ac\nGitHub\n[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise/improve accuracy fo\nGitHub\n[Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise/improve accuracy for pow(x,\nGitHub\n[Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise/improve accuracy for pow(x, y) fp32 (\nGitHub\n[Bounty] [Bounty] [Bounty $2,500] Optimise/improve accuracy for pow(x, y) fp32 (non-integ\nGitHub\n[Bounty] [Bounty $2,500] Optimise/improve accuracy for pow(x, y) fp32 (non-integer expone\nGitHub\ntenstorrent/tt-metal#49625\n[Bounty $2,500] Optimise/improve accuracy for pow(x, y) fp32 (non-integer exponent)\nThe ttnn.pow(x, y) fp32 implementation (the exp_21f-based path added in PR #25025, which closed #23529) was a big improvement over the old kernel, but it still lost up to 27 ULP for non-integer exponents, while integer exponents stayed bit-exact (0 ULP). The op is the composite y * log2(x) followed by 2^(...), so the fp32 log2 and exp2 rounding errors compound. The CogVideo case that motivated #23529 (10000 ** 1.7984) was exactly one of those weak spots.\nThis PR is a follow-up accuracy improvement on top of the accepted #25025 fix, in the same class as the transcendental accuracy bounties exp2 #46\n3125 coins\n$2,500\nMedium\n\u8bc4\u8bba /claim \u9501\u5b9a\u4efb\u52a1 24h\n\u67e5\u770b REWARD_POLICY.md \u4e86\u89e3\u5151\u6362\u89c4\u5219",
+      "comments": 0,
+      "labels": [
+        "real"
+      ],
+      "emails": [
+        "jdjioe5@gmail.com",
+        "jdjioe5@gmail.com",
+        "u003ejdjioe5@gmail.com"
+      ],
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/310"
+    },
+    {
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise",
+      "body": "GitHub\n[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise deg2rad / `rad2de\nGitHub\n[Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise deg2rad / rad2deg (fp32/\nGitHub\n[Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise deg2rad / rad2deg (fp32/bf16)\nGitHub\n[Bounty] [Bounty] [Bounty $1,500] Optimise deg2rad / rad2deg (fp32/bf16)\nGitHub\n[Bounty] [Bounty $1,500] Optimise deg2rad / rad2deg (fp32/bf16)\nGitHub\ntenstorrent/tt-metal#49631\n[Bounty $1,500] Optimise deg2rad / rad2deg (fp32/bf16)\nttnn.deg2rad and ttnn.rad2deg are just a multiply by a compile-time constant (\u03c0/180 and 180/\u03c0 respectively), yet they are dispatched through the full binary multiply op, making them ~2x slower than they need to be.\nMeasured on device (Wormhole N150, bf16, DRAM, via Tracy DEVICE KERNEL DURATION), across shapes [1,1,32,32], [1,1,256,256], [1,4,512,512]:\nBoth ops route through the full binary multiply op with a scalar\n1875 coins\n$1,500\nMedium\n\u8bc4\u8bba /claim \u9501\u5b9a\u4efb\u52a1 24h\n\u67e5\u770b REWARD_POLICY.md \u4e86\u89e3\u5151\u6362\u89c4\u5219",
+      "comments": 0,
+      "labels": [
+        "real"
+      ],
+      "emails": [
+        "jdjioe5@gmail.com",
+        "jdjioe5@gmail.com",
+        "u003ejdjioe5@gmail.com"
+      ],
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/254"
+    },
+    {
+      "title": "Show scan scope, budget semantics, and expected output before paid work begins",
+      "body": "I set a $20 budget. It spent the whole $20 budget getting setup. How can I budget something when I have no ability to estimate it's expected cost? Am I supposed to set it to $50 now and just hope I don't burn a $50 budget on top of a $20 budget? How do I estimate before I run? :(",
+      "comments": 0,
+      "labels": [
+        "documentation",
+        "priority%3ap2",
+        "enhancement",
+        "area%3acost",
+        "area%3acli"
+      ],
+      "emails": [],
+      "url": "https://github.com/openai/codex-security/issues/25"
+    },
+    {
+      "title": "[Bounty] Document proposed bounty program",
+      "body": "Document the proposed open source bounty program: how it runs, what gets funded, and how contributions come in. The draft goes to the team for review, then to HHS for a go-forward before any bounties publish.",
+      "comments": 0,
+      "labels": [],
+      "emails": [],
+      "url": "https://github.com/HHS/simpler-grants-protocol/issues/1146"
+    },
+    {
+      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
+      "body": "GitHub\nhttps://github.com/Iamgoofball/-tg-station/issues/109\n[BOUNTY] [$337] Mapping bounty\nHello! I would like a new map for Space Station 13 to be mapped. Do mind that SS13 uses .dmm format.\nI would like my map to be mix of DeltaStation and MetaStation, where north of the station is copypasted from Meta and south from Delta. Good luck!\n421 coins\nMedium\n\u8bc4\u8bba /claim \u9501\u5b9a\u4efb\u52a1 24h\n\u67e5\u770b REWARD_POLICY.md \u4e86\u89e3\u5151\u6362\u89c4\u5219",
+      "comments": 0,
+      "labels": [
+        "real",
+        "bounty"
+      ],
+      "emails": [
+        "jdjioe5@gmail.com",
+        "jdjioe5@gmail.com",
+        "u003ejdjioe5@gmail.com"
+      ],
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/626"
+    }
+  ]
+}
