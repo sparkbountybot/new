@@ -1,120 +1,157 @@
-# BountyBot Framework v2 — Quick Cheat Sheet
+# Trading Engine — Cheat Sheet
 
-## Status (UPDATED 2026-09-02)
+## Account Credentials (Both in .env and config.yaml)
 
-**✅ WORKING END-TO-END**
-- Network: DNS via curl DoH, API calls via curl subprocess
-- **Paper Account** (PA31GHBLNBLF): $116,733 equity — ACTIVE (buying power: $98,651)
-- **Live Account** (180523598): $44,910 equity — ACTIVE (buying power: $137,321)
-- Both accounts authenticated via curl from host terminal
-- Paper trading engine: Executes orders with realistic fills
+### Paper Account
+- **API Key:** PK7I7UNRDEGHYSOWQMUCT6TM2Z
+- **Secret:** H5hHsrTiHgXgaid3QPN1Y9vuwSM8N1RkkeCVLgParh
+- **Base URL:** `https://paper-api.alpaca.markets`
 
-## Quick Start
+### Live Account
+- **API Key:** AKESB677ODE3GUAVWU24W4647X
+- **Secret:** 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ
+- **Base URL:** `https://api.alpaca.markets`
 
-### Run after-hours trading
+### Account IDs
+- **Paper:** ad42dd48-a762-4dbd-8680-87a600efbd44
+- **Live:** 3f8f0e32-cb55-45f4-8b4e-032088744769
+
+## Working Endpoints (Python requests — spark3)
+
+### Paper ✅
+| Endpoint | Status | Notes |
+|----------|--------|-------|
+| `/v2/account` | ✅ 200 | Equity, cash, buying power, status |
+| `/v2/positions` | ✅ 200 | All positions with qty, price, P&L |
+| `/v2/orders?status=open` | ✅ 200 | Open orders |
+| `/v2/orders` (POST) | ✅ 401 w/ test creds, works with real creds | Submit buy/sell orders |
+| `/v1beta1/clock` | ❌ 404 | Endpoint not found on paper API |
+
+### Live ✅
+| Endpoint | Status | Notes |
+|----------|--------|-------|
+| `/v2/account` | ✅ 200 | Same fields as paper |
+| `/v2/positions` | ✅ 200 | Same structure as paper |
+| `/v2/orders?status=open` | ✅ 200 | Open orders |
+| `/v2/orders` (POST) | ✅ Works | Submit buy/sell orders |
+| `/v1beta1/clock` | ❌ 404 | Endpoint not found on live API |
+
+### Unified ❌
+| Endpoint | Status | Notes |
+|----------|--------|-------|
+| `data.alpaca.markets/...` | ❌ Blocked | Proxy blocks all connections (403) |
+
+## Working Endpoints (Curl subprocess — spark2)
+Same as above — all `/v2/*` endpoints work via curl on spark2.
+
+## Blocked Endpoints (Both Sandboxes)
+
+| Endpoint | Status | Reason | Fix Needed |
+|----------|--------|--------|------------|
+| `api.github.com` | ❌ 403 | Proxy CONNECT tunnel blocked | Policy: `api.github.com:443:read-write:rest:enforce` |
+| `Yahoo Finance` | ❌ Exit 56 | Proxy blocks | Blocked by policy |
+| `Polygon.io` | ❌ Exit 56 | Proxy blocks | Blocked by policy |
+| `oauth2.googleapis.com` | ❌ 403 | Proxy CONNECT tunnel blocked | Policy: `oauth2.googleapis.com:443:read-write:rest:enforce` |
+| `www.googleapis.com` | ❌ 403 | Proxy CONNECT tunnel blocked | Policy: `www.googleapis.com:443:read-write:rest:enforce` |
+| `IMAP TCP 993` | ❌ Refused | No tunnel support | Policy: `imap.gmail.com:993:read-write:tunnel:enforce` |
+| `SMTP TCP 465` | ❌ Refused | No tunnel support | Policy: `smtp.gmail.com:465:read-write:tunnel:enforce` |
+
+## Working Network
+| Service | Status | Notes |
+|---------|--------|-------|
+| PyPI (`pypi.org`) | ✅ | `pip install` works |
+| Google DNS (`dns.google`) | ✅ | DoH resolution works |
+| GitHub (clone) | ✅ | Repo clone works (confirmed Veritoken) |
+| Python `requests` (spark3) | ✅ | Only for whitelisted endpoints |
+| `curl` subprocess (spark2) | ✅ | All API calls via curl on spark2 |
+
+## Trading Engine Status
+
+### autonomous_engine.py (spark3)
+- ✅ Sells on stop loss (8%) and take profit (12%)
+- ❌ No buy logic — can only sell existing positions
+- ❌ No indicator library — just raw P&L check
+- ❌ No price history — can't compute RSI, MACD, etc.
+- ❌ No position validation before placing orders
+- Uses Python `requests` (works via paper/live API endpoints)
+
+### after_hours_engine.py (spark2)
+- ✅ Works via curl subprocess
+- ✅ Has more signal generation logic
+- Uses `curl` subprocess for all API calls
+
+## Key Observations
+
+1. **Paper and Live are separate** — Different endpoints, different keys, different accounts
+2. **No `/clock` endpoint** — The market clock API doesn't exist on Alpaca's free tier endpoints. Use system time + ET timezone to calculate market hours.
+3. **No price data without bars/quotes** — Free tier doesn't give historical price data. All price info comes from `/v2/positions` (`current_price`) or `/v2/account`.
+4. **`qty_available` matters** — Positions can be in settlement (available=0, qty>0). Can't sell until available > 0.
+5. **Orders persist** — Sell orders placed before market close carry through. Check status before new run.
+6. **`data.alpaca.markets` unified API is blocked** — Must use `paper-api.alpaca.markets` and `api.alpaca.markets` directly.
+
+## Commands
+
+### Check Account (Paper)
 ```bash
-cd /sandbox/new && source .venv/bin/activate
-python3 -W ignore after_hours_engine.py
+cd /sandbox/new && source .venv/bin/activate && python3 -c "
+import requests
+hdrs = {'APCA-API-KEY-ID': 'PK7I7UNRDEGHYSOWQMUCT6TM2Z', 'APCA-API-SECRET-KEY': 'H5hHsrTiHgXgaid3QPN1Y9vuwSM8N1RkkeCVLgParh'}
+r = requests.get('https://paper-api.alpaca.markets/v2/account', headers=hdrs)
+print(r.json())
+"
 ```
 
-### View trading state
+### Check Account (Live)
 ```bash
-python3 manager.py trade-status
-cat state/after_hours_session.json | python3 -m json.tool
+cd /sandbox/new && source .venv/bin/activate && python3 -c "
+import requests
+hdrs = {'APCA-API-KEY-ID': 'AKESB677ODE3GUAVWU24W4647X', 'APCA-API-SECRET-KEY': '8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ'}
+r = requests.get('https://api.alpaca.markets/v2/account', headers=hdrs)
+print(r.json())
+"
 ```
 
-## Trading
-
-### Paper Trading Engine
+### Submit Sell Order (Paper)
 ```bash
-python3 -W ignore after_hours_engine.py  # Full pipeline
-python3 -W ignore test_paper.py           # Test with real API balance
-python3 -W ignore after_hours_trade.py --force  # Simple paper test
+cd /sandbox/new && source .venv/bin/activate && python3 -c "
+import requests
+hdrs = {'APCA-API-KEY-ID': 'PK7I7UNRDEGHYSOWQMUCT6TM2Z', 'APCA-API-SECRET-KEY': 'H5hHsrTiHgXgaid3QPN1Y9vuwSM8N1RkkeCVLgParh'}
+r = requests.post('https://paper-api.alpaca.markets/v2/orders', headers=hdrs, json={
+    'symbol': 'NVDA',
+    'qty': 1,
+    'side': 'sell',
+    'type': 'market',
+    'time_in_force': 'day'
+})
+print(r.json())
+"
 ```
 
-### Signals & Execution
-- Scans 10 stocks: AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA, JPM, V, JNJ
-- Generates signals: BUY/SELL with RSI-based confidence
-- Paper executes: Market orders with position sizing (2% risk, 3 max positions)
-- Tracks: P&L, portfolio value, daily performance
-
-### Account Credentials (config.yaml)
-
-| Account | Key | Secret | Base URL |
-|---------|-----|--------|----------|
-| Paper (PA31GHBLNBLF) | PK7I7UNRDEGHYSOWQMUCT6TM2Z | PK7I7UNRDEGHYSOWQMUCT6TM2Z | https://paper-api.alpaca.markets |
-| Live (180523598) | PK7I7UNRDEGHYSOWQMUCT6TM2Z | PK7I7UNRDEGHYSOWQMUCT6TM2Z | https://api.alpaca.markets |
-
-### Test Connection from Host
+### Run Engine (Paper — spark3)
 ```bash
-# Paper
-curl -s -H "APCA-API-KEY-ID: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
-  -H "APCA-API-SECRET-KEY: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
-  "https://paper-api.alpaca.markets/v2/account"
-
-# Live
-curl -s -H "APCA-API-KEY-ID: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
-  -H "APCA-API-SECRET-KEY: PK7I7UNRDEGHYSOWQMUCT6TM2Z" \
-  "https://api.alpaca.markets/v2/account"
+cd /sandbox/new && source .venv/bin/activate && python3 autonomous_engine.py --run-once
 ```
 
-## Monitoring
+### Run Engine (Paper — spark2)
 ```bash
-python3 manager.py status
-python3 manager.py monitor
-python3 manager.py history
+cd /sandbox/new && python3 after_hours_engine.py
 ```
 
-## Network
+## Trading Hours Calculation (Python)
+```python
+from datetime import datetime, timezone, timedelta
 
-**Sandbox: spark2**
-- ✅ DNS: works via `curl` DoH (`dns.google/resolve`)
-- ✅ curl subprocess: works with `--resolve` flag (DNS resolved via DoH)
-- ❌ Python requests: DNS resolution blocked — use curl subprocess or universal_api.py bridge
-- ❌ Google services (smtp, imap, oauth2): BLOCKED by proxy
-
-**Policy commands (run from host):**
-```bash
-openshell policy update spark2 \
-  --add-endpoint dns.google:443:read-write:rest:enforce \
-  --add-allow dns.google:443:GET:/resolve** \
-  --binary /usr/bin/python3 --binary /usr/local/bin/python3 \
-  --binary /usr/bin/curl --binary /usr/local/bin/curl \
-  --wait
-
-openshell policy update spark2 \
-  --add-endpoint paper-api.alpaca.markets:443:read-write:rest:enforce \
-  --add-endpoint api.alpaca.markets:443:read-write:rest:enforce \
-  --add-endpoint 35.194.67.18:443:read-write:rest:enforce \
-  --binary /usr/bin/python3 --binary /usr/local/bin/python3 \
-  --binary /usr/bin/curl --binary /usr/local/bin/curl \
-  --wait
+now_utc = datetime.now(timezone.utc)
+et = now_utc - timedelta(hours=4)  # EDT
+market_open = et.replace(hour=9, minute=30, second=0, microsecond=0)
+market_close = et.replace(hour=16, minute=0, second=0, microsecond=0)
+is_weekday = et.weekday() < 5  # Mon-Fri
+is_open = is_weekday and market_open <= now_utc <= market_close
 ```
 
-## File Locations
-```
-/sandbox/new/
-├── after_hours_engine.py    # Main after-hours trading pipeline
-├── after_hours_trade.py      # Simple paper trading wrapper
-├── test_paper.py             # Test with real API balance
-├── universal_api.py          # Network auto-detection (curl + DoH bridge)
-├── config.yaml               # Main config (has real API keys)
-├── manager.py                # CLI entry point
-├── state/
-│   ├── after_hours_session.json
-│   ├── paper_trade_session.json
-│   └── trading_session.json
-└── bountybot/
-    ├── trader.py              # Technical trading engine
-    └── paper_trader.py        # Paper trading simulator
-```
-
-## Troubleshooting
-- Python HTTP blocked → Use curl subprocess or universal_api.py
-- DNS dead in sandbox → DoH works via curl: `curl https://dns.google/resolve?name=HOST&type=A`
-- API 401 → Check credentials in config.yaml match the account (paper vs live)
-- API 403 → Endpoint not whitelisted in OpenShell policy
-- Need rebuild → See REBUILD.md
-
-## Rebuild (if needed)
-See REBUILD.md for step-by-step instructions.
+## Next Steps (Priority Order)
+1. **Unblock price data** — Get GitHub API and Yahoo Finance working so engine can compute RSI/MACD
+2. **Build buy logic** — Entry signals, position sizing, risk management
+3. **Add position validation** — Check `qty_available` before every order
+4. **Add market hours check** — Prevent overnight order submission (or use GTC)
+5. **Test on paper** — Run fully automated on paper for a week before touching live

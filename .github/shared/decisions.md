@@ -49,10 +49,36 @@
 
 ---
 
-## 2026-09-02 04:00 — Universal API Bridge
+## 2026-09-03 13:00 — NETWORK UNBLOCKED + BOUNTIES + ENGINE STATUS
 **Status: ACTIVE**
-- Spark3 created universal_api.py — auto-detects network mode
-- Python requests works in spark2 via universal_api bridge
-- Both sandboxes use clean Python HTTP when network allows
+
+**Network:**
+- GitHub API: ✅ UNBLOCKED (spark2/3 policy updated, full access now)
+- Yahoo Finance: ❌ Still blocked (needs proxy whitelist — user running openshell policy)
+- Gmail: ❌ Still blocked (needs tunnel endpoints on host)
+
+**Bounty Scanner:**
+- Created /sandbox/new/bounty_scan.py — scans sparkbountybot org + public GitHub bounties
+- Now works (GitHub API accessible)
+- Needs to be run from host or sandbox with GitHub access
+
+**Trading Engine:**
+- Cron job 83cb26fc: runs every 5min (autonomous_engine.py --run-once)
+- $44,915 equity | 4 positions (AES, CAG, META, SGOV)
+- 3 sell orders pending (CVX, INTC, KEY) — waiting to fill
+- Stop loss 8%, take profit 12%
+
+**Spark3 Status:**
+- Paper account: $117,837 | 9 positions
+- Evolution #20 complete — stable but blocked by 7 pending synthetic experiences
+- Needs real trade P&L to trigger strategy evolution
 
 ---
+
+## 2026-09-02 04:00 — Universal API Bridge
+|**Status: ACTIVE**
+|- Spark3 created universal_api.py — auto-detects network mode
+|- Python requests works in spark2 via universal_api bridge
+|- Both sandboxes use clean Python HTTP when network allows
+
+|---|
