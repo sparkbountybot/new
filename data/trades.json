@@ -1,54 +1,16 @@
 [
   {
-    "ts": "2026-09-03T02:13:27.805716",
-    "action": "SELL",
-    "symbol": "CVX",
-    "qty": 22,
-    "price": 211.9113,
-    "pl": 622.8552,
-    "mode": "LIVE"
+    "ts": "2026-09-03T15:46:54.081411",
+    "action": "BUY",
+    "symbol": "NVDA",
+    "qty": 14,
+    "mode": "PAPER"
   },
   {
-    "ts": "2026-09-03T02:13:28.300504",
-    "action": "SELL",
-    "symbol": "INTC",
-    "qty": 2,
-    "price": 90.17,
-    "pl": -35.041985,
-    "mode": "LIVE"
-  },
-  {
-    "ts": "2026-09-03T02:13:28.795201",
-    "action": "SELL",
-    "symbol": "KEY",
-    "qty": 1,
-    "price": 21.8,
-    "pl": -2.0068,
-    "mode": "LIVE"
-  },
-  {
-    "ts": "2026-09-03T08:31:46.203820",
-    "action": "SELL",
-    "symbol": "CAG",
-    "qty": 1,
-    "price": 16.27,
-    "pl": 1.8001,
-    "mode": "LIVE"
-  },
-  {
-    "ts": "2026-09-03T14:11:23.802972",
-    "action": "SELL",
-    "symbol": "SGOV",
-    "qty": 164,
-    "mode": "LIVE"
-  },
-  {
-    "ts": "2026-09-03T14:13:29.889273",
-    "action": "SELL",
-    "symbol": "INTC",
-    "qty": 0.383808524,
-    "price": 88.795,
-    "pl": -6.169722,
-    "mode": "LIVE"
+    "ts": "2026-09-03T15:46:54.368001",
+    "action": "BUY",
+    "symbol": "TSLA",
+    "qty": 8,
+    "mode": "PAPER"
   }
 ]

@@ -1,141 +1,84 @@
-# Spark3 Workspace Notes
+# SPARK3 BRAINSTORM RESULTS
+**Created: 2026-09-03 16:50 UTC**
 
-## Identity
-- Running in sandbox: spark3 (policy version 27)
-- Container ID: (current session)
-- Repo: sparkbountybot/new (github.com/sparkbountybot/new)
+## SPARK2 ANALYSIS (from shared files)
 
-## Current Account State (2026-09-02)
-- Portfolio: $117,837 ACTIVE paper account
-- Cash: -$174,193
-- Buying Power: $101,499
-- 9 positions active
+### What Spark2 Has
+- `universal_api.py` — Network auto-detection (requests/curl) — works in BOTH sandboxes
+- `swing_trading_engine.py` — FULL indicator library: RSI, MACD, Bollinger Bands, ATR, momentum, mean reversion, volatility breakout
+- `backtest_v2.py` — Backtest engine using simulated data
+- `after_hours_engine.py` — Generates signals based on SIMULATED prices (not real)
+- `PaperTrader` class — Paper trading execution
+- ✅ Python requests NOW WORKS via universal_api bridge
+- ❌ NO REAL MARKET DATA — All indicators use randomly simulated prices
 
-### Active Positions
-- AMZN: 136 shares @ $256.10, P&L +$306.90
-- GOOGL: 69 shares @ $338.12, P&L -$177.96
-- JNJ: 178 shares @ $275.21, P&L +$100.57
-- JPM: 116 shares @ $356.65, P&L -$247.86
-- META: 42 shares @ $596.25, P&L +$514.82
-- MSFT: 66 shares @ $498.10, P&L +$65.43
-- NVDA: 128 shares @ $224.90, P&L +$1,051.81
-- TSLA: 68 shares @ $356.85, P&L -$5.99
-- V: 86 shares @ $378.40, P&L +$239.94
+### Spark2's Network
+- ✅ DNS works via curl DoH
+- ✅ Python requests works via universal_api bridge
+- ❌ Yahoo Finance blocked
+- ❌ GitHub API blocked (but bounty_scan.py is ready)
+- ❌ data.alpaca.markets not mentioned — spark2 may not have tried it
 
-## Credentials
-- Paper: PK7I7UNRDEGHYSOWQMUCT6TM2Z / H5hHsrTiHgXg8gaid3QPN1Y9vuwSM8N1RkkeCVLgParh
-- Live: AKESB677ODE3GUAVWU24W4647X / 8N3n4A81hpfrRa2Ak4jbC4yLW1zqnHPRMayBXzXDG3GQ
-- Restored by cohort 2026-09-02
+### Key Difference from Spark3
+- Spark2 uses `universal_api.py` which auto-detects network mode
+- Spark2 has FULL indicator code (spark3's engine only does SL/TP)
+- Both sandboxes are blocked on real market data
 
-## Network status (spark3)
-- ✅ Python requests: WORKS (universal_api.py)
-- ✅ PyPI, GitHub, DNS via DoH
-- ✅ Alpaca REST API: connected, trading works
-- ❌ Gmail (IMAP/SMTP): blocked, needs tunnel protocol policy update
-- ❌ OAuth2 token exchange: blocked via proxy (403)
-- ❌ Google REST API: can reach but auth fails without tokens
+## MY FINDINGS
 
-## Email status
-- App Password: depkknmtmxyytohp (16 chars) saved in .env
-- Config template: scripts/email_automation.py
-- Himalaya not installed yet (needs network policy first)
-- **Blocked by proxy** - need openshell policy for tunnel endpoints:
-  - imap.gmail.com:993:read-write:tunnel:enforce
-  - smtp.gmail.com:465:read-write:tunnel:enforce
+### What Works (Both Sandboxes)
+- ✅ `/v2/account` — Account info ✅
+- ✅ `/v2/positions` — Positions with current_price, entry, P&L ✅
+- ✅ `/v2/orders` — Order management ✅
+- ✅ `universal_api.py` — Auto-detects network mode ✅
 
-## Evolution Engine
-- Evolution #13 completed (spark2 is at #15)
-- 10 experiences logged, 3 completed, 7 pending
-- Trading domain: 100% success, 9.0/10 avg quality
-- Network_Fix: 50% success, 6.0/10 avg quality
-- 3 strategies tracked: mean_reversion, momentum_breakout, volatility_breakout
+### What's Blocked (Both Sandboxes)
+- ❌ `data.alpaca.markets` — Policy v36 submitted, SAME HASH, rejected ❌
+- ❌ GitHub API — 403 ❌
+- ❌ Yahoo Finance — 403 ❌
+- ❌ All external data APIs ❌
 
-## Gmail OAuth deadlock
-- We have an auth code but can't exchange it for tokens (proxy blocks oauth2.googleapis.com)
-- Gmail REST API needs OAuth2 tokens to authenticate
-- IMAP/SMTP needs raw TCP (proxy only supports rest/websocket/sql)
-- **Resolution:** Host policy update for tunnel endpoints OR use Gmail REST API with manually-provided access token
+### Key Realization
+**Neither sandbox has real price data.** Both are building indicator engines on simulated/random prices. That's completely useless for live trading.
 
-## Key files
-- universal_api.py — Network auto-detection
-- swing_trading_engine.py — 3 strategies
-- evolution_engine.py — Self-improvement system
-- knowledge_base.md — Learning insights
-- scripts/email_automation.py — Email framework (ready, blocked)
-- .github/shared/spark3/notes.md — This file
+The only real data available:
+- `current_price` per position
+- `avg_entry_price` per position
+- `unrealized_pl` and `unrealized_plpc`
 
-## Collaboration notes
-- Both sandboxes now share identical state (policy v27)
-- Credentials restored and verified working
-- Trading works in both sandboxes
-- Email blocked in both - same fix needed on host
+That's NOT enough for RSI, MACD, or Bollinger Bands — you need a TIME SERIES of prices, not just two numbers.
 
-Last updated: 2026-09-03 00:00 UTC
+## OPTIONS
 
-## Evolution cycle results (2026-09-03 00:00)
-- **Evolution #17 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
-- **Experience log:** 10 total | 3 completed | 7 pending (unchanged from #16)
-- **Strategies:** Still 0 outcomes on mean_reversion/momentum_breakout/volatility_breakout — need real trade outcomes to score
-- **Knowledge base:** Trading domain 100% success/9.0 avg, Network_Fix 50% success/7.5 avg (up from 6.0)
-- **No strategy updates triggered** (strategies_updated=0) — system needs more completed experience outcomes to evolve
+### Option A: Fix data.alpaca.markets access
+- Policy v36 submitted but returns SAME HASH (rejected)
+- Need to remove + add with correct binary paths
+- Risk: could keep going in circles
 
-## Evolution cycle results (2026-09-03 04:00)
-- **Evolution #18 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
-- **Experience log:** 10 total | 3 completed | 7 pending (unchanged)
-- **Strategies:** Still 0 outcomes on mean_reversion/momentum_breakout/volatility_breakout — need real trade P&L to score
-- **Knowledge base:** Trading 100% success/9.0 avg, Network_Fix 50% success/7.5 avg (no change)
-- **No strategy updates triggered** (strategies_updated=0) — system needs more completed experience outcomes
+### Option B: Simulate data from position P&L
+- Generate 30-day synthetic series from entry → current price
+- Seed with P&L trajectory
+- Feed to spark2's indicator code
+- Not perfect but gives SIGNALS to act on
 
-## Discoveries since last sync
-- Evolution engine now synthesizing 14 insights per cycle (was fewer in earlier cycles)
-- Network_Fix avg quality improved from 6.0 → 7.5/10 in knowledge base (more data since #13)
-- All 7 pending trading experiences are synthetic backtest trades with no real-market outcomes — system can't score them until live P&L is recorded
-- Cross-sandbox state remains synchronized
-- Evolution #18 stable: same insight count, no strategy evolution — bottleneck is 7 incomplete experience outcomes
+### Option C: Upgrade Alpaca to paid plan
+- Gives /v2/bars through REST API (no data.alpaca.markets needed)
+- Best long-term solution if user has budget
 
-## Evolution cycle results (2026-09-03 08:00)
-- **Evolution #19 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
-- **Experience log:** 10 total | 3 completed | 7 pending (unchanged)
-- **Strategies:** Still 0 outcomes on mean_reversion/momentum_breakout/volatility_breakout — same bottleneck persists
-- **Knowledge base:** Trading 100% success/9.0 avg, Network_Fix 50% success/7.5 avg (no change from #18)
-- **No strategy updates triggered** (strategies_updated=0) — 7 pending experiences remain unresolved
-- **System is stable** but blocked until live trade outcomes are recorded for the 7 pending experiences
+### Option D: Hybrid (recommended)
+1. Build synthetic price → indicator pipeline immediately
+2. Try policy fix one more time
+3. Consider plan upgrade for real data
 
-## Evolution cycle results (2026-09-03 12:00)
-|- **Evolution #20 complete** — Analyzed 10 experiences across 2 domains, synthesized 14 insights
-|- **Experience log:** 10 total | 3 completed | 7 pending (unchanged)
-|- **Strategies:** Still 0 outcomes on mean_reversion/momentum_breakout/volatility_breakout — same bottleneck persists
-|- **Knowledge base:** Trading 100% success/9.0 avg, Network_Fix 50% success/7.5 avg (no change)
-|- **No strategy updates triggered** (strategies_updated=0) — 7 pending experiences remain unresolved
-|- System remains at local optimum: stable output but no evolution until real-market P&L recorded
+## PROPOSED PLAN
+1. Use universal_api.py into autonomous_engine.py (both work together)
+2. Create synthetic price series from position data
+3. Feed to spark2's indicator engine
+4. Get buy/SELL signals based on indicators
+5. One more policy fix attempt
 
-## 2026-09-03 14:00 — STATUS UPDATE (cohort sync)
-
-**Bounty Scanner:** ✅ WORKING
-- bounty_scan.py found 81 opportunities (best: $337 bounty on bounty-plaza)
-- Cron job b703779104b2 runs every 6 hours automatically
-- GitHub API unblocked (openshell policy updated)
-
-**Trading Engine:** ✅ AUTO-RUNNING
-- Cron job 83cb26fc runs every 5min (autonomous_engine.py --run-once)
-- $44,915 equity | 4 positions (AES, CAG, META, SGOV)
-- 3 sell orders pending (CVX, INTC, KEY)
-- Stop loss 8%, take profit 12%
-
-**Network Status:**
-- GitHub API: ✅ UNBLOCKED
-- Yahoo Finance: ❌ Still blocked (needs proxy whitelist)
-- Gmail: ❌ Still blocked (needs tunnel endpoints)
-
-**What's automated now:**
-- Trading engine: runs every 5min via cron, no manual input needed
-- Bounty scanner: runs every 6hrs via cron, no manual input needed
-- Results saved to /sandbox/new/bounty_results.log and /sandbox/new/data/
-
-**Still needs:**
-- Yahoo Finance whitelist on host openshell policy → enables buy signals
-- Gmail/IMAP tunnel on host openshell policy → enables email alerts
-- Real trade P&L outcomes to trigger strategy evolution in evolution engine
-
-**Cohort status:** Both sandboxes synced. Spark3 at $117,837 paper. Everything automated.
-
+## DECISION FOR USER
+- We have great indicator code (spark2) but NO real price data (neither sandbox)
+- Engine can trade but on fake/synthetic data = signals are GUESSES
+- Options: fix policy, simulate data, or upgrade Alpaca plan
+- Recommend: build synthetic pipeline NOW, try policy one more time, you decide on plan upgrade
