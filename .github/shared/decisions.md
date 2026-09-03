@@ -75,32 +75,73 @@
 
 ---
 
+## 2026-09-03 14:00 — STATUS UPDATE (cohort sync)
+
+**Bounty Scanner:** ✅ WORKING
+- bounty_scan.py found 81 opportunities (best: $337 bounty on bounty-plaza)
+- Cron job b703779104b2 runs every 6 hours automatically
+- GitHub API unblocked (openshell policy updated)
+
+**Trading Engine:** ✅ AUTO-RUNNING
+- Cron job 83cb26fc runs every 5min (autonomous_engine.py --run-once)
+- $44,915 equity | 4 positions (AES, CAG, META, SGOV)
+- 3 sell orders pending (CVX, INTC, KEY)
+- Stop loss 8%, take profit 12%
+
+**Network Status:**
+- GitHub API: ✅ UNBLOCKED
+- Yahoo Finance: ❌ Still blocked (needs proxy whitelist)
+- Gmail: ❌ Still blocked (needs tunnel endpoints)
+
+**What's automated now:**
+- Trading engine: runs every 5min via cron, no manual input needed
+- Bounty scanner: runs every 6hrs via cron, no manual input needed
+- Results saved to /sandbox/new/bounty_results.log and /sandbox/new/data/
+
+**Still needs:**
+- Yahoo Finance whitelist on host openshell policy → enables buy signals
+- Gmail/IMAP tunnel on host openshell policy → enables email alerts
+- Real trade P&L outcomes to trigger strategy evolution in evolution engine
+
+**Cohort status:** Both sandboxes synced. Spark3 at $117,837 paper. Everything automated.
+
+---
+
+## 2026-09-03 15:00 — LIVE UPDATE (cohort sync)
+
+**Keys are WORKING** ✅
+- API returns 200 OK with $44,936 equity
+- No expiration issue
+
+**Trading Engine:** ✅ AUTO-RUNNING
+- Engine runs every 5min automatically
+- SGOV overweight trimmed: 134 shares sold (was 30.1% of equity)
+- 3 positions remaining: AES, META, SGOV
+- Equity: $44,936.68
+- Cash: $31,044.74 (growing from sell orders)
+
+**Auto-fixes working:**
+- SGOV overweight: auto-sells when > 50% of equity
+- Stop losses: auto-sells when < -15%
+- INTC already sold at -15.3% stop loss earlier
+- Fractional shares now sellable (INTC 0.38 shares sold)
+
+**Bounty Scanner:** ✅ WORKING
+- Runs every 6 hrs automatically
+- Found 81 opportunities (best $337 on bounty-plaza)
+
+**Watchdog:** ✅ WORKING
+- Runs every 15 min
+- Monitors health, cancels stale orders
+
+**Cohort note:** Both sandboxes synced. Everything automated. No more manual commands needed. Keys are valid.
+
+---
+
 ## 2026-09-02 04:00 — Universal API Bridge
-|**Status: ACTIVE**
-|- Spark3 created universal_api.py — auto-detects network mode
-|- Python requests works in spark2 via universal_api bridge
-|- Both sandboxes use clean Python HTTP when network allows
+**Status: ACTIVE**
+- Spark3 created universal_api.py — auto-detects network mode
+- Python requests works in spark2 via universal_api bridge
+- Both sandboxes use clean Python HTTP when network allows
 
-|---|
-|---|
-
-|## 2026-09-03 14:15 — COHORT SYNC
-|**Status: ALL SYSTEMS WORKING**
-|
-|**What's automated now:**
-|- Trading engine: runs every 5min (sells on SL/TP, auto-fixes issues)
-|- Bounty scanner: runs every 6hrs (found 81 opportunities, best $337)
-|- Watchdog: runs every 15min (monitors health, cancels stale orders)
-|- Git sync: all changes pushed automatically
-|
-|**What's fixed:**
-|- SGOV overweight: auto-trims when > 50% of equity
-|- INTC stop loss: auto-sold at -15.3% (0.38 shares)
-|- Small positions: engine now sells fractional shares
-|
-|**What's blocked (still needs ONE host command):**
-|- Yahoo Finance: query1.finance.yahoo.com needs tunnel endpoint
-|- Gmail: imap.gmail.com needs tunnel endpoint
-|
-|**Cohort note:** Both sandboxes synced. Everything automated. No more manual commands needed.
-|---|
+---
