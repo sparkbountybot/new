@@ -1,1 +1,60 @@
-[]
+[
+  {
+    "ts": "2026-09-03T19:30:43.050266",
+    "action": "SELL",
+    "symbol": "AAPL",
+    "qty": 2.0,
+    "price": 327.73,
+    "pl": 0.23,
+    "reason": "signal (RSI overbought)",
+    "method": "auto"
+  },
+  {
+    "ts": "2026-09-03T19:31:33.589429",
+    "action": "SELL",
+    "symbol": "META",
+    "qty": 0.424330379,
+    "price": 612.77,
+    "pl": 9.946305,
+    "reason": "signal (RSI overbought)",
+    "method": "auto"
+  },
+  {
+    "ts": "2026-09-03T19:31:34.208908",
+    "action": "BUY",
+    "symbol": "AAPL",
+    "qty": 6,
+    "price": 327.73,
+    "reason": "below BB lower + MACD positive",
+    "method": "auto"
+  },
+  {
+    "ts": "2026-09-03T19:35:40.874530",
+    "action": "SELL",
+    "symbol": "AAPL",
+    "qty": 6.0,
+    "price": 327.6551,
+    "pl": -0.0594,
+    "reason": "signal (RSI overbought)",
+    "method": "auto"
+  },
+  {
+    "ts": "2026-09-03T19:37:33.507032",
+    "action": "BUY",
+    "symbol": "AAPL",
+    "qty": 6,
+    "price": 327.6551,
+    "reason": "below BB lower + MACD positive",
+    "method": "auto"
+  },
+  {
+    "ts": "2026-09-03T19:37:40.915644",
+    "action": "SELL",
+    "symbol": "AAPL",
+    "qty": 6.0,
+    "price": 327.635,
+    "pl": -0.18,
+    "reason": "signal (RSI overbought)",
+    "method": "auto"
+  }
+]
