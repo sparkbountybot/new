@@ -34,5 +34,12 @@
     "price": 16.27,
     "pl": 1.8001,
     "mode": "LIVE"
+  },
+  {
+    "ts": "2026-09-03T14:11:23.802972",
+    "action": "SELL",
+    "symbol": "SGOV",
+    "qty": 164,
+    "mode": "LIVE"
   }
 ]

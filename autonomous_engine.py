@@ -71,6 +71,14 @@ class Engine:
             with open("/sandbox/new/data/trades.json","w") as f: json.dump(self.trades, f, indent=2, default=str)
             print(f"  SELL {q} {sym} @ ${pos[sym]['current']:.2f} PL: ${pos[sym]['pl']:.2f}")
     
+    def sell_sgovi(self, qty):
+        o = self.post("/v2/orders", {"symbol": "SGOV", "qty": qty, "side": "sell", "type": "market", "time_in_force": "day"})
+        if o:
+            self.trades.append({"ts": datetime.now().isoformat(), "action": "SELL", "symbol": "SGOV", 
+                               "qty": qty, "mode": self.mode})
+            with open("/sandbox/new/data/trades.json","w") as f: json.dump(self.trades, f, indent=2, default=str)
+            print(f"  TRIM SGOV: {qty} @ ${self.positions()['SGOV']['current']:.2f}", flush=True)
+    
     def cycle(self):
         try:
             acct = self.account()
@@ -92,11 +100,17 @@ class Engine:
             for s in sells:
                 self.sell(s)
             
-            # Final status
+            # Handle SGOV overweight (trim if > 50% of equity)
             ps = self.positions()
-            print(f"  Positions: {len(ps)}", flush=True)
-            for sym, p in ps.items():
-                print(f"    {sym}: {p['qty']:.2f} @ ${p['current']:.2f} PL: ${p['pl']:+,.0f} ({p['plpct']:+.1f}%)", flush=True)
+            if "SGOV" in ps:
+                sgov_pct = (float(ps["SGOV"]["qty"]) * ps["SGOV"]["current"]) / acct["equity"] * 100
+                if sgov_pct > 50:
+                    print(f"  OVERWEIGHT: SGOV at {sgov_pct:.1f}% of equity, trimming", flush=True)
+                    target_qty = int(acct["equity"] * 0.3 / ps["SGOV"]["current"])
+                    current_qty = int(ps["SGOV"]["qty"])
+                    trim = current_qty - target_qty
+                    if trim > 0:
+                        self.sell_sgovi(trim)
         except Exception as e:
             print(f"\nERROR in cycle: {e}", flush=True)
             import traceback
