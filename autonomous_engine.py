@@ -62,14 +62,46 @@ class Engine:
     def sell(self, sym):
         pos = self.positions()
         if sym not in pos: return
-        q = int(pos[sym]["qty"])
-        if q < 1: return
-        o = self.post("/v2/orders", {"symbol": sym, "qty": q, "side": "sell", "type": "market", "time_in_force": "day"})
-        if o:
+        qty = float(pos[sym]["qty"])
+        if qty < 0.1: return  # Only skip truly tiny positions
+        
+        # Use exact qty including decimals
+        o = self.post("/v2/orders", {"symbol": sym, "qty": qty, "side": "sell", "type": "market", "time_in_force": "day", "extended_hours": False})
+        if o and o.get("id"):
             self.trades.append({"ts": datetime.now().isoformat(), "action": "SELL", "symbol": sym, 
-                               "qty": q, "price": pos[sym]["current"], "pl": pos[sym]["pl"], "mode": self.mode})
+                               "qty": qty, "price": pos[sym]["current"], "pl": pos[sym]["pl"], "mode": self.mode})
             with open("/sandbox/new/data/trades.json","w") as f: json.dump(self.trades, f, indent=2, default=str)
-            print(f"  SELL {q} {sym} @ ${pos[sym]['current']:.2f} PL: ${pos[sym]['pl']:.2f}")
+            print(f"  SELL {qty} {sym} @ ${pos[sym]['current']:.2f} PL: ${pos[sym]['pl']:.2f}", flush=True)
+        elif o:
+            print(f"  ERROR SELLING {sym}: {o}", flush=True)
+        else:
+            print(f"  NO RESPONSE SELLING {sym}", flush=True)
+    
+    def auto_fix_overweight(self, sym, max_pct):
+        """Auto-sell position if it exceeds max_pct of equity"""
+        ps = self.positions()
+        if sym not in ps: return
+        
+        acct = self.account()
+        val = float(ps[sym]["qty"]) * ps[sym]["current"]
+        pct = val / acct["equity"] * 100
+        
+        if pct > max_pct:
+            target_val = acct["equity"] * (max_pct / 100)
+            trim = int(float(ps[sym]["qty"]) - target_val / ps[sym]["current"])
+            if trim > 0:
+                self.sell(sym)  # Full sell to be safe, will trim in next cycle
+                print(f"  AUTO-FIX: {sym} was {pct:.1f}% of equity, selling to reduce", flush=True)
+    
+    def auto_fix_stoploss(self, sym, threshold=-15):
+        """Auto-sell if position is below threshold%"""
+        ps = self.positions()
+        if sym not in ps: return
+        
+        plpct = ps[sym]["plpct"]
+        if plpct <= threshold:
+            self.sell(sym)
+            print(f"  AUTO-FIX: {sym} at {plpct:.1f}%, triggered stop loss", flush=True)
     
     def sell_sgovi(self, qty):
         o = self.post("/v2/orders", {"symbol": "SGOV", "qty": qty, "side": "sell", "type": "market", "time_in_force": "day"})
@@ -100,17 +132,21 @@ class Engine:
             for s in sells:
                 self.sell(s)
             
-            # Handle SGOV overweight (trim if > 50% of equity)
+            # Auto-fix any issues
             ps = self.positions()
-            if "SGOV" in ps:
-                sgov_pct = (float(ps["SGOV"]["qty"]) * ps["SGOV"]["current"]) / acct["equity"] * 100
-                if sgov_pct > 50:
-                    print(f"  OVERWEIGHT: SGOV at {sgov_pct:.1f}% of equity, trimming", flush=True)
-                    target_qty = int(acct["equity"] * 0.3 / ps["SGOV"]["current"])
-                    current_qty = int(ps["SGOV"]["qty"])
-                    trim = current_qty - target_qty
-                    if trim > 0:
-                        self.sell_sgovi(trim)
+            for sym, pos in ps.items():
+                # Auto-fix stop losses
+                if pos["plpct"] <= -15:
+                    self.auto_fix_stoploss(sym, -15)
+                # Auto-fix overweight positions
+                if sym in ["SGOV"]:
+                    self.auto_fix_overweight(sym, 50)
+            
+            # Final status
+            ps = self.positions()
+            print(f"  Positions: {len(ps)}", flush=True)
+            for sym, p in ps.items():
+                print(f"    {sym}: {p['qty']:.2f} @ ${p['current']:.2f} PL: ${p['pl']:+,.0f} ({p['plpct']:+.1f}%)", flush=True)
         except Exception as e:
             print(f"\nERROR in cycle: {e}", flush=True)
             import traceback

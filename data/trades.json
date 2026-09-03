@@ -41,5 +41,14 @@
     "symbol": "SGOV",
     "qty": 164,
     "mode": "LIVE"
+  },
+  {
+    "ts": "2026-09-03T14:13:29.889273",
+    "action": "SELL",
+    "symbol": "INTC",
+    "qty": 0.383808524,
+    "price": 88.795,
+    "pl": -6.169722,
+    "mode": "LIVE"
   }
 ]
