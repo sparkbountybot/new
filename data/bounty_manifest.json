@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-04T00:46:02.003321",
+  "timestamp": "2026-09-04T00:49:17.118129",
   "total_found": 75,
   "proposals": [
     {
@@ -151,7 +151,5 @@
       "repo_main_file": "web/app.py"
     }
   ],
-  "status": "ready_to_send",
-  "action_taken": "sent",
-  "action_timestamp": "2026-09-04T00:46:45.144383"
+  "status": "ready_to_send"
 }
