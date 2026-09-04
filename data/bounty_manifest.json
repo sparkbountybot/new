@@ -121,5 +121,7 @@
       "email_subject": "Proposal: bounty-plaza #304 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
     }
   ],
-  "status": "ready_to_send"
+  "status": "ready_to_send",
+  "action_taken": "sent",
+  "action_timestamp": "2026-09-04T00:31:36.926425"
 }
