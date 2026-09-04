@@ -122,5 +122,6 @@
     }
   ],
   "status": "ready_to_send",
-  "action_taken": null
+  "action_taken": "sent",
+  "action_timestamp": "2026-09-04T00:08:40.355357"
 }

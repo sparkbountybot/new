@@ -1,28 +1,47 @@
 {
-  "timestamp": "2026-09-03T23:36:55.361095",
-  "total_sent": 0,
-  "total_failed": 10,
-  "sent": [],
-  "failed": [
-    {
-      "repo": "/Trauma-Station/Trauma-Station",
-      "issue": 4419,
-      "title": "BOUNTY - $10000 bug fix",
-      "reason": "No email address"
-    },
+  "timestamp": "2026-09-04T00:08:40.355029",
+  "total_sent": 4,
+  "total_failed": 6,
+  "sent": [
     {
       "repo": "/zhangjiayang6835-cyber/bounty-plaza",
       "issue": 310,
       "email": "jdjioe5@gmail.com",
       "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise i",
-      "message": "No Gmail App Password configured"
+      "reward": 2500.0,
+      "message": "Sent successfully"
     },
     {
       "repo": "/zhangjiayang6835-cyber/bounty-plaza",
       "issue": 254,
       "email": "jdjioe5@gmail.com",
       "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`",
-      "message": "No Gmail App Password configured"
+      "reward": 1500.0,
+      "message": "Sent successfully"
+    },
+    {
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 626,
+      "email": "jdjioe5@gmail.com",
+      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
+      "reward": 337.0,
+      "message": "Sent successfully"
+    },
+    {
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 283,
+      "email": "jdjioe5@gmail.com",
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [bounty][funding-pending]:",
+      "reward": 0,
+      "message": "Sent successfully"
+    }
+  ],
+  "failed": [
+    {
+      "repo": "/Trauma-Station/Trauma-Station",
+      "issue": 4419,
+      "title": "BOUNTY - $10000 bug fix",
+      "reason": "No email address"
     },
     {
       "repo": "/zhangjiayang6835-cyber/bounty-plaza",
@@ -41,20 +60,6 @@
       "issue": 442,
       "title": "Test the Miner on Your Machine \u2014 3 RTC (Good First Issue)",
       "reason": "No email address"
-    },
-    {
-      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
-      "issue": 626,
-      "email": "jdjioe5@gmail.com",
-      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
-      "message": "No Gmail App Password configured"
-    },
-    {
-      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
-      "issue": 283,
-      "email": "jdjioe5@gmail.com",
-      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [bounty][funding-pending]:",
-      "message": "No Gmail App Password configured"
     },
     {
       "repo": "/HHS/simpler-grants-protocol",
