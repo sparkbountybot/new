@@ -23,7 +23,7 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 def clone_repo(repo_url, cache_dir):
     """Clone repo to cache dir, return path"""
-    repo_name = repo_url.split("/")[-1]
+    repo_name = repo_url.split("/")[-1].replace(".git", "")
     # Check local clones first (faster)
     local_candidates = ["/sandbox", "/tmp", cache_dir]
     for loc in local_candidates:
@@ -33,7 +33,7 @@ def clone_repo(repo_url, cache_dir):
     # Fall back to cloning
     path = f"{cache_dir}/{repo_name}"
     if os.path.exists(path):
-        subprocess.run(["git", "-C", path, "pull"], capture_output=True)
+        subprocess.run(["git", "-C", path, "pull"], capture_output=True, timeout=30)
         return path
     subprocess.run(["git", "clone", "--depth", "1", repo_url, path], capture_output=True, timeout=30)
     return path
@@ -124,7 +124,7 @@ def analyze_repo(path):
 def fetch_issue_body(url):
     """Fetch issue body from GitHub"""
     r = subprocess.run(
-        ["curl", "-s", "--max-time", 10, url, "-H", "User-Agent: Mozilla/5.0"],
+        ["curl", "-s", "--max-time", "10", url, "-H", "User-Agent: Mozilla/5.0"],
         capture_output=True, text=True
     )
     if not r.stdout:

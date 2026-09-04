@@ -13,8 +13,116 @@ from datetime import datetime
 FROM_EMAIL = "sparkbountybot@gmail.com"
 PROPOSALS_DIR = "/sandbox/new/proposals"
 RESULTS_DIR = "/sandbox/new/data"
+FOLLOW_UP_DB = f"{RESULTS_DIR}/follow_up_db.json"
 os.makedirs(PROPOSALS_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
+
+WORKSPACE = "/sandbox/new"
+
+# Cache for repo analyses (avoid re-cloning same repo)
+_repo_cache = {}
+
+def get_or_analyze_repo(repo_url, cache_dir=WORKSPACE if 'WORKSPACE' in dir() else "/sandbox"):
+    """Clone repo if needed, analyze it, cache the result. Returns analysis dict."""
+    repo_name = repo_url.split("/")[-1].replace(".git", "")
+    if repo_name in _repo_cache:
+        return _repo_cache[repo_name]
+    
+    # Check local clones first
+    local_candidates = ["/sandbox", f"{cache_dir}/cache/repos", cache_dir]
+    path = None
+    for loc in local_candidates:
+        check = f"{loc}/{repo_name}"
+        if os.path.exists(f"{check}/.git"):
+            path = check
+            break
+    
+    if not path:
+        # Clone
+        path = f"{cache_dir}/cache/repos/{repo_name}"
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        try:
+            subprocess.run(["git", "clone", "--depth", "1", repo_url, path],
+                         capture_output=True, text=True, timeout=60)
+        except:
+            _repo_cache[repo_name] = {"error": "clone_failed"}
+            return _repo_cache[repo_name]
+    
+    # Analyze the repo
+    analysis = _analyze_repo(path)
+    _repo_cache[repo_name] = analysis
+    return analysis
+
+
+def _analyze_repo(path):
+    """Internal: analyze a cloned repo."""
+    analysis = {}
+    try:
+        tree_result = subprocess.run(
+            ["find", path, "-not", "-path", "*/.git/*", "-not", "-path", "*/__pycache__/*",
+             "-type", "f", "-not", "-name", "*.pyc", "-not", "-name", "*.so",
+             "-not", "-name", "*.dll", "-not", "-name", "*.exe"],
+            capture_output=True, text=True, timeout=30
+        )
+        files = [f.replace(f"{path}/", "") for f in tree_result.stdout.strip().split("\n") if f]
+        analysis["total_files"] = len(files)
+        
+        from pathlib import Path as PathLib
+        extensions = {".py": "Python", ".js": "JavaScript", ".ts": "TypeScript",
+                      ".go": "Go", ".rs": "Rust", ".md": "Markdown", ".json": "JSON",
+                      ".yaml": "YAML", ".yml": "YAML", ".toml": "TOML",
+                      ".sh": "Shell", ".sql": "SQL", ".txt": "Text", ".html": "HTML",
+                      ".css": "CSS", ".ini": "Config", ".cfg": "Config", ".env": "Config"}
+        lang_counts = {}
+        for f in files:
+            ext = PathLib(f).suffix
+            lang = extensions.get(ext, "Other")
+            lang_counts[lang] = lang_counts.get(lang, 0) + 1
+        analysis["languages"] = lang_counts
+        
+        test_files = [f for f in files if any(kw in f.lower() for kw in ["test", "spec", "check", "verify"])]
+        analysis["test_files"] = test_files[:10]
+        analysis["has_tests"] = len(test_files) > 0
+        
+        main_code = ""
+        main_file = ""
+        for ext in [".py", ".js", ".ts", ".go", ".rs"]:
+            for f in files:
+                if f.endswith(ext) and not any(kw in f for kw in ["test", "spec", "example", "demo", "sample"]):
+                    fp = f"{path}/{f}"
+                    if os.path.exists(fp):
+                        with open(fp) as fh:
+                            main_code = fh.read(1500)
+                        main_file = f
+                        break
+            if main_code:
+                break
+        analysis["main_file"] = main_file
+        analysis["main_code_sample"] = main_code[:500]
+        
+        try:
+            log_result = subprocess.run(
+                ["git", "-C", path, "log", "--oneline", "--since", "30 days", "-n", "10"],
+                capture_output=True, text=True, timeout=10
+            )
+            analysis["recent_commits"] = log_result.stdout.strip()[:300]
+        except:
+            analysis["recent_commits"] = ""
+        
+        readme_files = ["README.md", "readme.md", "README.txt", "readme.txt", "README"]
+        readme_content = ""
+        for rf in readme_files:
+            rp = f"{path}/{rf}"
+            if os.path.exists(rp):
+                with open(rp) as f:
+                    readme_content = f.read(1500)
+                break
+        analysis["readme"] = readme_content[:500]
+        
+    except Exception as e:
+        analysis["error"] = str(e)
+    
+    return analysis
 
 SEARCH_QUERIES = [
     ('bounty is:issue is:open', 'bounties'),
@@ -281,7 +389,7 @@ def score_issue(issue, details=None):
 
     return score, reasons
 
-def generate_proposal(issue, details=None):
+def generate_proposal(issue, details=None, repo_analysis=None):
     title = issue['title']
     repo = issue['repo']
     repo_name = repo.split('/')[-1] if '/' in repo else repo
@@ -319,15 +427,57 @@ def generate_proposal(issue, details=None):
     if reward:
         email_body += f"**Reward:** ${reward}\n\n"
 
-    approaches = {
-        "python": "1. Analyze the current codebase and understand the existing implementation\n2. Develop the required Python solution with proper tests\n3. Write clean, documented code following project conventions\n4. Submit a PR with full test coverage\n\nI have strong Python skills and experience delivering production-quality open-source contributions.",
-        "documentation": "1. Review the current state of the bounty program documentation\n2. Create a clear, comprehensive draft covering all required sections\n3. Include examples and templates where applicable\n4. Submit a draft PR for review\n\nI have experience writing clear technical documentation and have successfully contributed to open-source projects before.",
-        "testing": "1. Review the current test coverage and identify gaps\n2. Write comprehensive tests for the required functionality\n3. Ensure tests follow existing project patterns and conventions\n4. Submit a PR with full test coverage\n\nI specialize in writing thorough test suites that catch regressions and ensure reliability.",
-        "feature": "1. Understand the requirements and current architecture\n2. Design and implement the feature following project conventions\n3. Write tests and documentation for the new functionality\n4. Submit a PR with complete implementation\n\nI have experience implementing features in open-source projects and deliver clean, tested code.",
-    }
+    # Use actual repo analysis for specific proposal if available
+    if repo_analysis and 'total_files' in repo_analysis:
+        lang_summary = ", ".join(f"{v} {k}" for k, v in sorted(repo_analysis.get("languages", {}).items(), key=lambda x: -x[1])[:4])
+        email_body += f"**Codebase analysis:** {repo_analysis['total_files']} files ({lang_summary})\n"
+        
+        main_file = repo_analysis.get("main_file", "")
+        if main_file:
+            email_body += f"**Main file found:** {main_file}\n"
+        
+        readme = repo_analysis.get("readme", "")
+        if readme:
+            first_line = readme.split('\n\n')[0][:150]
+            email_body += f"**Project context:** {first_line}...\n"
+        
+        has_tests = repo_analysis.get("has_tests", False)
+        test_count = len(repo_analysis.get("test_files", []))
+        if has_tests:
+            email_body += f"**Existing tests:** {test_count} test files found\n"
+            email_body += f"**My approach:** I'll extend the existing test suite while implementing this feature.\n\n"
+        else:
+            email_body += f"**Note:** No test files found — I'll add comprehensive tests.\n\n"
 
-    email_body += f"**How I'd approach this:**\n\n{approaches.get(category, approaches['python'])}\n\n"
-    email_body += f"**Timeline:** I can begin immediately and deliver within {7 if reward < 500 else 14} days.\n\n"
+        email_body += f"**How I'd approach this:**\n\n"
+        email_body += f"1. I reviewed the codebase ({repo_analysis['total_files']} files, main: {main_file or 'N/A'})\n"
+        email_body += f"2. Understand the project structure and conventions from the README\n"
+        if category == "bugfix":
+            email_body += f"3. Identify the root cause by examining relevant modules\n"
+            email_body += f"4. Implement the fix with proper test coverage\n"
+            email_body += f"5. Submit a clean PR with clear commit messages\n"
+        elif category == "feature":
+            email_body += f"3. Design the feature following existing patterns in the codebase\n"
+            email_body += f"4. Implement with tests and documentation\n"
+            email_body += f"5. Submit a PR ready for review\n"
+        else:
+            email_body += f"3. Review relevant code modules\n"
+            email_body += f"4. Implement the solution following project conventions\n"
+            email_body += f"5. Add tests and documentation\n"
+            email_body += f"6. Submit a clean PR\n"
+        
+        email_body += f"\nI've already examined the code and have a clear plan. I can deliver within {7 if reward < 500 else 14} days.\n\n"
+    else:
+        # Fallback to generic proposal if no repo analysis
+        approaches = {
+            "python": "1. Analyze the current codebase and understand the existing implementation\n2. Develop the required Python solution with proper tests\n3. Write clean, documented code following project conventions\n4. Submit a PR with full test coverage\n\nI have strong Python skills and experience delivering production-quality open-source contributions.",
+            "documentation": "1. Review the current state of the bounty program documentation\n2. Create a clear, comprehensive draft covering all required sections\n3. Include examples and templates where applicable\n4. Submit a draft PR for review\n\nI have experience writing clear technical documentation.",
+            "testing": "1. Review the current test coverage and identify gaps\n2. Write comprehensive tests for the required functionality\n3. Ensure tests follow existing project patterns\n4. Submit a PR with full test coverage\n\nI specialize in writing thorough test suites.",
+            "feature": "1. Understand the requirements and current architecture\n2. Design and implement the feature following project conventions\n3. Write tests and documentation\n4. Submit a PR with complete implementation\n\nI deliver clean, tested code.",
+        }
+        email_body += f"**How I'd approach this:**\n\n{approaches.get(category, approaches['python'])}\n\n"
+        email_body += f"**Timeline:** I can begin immediately and deliver within {7 if reward < 500 else 14} days.\n\n"
+
     email_body += f"Looking forward to discussing this opportunity.\n\nBest regards,\nsparkbountybot\n"
 
     return {
@@ -387,7 +537,7 @@ def main():
     print()
 
     # Phase 3: Fetch details + draft proposals
-    print("[3/5] Fetching details and drafting proposals...")
+    print("[3/5] Fetching details, analyzing repos, and drafting proposals...")
 
     proposals = []
     for i, (score, iss, reasons) in enumerate(top_candidates):
@@ -398,7 +548,18 @@ def main():
             score, reasons = score_issue(iss, details)
             top_candidates[i] = (score, iss, reasons)
 
-        proposal = generate_proposal(iss, details)
+        # Analyze the repo for specific proposal
+        repo_url = f"https://github.com{iss['repo']}.git"
+        repo_analysis = get_or_analyze_repo(repo_url)
+        
+        proposal = generate_proposal(iss, details, repo_analysis)
+        
+        # Log repo analysis status
+        if repo_analysis.get("error"):
+            print(f"    Repo analysis skipped: {repo_analysis['error']}")
+        elif "total_files" in repo_analysis:
+            lang_str = ", ".join(f"{v} {k}" for k, v in list(repo_analysis.get("languages", {}).items())[:3])
+            print(f"    Repo: {repo_analysis['total_files']} files ({lang_str}), main: {repo_analysis.get('main_file', 'N/A')}")
 
         # Save individual proposal file
         safe_repo = iss['repo'].replace('/', '_')

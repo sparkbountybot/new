@@ -43,7 +43,7 @@ BOUNTIES_TO_WORK = [
 def fetch_body(url):
     """Fetch issue body from GitHub"""
     r = subprocess.run(
-        ["curl", "-s", "--max-time", 10, url,
+        ["curl", "-s", "--max-time", "10", url,
          "-H", "User-Agent: Mozilla/5.0 (X11; Linux x86_64)"],
         capture_output=True, text=True
     )
