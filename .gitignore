@@ -26,3 +26,4 @@ Thumbs.db
 .env
 
 # Cached git repos
+cache/repos/Trauma-Station.git/
