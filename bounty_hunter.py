@@ -22,6 +22,16 @@ WORKSPACE = "/sandbox/new"
 # Cache for repo analyses (avoid re-cloning same repo)
 _repo_cache = {}
 
+# Track sent proposals for follow-up system
+_sent_proposals = []
+
+def add_sent_proposal(proposal):
+    """Register a sent proposal for follow-up tracking"""
+    _sent_proposals.append(proposal)
+    
+def get_sent_proposals():
+    return list(_sent_proposals)
+
 def get_or_analyze_repo(repo_url, cache_dir=WORKSPACE if 'WORKSPACE' in dir() else "/sandbox"):
     """Clone repo if needed, analyze it, cache the result. Returns analysis dict."""
     repo_name = repo_url.split("/")[-1].replace(".git", "")
@@ -494,8 +504,19 @@ def main():
     print("=" * 70)
     print()
 
+    # Phase 0: Check for follow-ups from previous runs
+    print("[0/6] Checking for follow-ups from previous runs...")
+    try:
+        from follow_up_system import add_to_followup_db, check_and_send_followups
+        followup_count, followup_actions = check_and_send_followups()
+        if followup_actions:
+            print(f"  ℹ️  {followup_count} follow-ups to send via email pipeline")
+    except Exception as e:
+        print(f"  ℹ️  Follow-up check: {e}")
+    print()
+
     # Phase 1: Scrape bounties
-    print("[1/5] Scanning GitHub for open bounties...")
+    print("[1/6] Scanning GitHub for open bounties...")
     all_issues = {}
 
     for query, label in SEARCH_QUERIES:
@@ -599,12 +620,15 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
             'email_subject': proposal['subject'],
             'email_body': proposal['body'],
             'file': filepath,
+            'analyzed': "total_files" in repo_analysis,
+            'repo_file_count': repo_analysis.get("total_files", 0) if "total_files" in repo_analysis else None,
+            'repo_main_file': repo_analysis.get("main_file", ""),
         })
 
     print()
 
     # Phase 4: Write manifest for GitHub Actions
-    print("[4/5] Writing manifest for GitHub Actions pipeline...")
+    print("[4/6] Writing manifest for GitHub Actions pipeline...")
 
     manifest = {
         'timestamp': timestamp,
@@ -620,6 +644,9 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
                 'reward': p['reward'],
                 'email_to': p['email_to'],
                 'email_subject': p['email_subject'],
+                'analyzed': p['analyzed'],
+                'repo_file_count': p['repo_file_count'],
+                'repo_main_file': p['repo_main_file'],
             }
             for p in proposals[:10]  # Top 10 for email
         ],
@@ -632,8 +659,26 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
 
     print(f"  Manifest written to {manifest_path}")
 
+    # Phase 4.5: Track all proposals for follow-up system
+    print("[4.5/6] Tracking proposals for follow-up system...")
+    try:
+        from follow_up_system import add_to_followup_db
+        tracked = 0
+        for p in proposals:
+            if p['email_to']:  # Only track ones we can email
+                try:
+                    add_to_followup_db(p)
+                    tracked += 1
+                except Exception as e:
+                    print(f"  ⚠️  Could not track {p['repo']}/{p['issue']}: {e}")
+        if tracked:
+            print(f"  ✅ Tracked {tracked} proposals for follow-up")
+    except Exception as e:
+        print(f"  ⚠️  Follow-up tracking: {e}")
+    print()
+
     # Phase 5: Commit and push to GitHub
-    print("[5/5] Pushing proposals to GitHub for email pipeline...")
+    print("[5/6] Pushing proposals to GitHub for email pipeline...")
 
     try:
         # Commit changes

@@ -46,49 +46,89 @@ def send_follow_up(proposal, days_since_sent):
     
     return {"subject": subject, "body": body}
 
+def add_to_followup_db(proposal):
+    """Track a sent proposal for follow-up management"""
+    db = load_db()
+    
+    proposal_id = f"{proposal.get('repo','')}/{proposal.get('issue',0)}"
+    
+    # Check if already exists
+    for existing in db.get("proposals", []):
+        if existing.get("id") == proposal_id:
+            existing["status"] = "sent"
+            existing["sent_date"] = datetime.now().isoformat()
+            save_db(db)
+            return existing
+    
+    # New proposal
+    db.setdefault("proposals", []).append({
+        "id": proposal_id,
+        "title": proposal.get("title", ""),
+        "email": proposal.get("email_to", [None])[0] if isinstance(proposal.get("email_to"), list) else None,
+        "url": proposal.get("url", ""),
+        "reward": proposal.get("reward", 0),
+        "repo": proposal.get("repo", ""),
+        "issue": proposal.get("issue", 0),
+        "status": "sent",
+        "sent_date": datetime.now().isoformat(),
+        "followup_count": 0,
+        "last_followup": None,
+        "responses": [],
+    })
+    save_db(db)
+    return db["proposals"][-1]
+
+
 def check_and_send_followups():
     """Check all proposals and send follow-ups for those that need it"""
     db = load_db()
     now = datetime.now()
     followups_sent = 0
+    followup_actions = []
     
     for p in db.get("proposals", []):
-        if p.get("status") != "sent":
+        if p.get("status") not in ("sent", "followup_sent"):
             continue
         
         sent_date = datetime.fromisoformat(p.get("sent_date", ""))
         days_since = (now - sent_date).days
         
+        # Skip if already responded
+        if p.get("responses") and p["responses"][-1].get("status") == "responded":
+            continue
+        
         # Send follow-ups at day 3, day 7, day 14
-        next_followup_day = {3, 7, 14}
         next_followup_num = None
-        for day in sorted(next_followup_day):
+        for day in [3, 7, 14]:
             if days_since >= day and not p.get(f"followup_{day}_sent"):
                 next_followup_num = day
                 break
         
         if next_followup_num:
-            followup = send_follow_up(p, days_since)
-            print(f"  Following up: {p['title'][:50]} ({days_since} days ago)")
-            print(f"    Next followup: day {next_followup_num}")
-            
-            # Mark as followup sent
+            followup_body = send_follow_up(p, days_since)
+            followup_actions.append({
+                "proposal_id": p["id"],
+                "email": p.get("email", ""),
+                "subject": f"Re: {p.get('title', '')[:40]} — Follow up #{p.get('followup_count', 0) + 1}",
+                "body": followup_body,
+                "day": next_followup_num,
+            })
             p[f"followup_{next_followup_num}_sent"] = True
             p["followup_count"] = p.get("followup_count", 0) + 1
+            p["status"] = "followup_sent"
+            p["last_followup"] = datetime.now().isoformat()
             followups_sent += 1
-            
-            # In production, this would trigger the email sender
-            # For now, just log what would be sent
-            print(f"    Subject: {followup['subject']}")
-            print(f"    Body: {followup['body'][:100]}...")
     
     if followups_sent > 0:
-        print(f"\n  ✅ {followups_sent} follow-ups prepared")
+        print(f"  ✅ {followups_sent} follow-ups prepared")
+        for fa in followup_actions:
+            print(f"    → {fa['email']}: {fa['subject']}")
     else:
-        print(f"\n  ℹ️  No follow-ups needed at this time")
+        print(f"  ℹ️  No follow-ups needed at this time")
     
     save_db(db)
-    return followups_sent
+    return followups_sent, followup_actions
+
 
 def show_status():
     """Show status of all proposals"""
@@ -107,20 +147,15 @@ def show_status():
         days_since = ""
         if p.get("sent_date"):
             sent = datetime.fromisoformat(p["sent_date"])
-            days_since = f" ({(datetime.now() - sent).days} days ago)"
+            days_since = f" ({(datetime.now() - sent).days}d ago)"
         
-        print(f"{i+1}. [{status.upper()}] {p['title'][:50]}{days_since}")
+        print(f"{i+1}. [{status.upper()}] {p.get('title', 'N/A')[:50]}{days_since}")
         print(f"   Email: {p.get('email', 'N/A')}")
         print(f"   Reward: ${p.get('reward', 0)}")
-        if p.get("followup_count", 0) > 0:
-            print(f"   Follow-ups sent: {p['followup_count']}")
-    
-    print()
-    print("Status legend:")
-    print("  SENT: Proposal sent, awaiting response")
-    print("  REPLIED: Got a response")
-    print("  ACCEPTED: Work accepted, payment pending")
-    print("  CLOSED: No longer valid")
+        print(f"   Follow-ups: {p.get('followup_count', 0)}")
+        if p.get("responses"):
+            print(f"   Last response: {p['responses'][-1]}")
+        print()
 
 def add_proposal(title, email, url, reward=0):
     """Add a new proposal to the database"""

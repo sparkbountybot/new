@@ -1,4 +1,89 @@
 {
-  "proposals": [],
-  "last_run": "2026-09-04T00:28:22.598362"
+  "proposals": [
+    {
+      "id": "/test/repo/123",
+      "title": "Test Bounty",
+      "email": "test@example.com",
+      "url": "https://example.com",
+      "reward": 500,
+      "repo": "/test/repo",
+      "issue": 123,
+      "status": "sent",
+      "sent_date": "2026-09-04T00:44:38.458060",
+      "followup_count": 0,
+      "last_followup": null,
+      "responses": []
+    },
+    {
+      "id": "/zhangjiayang6835-cyber/bounty-plaza/310",
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $2,500] Optimise i",
+      "email": "jdjioe5@gmail.com",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/310",
+      "reward": 2500.0,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 310,
+      "status": "sent",
+      "sent_date": "2026-09-04T00:46:25.222705",
+      "followup_count": 0,
+      "last_followup": null,
+      "responses": []
+    },
+    {
+      "id": "/zhangjiayang6835-cyber/bounty-plaza/254",
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty $1,500] Optimise `deg2rad`",
+      "email": "jdjioe5@gmail.com",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/254",
+      "reward": 1500.0,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 254,
+      "status": "sent",
+      "sent_date": "2026-09-04T00:46:25.222820",
+      "followup_count": 0,
+      "last_followup": null,
+      "responses": []
+    },
+    {
+      "id": "/zhangjiayang6835-cyber/bounty-plaza/626",
+      "title": "[Bounty] [BOUNTY] [$337] Mapping bounty",
+      "email": "jdjioe5@gmail.com",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/626",
+      "reward": 337.0,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 626,
+      "status": "sent",
+      "sent_date": "2026-09-04T00:46:25.232446",
+      "followup_count": 0,
+      "last_followup": null,
+      "responses": []
+    },
+    {
+      "id": "/zhangjiayang6835-cyber/bounty-plaza/283",
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [bounty][funding-pending]:",
+      "email": "jdjioe5@gmail.com",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/283",
+      "reward": 0,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 283,
+      "status": "sent",
+      "sent_date": "2026-09-04T00:46:25.232967",
+      "followup_count": 0,
+      "last_followup": null,
+      "responses": []
+    },
+    {
+      "id": "/zhangjiayang6835-cyber/bounty-plaza/292",
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] Zip Slip \u2192 Arbitrary",
+      "email": "jdjioe5@gmail.com",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/292",
+      "reward": 0,
+      "repo": "/zhangjiayang6835-cyber/bounty-plaza",
+      "issue": 292,
+      "status": "sent",
+      "sent_date": "2026-09-04T00:46:25.233237",
+      "followup_count": 0,
+      "last_followup": null,
+      "responses": []
+    }
+  ],
+  "last_run": "2026-09-04T00:46:25.233238"
 }
