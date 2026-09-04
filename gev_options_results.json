@@ -1,0 +1,26 @@
+{
+  "put_spreads": [],
+  "iron_condors": [],
+  "stats": {
+    "credit_put_spread": {
+      "total_runs": 100,
+      "wins": 86,
+      "losses": 14,
+      "win_rate": "86.0%",
+      "avg_win": "$1.38",
+      "avg_loss": "$-1.76",
+      "total_pnl": "$94.30",
+      "total_credits": "$173.00"
+    },
+    "iron_condor": {
+      "total_runs": 100,
+      "wins": 66,
+      "losses": 33,
+      "win_rate": "66.0%",
+      "avg_win": "$1.30",
+      "avg_loss": "$-1.51",
+      "total_pnl": "$36.22",
+      "total_credits": "$302.00"
+    }
+  }
+}
