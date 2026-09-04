@@ -24,3 +24,5 @@ Thumbs.db
 
 # Config with secrets
 .env
+
+# Cached git repos
