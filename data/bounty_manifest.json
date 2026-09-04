@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-04T00:11:55.908225",
+  "timestamp": "2026-09-04T00:30:50.708721",
   "total_found": 75,
   "proposals": [
     {
@@ -121,7 +121,5 @@
       "email_subject": "Proposal: bounty-plaza #304 \u2014 [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bount"
     }
   ],
-  "status": "ready_to_send",
-  "action_taken": "sent",
-  "action_timestamp": "2026-09-04T00:12:37.544867"
+  "status": "ready_to_send"
 }
