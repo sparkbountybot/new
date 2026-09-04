@@ -81,6 +81,64 @@ def extract_emails(text):
             clean_emails.append(email)
     return list(dict.fromkeys(clean_emails))  # unique, preserving order
 
+def is_portal_page(html):
+    """Check if this page is a bounty portal/list page (not an actual bounty)"""
+    portal_signals = [
+        '赏金平台', 'Platform',  # Chinese + English portal markers
+        '原始链接', 'Source URL',  # Bounty-plaza navigation structure
+        'discussions_button',  # GitHub discussions
+        'is:discussion',  # Discussion page
+        'pinned-container',  # Pinned issues/milestones
+    ]
+    for signal in portal_signals:
+        if signal in html:
+            return True
+    return False
+
+def is_actual_bounty(html, title):
+    """Check if this is a real bounty issue vs a menu/portal page"""
+    title_lower = title.lower()
+    portal_titles = [
+        'bounty platform', 'platform', 'bounty board', 'bounty list',
+        'bug bounty', 'bug bounty program', 'hackathon', 'event',
+        'pinned', 'milestone', 'discussion', 'meta',
+    ]
+    for pt in portal_titles:
+        if pt in title_lower:
+            return False
+    # Must have some bounty-related content
+    bounty_signals = ['bounty', 'reward', 'paid', 'grant', 'sponsor', 'compensation', '$']
+    for signal in bounty_signals:
+        if signal in title_lower or signal in html.lower():
+            return True
+    return False
+
+def extract_contact_info(html):
+    """Extract ALL possible contact methods from an issue page"""
+    emails = extract_emails(html)
+    contacts = set(emails)
+
+    # Look for Discord handles
+    discord = re.findall(r'discord\.com/(?:invite/)?([a-zA-Z0-9_-]+)', html)
+    contacts.update(f'{d} (Discord)' for d in discord[:3])
+
+    # Look for Telegram usernames
+    telegram = re.findall(r'telegram\.org/([a-zA-Z0-9_]+)', html)
+    contacts.update(f'{t} (Telegram)' for t in telegram[:3])
+
+    # Look for GitHub username mentions that could be messaged
+    username_mentions = re.findall(r'@([a-zA-Z0-9_-]{2,30})', html)
+    # Filter to likely real usernames (not common words)
+    skip_words = {'you', 'the', 'and', 'for', 'with', 'this', 'that', 'is', 'are',
+                  'bug', 'fix', 'issue', 'report', 'please', 'thanks', 'help',
+                  'see', 'link', 'visit', 'check', 'create', 'open', 'close',
+                  'add', 'remove', 'update', 'submit', 'comment', 'work', 'code'}
+    for u in username_mentions:
+        if u not in skip_words and len(u) > 2:
+            contacts.add(f'@{u} (GitHub)')
+
+    return list(contacts)
+
 def parse_search_results(html):
     issues = []
     seen = set()
@@ -99,18 +157,24 @@ def parse_search_results(html):
         key = f"{repo_path}/issues/{issue_num}"
         if key in seen:
             continue
+
+        # Skip portal/list pages
+        window = html[max(0, m.start() - 1000):m.end() + 2000]
+        if is_portal_page(window) or not is_actual_bounty(window, title):
+            continue
+
         seen.add(key)
 
         bounty_amount = extract_reward(title)
         if bounty_amount == 0:
             idx = max(0, m.start() - 500)
-            window = html[idx:m.end() + 500]
-            bounty_amount = extract_reward(window)
+            window2 = html[idx:m.end() + 500]
+            bounty_amount = extract_reward(window2)
 
         emails = []
-        idx = max(0, m.start() - 2000)
-        window = html[idx:m.end() + 2000]
-        emails = extract_emails(window)
+        idx2 = max(0, m.start() - 2000)
+        window2 = html[idx2:m.end() + 2000]
+        emails = extract_emails(window2)
 
         issues.append({
             'repo': repo_path,
