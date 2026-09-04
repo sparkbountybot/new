@@ -178,26 +178,82 @@ def extract_emails(text):
     text = html_module.unescape(text)
     # Also handle numeric character references like &#60; -> <
     text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), text)
-    # Handle hex character references like &#x3C; -> < (already handled by unescape, but just in case)
+    # Handle hex character references like &#x3C; -> <
     text = re.sub(r'&#x([0-9a-fA-F]+);', lambda m: chr(int(m.group(1), 16)), text)
-    # Remove any remaining entity-like artifacts that might prefix emails
-    # GitHub sometimes encodes as u003e (hex 3E = >)
+    # Remove any remaining entity-like artifacts
     text = re.sub(r'\bu003(?:[eE])\b', '', text)
     text = re.sub(r'\bu003e([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', r'\1', text)
     # Extract emails - be more permissive initially
     emails = re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
-    # Clean up: remove any HTML artifacts that might have slipped through
+    # Clean up
     clean_emails = []
     for email in emails:
         email = email.strip('<>&"\'')
-        # Remove any non-ASCII characters
         email = re.sub(r'[^\x20-\x7E]', '', email)
-        # Filter out emails that look like entity artifacts (e.g., u003e prefix)
         if re.match(r'^u\d{4,}', email):
             continue
         if email and '@' in email:
             clean_emails.append(email)
-    return list(dict.fromkeys(clean_emails))  # unique, preserving order
+    return list(dict.fromkeys(clean_emails))
+
+
+def extract_contacts(text):
+    """Extract ALL contact methods from text — email, Discord, Telegram, GitHub, Twitter, etc."""
+    contacts = []
+    emails = extract_emails(text)
+    if emails:
+        contacts.append({"type": "email", "value": emails[0]})
+
+    # Discord: https://discord.gg/xxxx or @username or discord.com/users/xxxx
+    discord_links = re.findall(r'(?:discord\.gg/|discord\.com/invite/|invite\.gg/)([^\s"\']{3,50})', text, re.IGNORECASE)
+    if discord_links:
+        contacts.append({"type": "discord_invite", "value": discord_links[0]})
+
+    discord_user = re.findall(r'@([A-Za-z0-9_]{2,32})', text)
+    # Filter out code artifacts and common false positives
+    exclude = {"code", "html", "div", "span", "class", "href", "src", "alt", "img", "a", "p", "li", "ul", "ol", "pre", "blockquote", "br", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "b", "i", "u", "table", "tr", "td", "th", "thead", "tbody", "footer", "header", "main", "section", "article", "nav", "aside", "form", "input", "button", "select", "option", "textarea", "label", "legend", "fieldset", "figure", "figcaption", "details", "summary", "dialog", "address", "body", "head", "meta", "link", "style", "script", "title", "context", "param", "source", "track", "wbr", "noscript", "applet", "base", "basefont", "bdo", "bgsound", "blink", "content", "data", "element", "eventsource", "frame", "frameset", "hgroup", "keygen", "marquee", "menuitem", "meter", "output", "picture", "progress", "rp", "rt", "ruby", "search", "slot", "time", "vide", "xmp", "plaintext", "doctypes", "doctype", "xml", "utf", "8", "0"}
+    real_discord = [d for d in discord_user if d.lower() not in exclude and len(d) <= 32]
+    if real_discord:
+        contacts.append({"type": "discord_user", "value": f"@{real_discord[0]}"})
+
+    # Telegram: t.me/username or t.me/username/xxxx
+    telegram = re.findall(r't\.me/([A-Za-z0-9_]{3,32})', text)
+    if telegram:
+        contacts.append({"type": "telegram", "value": f"@{telegram[0]}"})
+
+    # Twitter/X: @username or t.co links or twitter.com/username
+    twitter = re.findall(r'twitter\.com/([A-Za-z0-9_]{1,15})', text)
+    if twitter:
+        contacts.append({"type": "twitter", "value": f"@{twitter[0]}"})
+    else:
+        x_handle = re.findall(r'x\.com/([A-Za-z0-9_]{1,15})', text)
+        if x_handle:
+            contacts.append({"type": "twitter", "value": f"@{x_handle[0]}"})
+
+    # GitHub username from URLs or mentions
+    github_users = re.findall(r'github\.com/([A-Za-z0-9_-]{1,39})/issues/\d+', text)
+    if github_users:
+        # The repo owner is the most relevant GitHub contact
+        contacts.append({"type": "github_owner", "value": github_users[0]})
+
+    # Generic "Contact:" patterns
+    contact_patterns = re.findall(r'(?:contact|email|reach|dm|message)\s*(?:me|us|the|them)?\s*[:.]\s*([^\n]{5,100})', text, re.IGNORECASE)
+    for cp in contact_patterns:
+        cp = cp.strip().strip('"\'`')
+        if '@' in cp:
+            extracted = extract_emails(cp)
+            if extracted:
+                contacts.append({"type": "contact_email", "value": extracted[0]})
+        elif cp.lower() not in ["me", "us", "the team", "the author", "the maintainer"]:
+            contacts.append({"type": "contact_raw", "value": cp[:50]})
+
+    # Website URLs from README or issue body
+    websites = re.findall(r'https?://[^\s\047\047<>]+\.(com|org|io|dev|net|co)', text)
+    if websites:
+        contacts.append({"type": "website", "value": f"https://...{websites[0][1]}.{websites[0][0].split('.')[-2]}.{websites[0][0].split('.')[-1]}"})
+
+    return contacts
+
 
 def is_portal_page(html):
     """Check if this page is a bounty portal/list page (not an actual bounty)"""
@@ -212,6 +268,7 @@ def is_portal_page(html):
         if signal in html:
             return True
     return False
+
 
 def is_actual_bounty(html, title):
     """Check if this is a real bounty issue vs a menu/portal page"""
