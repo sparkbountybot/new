@@ -1,205 +1,180 @@
 #!/usr/bin/env python3
 """
-Bounty Proposal Email Sender
-=============================
-Reads proposal manifest from the repo and sends emails via Gmail SMTP.
-Designed to run in GitHub Actions where Gmail is NOT blocked.
-
-Environment variables (from GitHub Secrets):
-  GMAIL_EMAIL - sparkbountybot@gmail.com
-  GMAIL_APP_PASSWORD - Gmail App Password (not the account password)
+Auto Email Sender — Sends proposals via Gmail
+==============================================
+Called by GitHub Actions or manually.
+Uses GMAIL_APP_PASSWORD from environment.
 """
-import json
-import smtplib
-import os
-import sys
+import smtplib, os, json, re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-from pathlib import Path
 
-# Configuration from environment
-GMAIL_EMAIL = os.environ.get('GMAIL_EMAIL', 'sparkbountybot@gmail.com')
-GMAIL_APP_PASSWORD = os.environ.get('GMAIL_APP_PASSWORD', '')
-SMTP_HOST = 'smtp.gmail.com'
+# Config
+SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
+FROM_EMAIL = "sparkbountybot@gmail.com"
 
-def send_email(to_email, subject, body):
-    """Send email via Gmail SMTP"""
+# Get app password from env (GitHub Actions injects this)
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
+
+# File paths
+MANIFEST_PATH = "/sandbox/new/data/bounty_manifest.json"
+SENT_LOG_PATH = "/sandbox/new/data/sent_log.json"
+
+
+def load_manifest():
+    if os.path.exists(MANIFEST_PATH):
+        with open(MANIFEST_PATH) as f:
+            return json.load(f)
+    return {}
+
+
+def load_sent_log():
+    if os.path.exists(SENT_LOG_PATH):
+        with open(SENT_LOG_PATH) as f:
+            return json.load(f)
+    return {
+        "timestamp": "",
+        "total_sent": 0,
+        "total_failed": 0,
+        "sent": [],
+        "failed": [],
+    }
+
+
+def send_email(to_email, subject, body, manifest_entry=None):
+    """Send a single email via Gmail SMTP"""
     if not GMAIL_APP_PASSWORD:
-        return False, "No Gmail App Password configured"
-
-    msg = MIMEMultipart()
-    msg['From'] = GMAIL_EMAIL
-    msg['To'] = to_email
-    msg['Subject'] = subject
-
-    # Create HTML and plain text versions
-    msg.attach(MIMEText(body, 'html'))
-    msg.attach(MIMEText(body.replace('<br>', '\n').replace('</p>', '\n\n').replace('<p>', ''), 'plain'))
+        return {"success": False, "message": "No GMAIL_APP_PASSWORD configured"}
 
     try:
+        msg = MIMEMultipart()
+        msg["From"] = FROM_EMAIL
+        msg["To"] = to_email
+        msg["Subject"] = subject
+
+        msg.attach(MIMEText(body, "plain"))
+
         server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
         server.ehlo()
         server.starttls()
         server.ehlo()
-        server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
-        server.sendmail(GMAIL_EMAIL, to_email, msg.as_string())
+        server.login(FROM_EMAIL, GMAIL_APP_PASSWORD)
+        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
         server.quit()
-        return True, "Sent successfully"
+
+        result = {"success": True, "message": "Sent successfully"}
+        if manifest_entry:
+            result["reward"] = manifest_entry.get("reward", 0)
+        return result
     except Exception as e:
-        return False, str(e)
+        return {"success": False, "message": str(e)}
 
-def read_proposal_file(filepath):
-    """Read a proposal file and extract email content"""
-    try:
-        with open(filepath, 'r') as f:
-            content = f.read()
 
-        # Extract the email body (between --- markers or the main content)
-        body = content
-        for line in content.split('\n'):
-            if line.startswith('# '):
-                continue
-            if line.startswith('---'):
-                continue
-            body = content.split('---\n')[-1] if '---\n' in content else content
-            break
+def send_all_proposals():
+    """Send all proposals from manifest"""
+    manifest = load_manifest()
+    if not manifest.get("proposals"):
+        print("No proposals in manifest")
+        return {"total_sent": 0, "total_failed": 0}
 
-        # Extract subject from filename pattern or content
-        subject = f"Bounty Proposal: {os.path.basename(filepath)}"
+    # Track what's already sent
+    sent_log = load_sent_log()
+    already_sent = set()
+    for s in sent_log.get("sent", []):
+        key = f"{s.get('repo', '')}/{s.get('issue', '')}"
+        already_sent.add(key)
 
-        return subject, body
-    except Exception as e:
-        return None, f"Error reading {filepath}: {e}"
-
-def main():
-    print("=" * 60)
-    print("  BOUNTY PROPOSAL EMAIL SENDER")
-    print(f"  {datetime.now().isoformat()}")
-    print("=" * 60)
-    print()
-
-    # Read manifest
-    manifest_path = Path('data/bounty_manifest.json')
-    if not manifest_path.exists():
-        print("ERROR: No manifest found. Run bounty_hunter.py first.")
-        sys.exit(1)
-
-    with open(manifest_path) as f:
-        manifest = json.load(f)
-
-    # Check if already sent (prevent re-processing)
-    if manifest.get('action_taken') == 'sent':
-        print("⚠️  Emails already sent (action_taken=sent). Skipping.")
-        sys.exit(0)
-
-    proposals = manifest.get('proposals', [])
-    print(f"Found {len(proposals)} proposals in manifest")
-    print()
-
-    if not proposals:
-        print("No proposals to send.")
-        sys.exit(0)
-
-    # Send emails
     sent = []
     failed = []
+    total_sent = 0
+    total_failed = 0
 
-    for prop in proposals:
-        email_to = prop.get('email_to', [])
+    for p in manifest["proposals"]:
+        email_to = p.get("email_to", [])
         if not email_to:
-            print(f"⚠️  {prop['title'][:40]}: No email address found")
             failed.append({
-                'repo': prop['repo'],
-                'issue': prop['issue'],
-                'title': prop['title'],
-                'reason': 'No email address'
+                "repo": p.get("repo", ""),
+                "issue": p.get("issue", ""),
+                "title": p.get("title", ""),
+                "reason": "No email address",
             })
+            total_failed += 1
             continue
 
-        # Try the first email address
-        to_email = email_to[0] if isinstance(email_to, list) else email_to
+        # Check if we've already sent to this bounty
+        key = f"{p.get('repo', '')}/{p.get('issue', '')}"
+        if key in already_sent:
+            print(f"  Skipping (already sent): {p['title'][:40]}")
+            continue
 
-        print(f"📧 Sending to {to_email}...")
-        print(f"   Repo: {prop['repo']}/{prop['issue']}")
-        print(f"   Title: {prop['title'][:50]}")
-        print(f"   Reward: ${prop['reward']}{'K' if prop['reward'] >= 1000 else ''}" if prop['reward'] else "   Reward: As listed")
+        # Send to first email
+        email = email_to[0] if isinstance(email_to, list) else email_to
+        subject = p.get("email_subject", "Proposal")
+        body = p.get("email_body", "Proposal")
 
-        # Read full proposal from file
-        proposal_file = prop.get('file', '')
-        if proposal_file and Path(proposal_file).exists():
-            subject, body = read_proposal_file(proposal_file)
-        else:
-            subject = prop.get('email_subject', f'Proposal for {prop["repo"]} #{prop["issue"]}')
-            body = prop.get('email_body', f'Proposal for {prop["repo"]} #{prop["issue"]}')
+        print(f"  Sending to {email}...")
+        result = send_email(email, subject, body, p)
 
-        success, message = send_email(to_email, subject, body)
-
-        if success:
-            print(f"   ✅ SENT!")
+        if result["success"]:
             sent.append({
-                'repo': prop['repo'],
-                'issue': prop['issue'],
-                'email': to_email,
-                'title': prop['title'],
-                'reward': prop['reward'],
-                'message': message
+                "repo": p.get("repo", ""),
+                "issue": p.get("issue", ""),
+                "email": email,
+                "title": p.get("title", ""),
+                "reward": p.get("reward", 0),
+                "message": "Sent successfully",
             })
+            total_sent += 1
+            print(f"    ✅ Success")
         else:
-            print(f"   ❌ FAILED: {message}")
             failed.append({
-                'repo': prop['repo'],
-                'issue': prop['issue'],
-                'email': to_email,
-                'title': prop['title'],
-                'message': message
+                "repo": p.get("repo", ""),
+                "issue": p.get("issue", ""),
+                "email": email,
+                "title": p.get("title", ""),
+                "message": result.get("message", "Unknown error"),
             })
+            total_failed += 1
+            print(f"    ❌ {result.get('message', 'Unknown error')}")
 
-        print()
-
-    # Save results
-    results = {
-        'timestamp': datetime.now().isoformat(),
-        'total_sent': len(sent),
-        'total_failed': len(failed),
-        'sent': sent,
-        'failed': failed,
+    # Save updated sent log
+    sent_log = {
+        "timestamp": datetime.now().isoformat(),
+        "total_sent": total_sent,
+        "total_failed": total_failed,
+        "sent": sent,
+        "failed": failed,
     }
 
-    results_path = Path('data/sent_log.json')
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    with open(SENT_LOG_PATH, "w") as f:
+        json.dump(sent_log, f, indent=2)
 
-    # Mark manifest as sent (prevents re-processing if commit triggers another run)
-    manifest['action_taken'] = 'sent'
-    manifest['action_timestamp'] = datetime.now().isoformat()
-    with open(manifest_path, 'w') as f:
+    # Update manifest status
+    manifest["status"] = "sent"
+    manifest["action_taken"] = "email_sent"
+    manifest["sent_count"] = total_sent
+    manifest["failed_count"] = total_failed
+
+    with open(MANIFEST_PATH, "w") as f:
         json.dump(manifest, f, indent=2)
 
-    print("=" * 60)
-    print(f"RESULTS: {len(sent)} sent, {len(failed)} failed")
-    print("=" * 60)
+    return {
+        "total_sent": total_sent,
+        "total_failed": total_failed,
+        "sent": sent,
+        "failed": failed,
+    }
 
-    if sent:
-        print("\n✅ Successfully sent emails:")
-        for s in sent:
-            print(f"   → {s['email']}: {s['title'][:40]}...")
 
-    if failed:
-        print("\n❌ Failed to send:")
-        for item in failed:
-            email = item.get('email', 'N/A')
-            print(f"   → {email}: {item.get('message', 'Unknown error')}")
+if __name__ == "__main__":
+    print("=" * 70)
+    print("  AUTO EMAIL SENDER — Gmail SMTP Pipeline")
+    print("=" * 70)
 
-    # Return appropriate exit code
-    if sent and not failed:
-        print("\n🎉 All emails sent successfully!")
-    elif sent:
-        print(f"\n⚠️  {len(sent)} sent, {len(failed)} failed")
-    else:
-        print("\n❌ No emails sent")
-        sys.exit(1)
+    result = send_all_proposals()
 
-if __name__ == '__main__':
-    main()
+    print("\n" + "=" * 70)
+    print(f"  RESULTS: {result['total_sent']} sent, {result['total_failed']} failed")
+    print("=" * 70)

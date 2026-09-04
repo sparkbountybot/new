@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-09-04T00:51:35.964652",
+  "source": "huntr.dev",
+  "total_found": 9,
+  "proposals": [
+    {
+      "rank": 1,
+      "score": 0,
+      "title": "[QUARANTINED \u2014 DO NOT CLAIM] Seed a paid API child bounty",
+      "url": "https://github.com/NSPG13/agent-bounties/issues/334",
+      "reward": 0,
+      "file": "/sandbox/new/proposals/huntr__QUARANTINED___DO_NOT_CLAIM__S.md"
+    },
+    {
+      "rank": 2,
+      "score": 0,
+      "title": "Bounty issue template omits required &#x2F;bounty marker",
+      "url": "https://github.com/xevrion-v2/agent-playground/issues/687",
+      "reward": 0,
+      "file": "/sandbox/new/proposals/huntr_Bounty_issue_template_omits_re.md"
+    },
+    {
+      "rank": 3,
+      "score": 0,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] SSTI in Email Templa",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/284",
+      "reward": 0,
+      "file": "/sandbox/new/proposals/huntr__Bounty___Bounty___Bounty___Bo.md"
+    },
+    {
+      "rank": 4,
+      "score": 0,
+      "title": "VaultQuest GrantFox hard issues need contributor acceptance template and reward rubric",
+      "url": "https://github.com/Vaultquest/vaultquest/issues/171",
+      "reward": 0,
+      "file": "/sandbox/new/proposals/huntr_VaultQuest_GrantFox_hard_issue.md"
+    },
+    {
+      "rank": 5,
+      "score": 0,
+      "title": "[Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [Bounty] [BUG] SSTI in Email Template Engine",
+      "url": "https://github.com/zhangjiayang6835-cyber/bounty-plaza/issues/280",
+      "reward": 0,
+      "file": "/sandbox/new/proposals/huntr__Bounty___Bounty___Bounty___Bo.md"
+    }
+  ]
+}
