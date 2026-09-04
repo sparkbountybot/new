@@ -198,60 +198,66 @@ def extract_emails(text):
 
 
 def extract_contacts(text):
-    """Extract ALL contact methods from text — email, Discord, Telegram, GitHub, Twitter, etc."""
+    """Extract ALL possible contact methods: email, discord, telegram, github, etc."""
     contacts = []
-    emails = extract_emails(text)
+    
+    # 1. Email addresses
+    email_re = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+[.][a-zA-Z]{2,}")
+    emails = email_re.findall(text)
     if emails:
-        contacts.append({"type": "email", "value": emails[0]})
-
-    # Discord: https://discord.gg/xxxx or @username or discord.com/users/xxxx
-    discord_links = re.findall(r'(?:discord\.gg/|discord\.com/invite/|invite\.gg/)([^\s"\']{3,50})', text, re.IGNORECASE)
-    if discord_links:
-        contacts.append({"type": "discord_invite", "value": discord_links[0]})
-
-    discord_user = re.findall(r'@([A-Za-z0-9_]{2,32})', text)
-    # Filter out code artifacts and common false positives
-    exclude = {"code", "html", "div", "span", "class", "href", "src", "alt", "img", "a", "p", "li", "ul", "ol", "pre", "blockquote", "br", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "b", "i", "u", "table", "tr", "td", "th", "thead", "tbody", "footer", "header", "main", "section", "article", "nav", "aside", "form", "input", "button", "select", "option", "textarea", "label", "legend", "fieldset", "figure", "figcaption", "details", "summary", "dialog", "address", "body", "head", "meta", "link", "style", "script", "title", "context", "param", "source", "track", "wbr", "noscript", "applet", "base", "basefont", "bdo", "bgsound", "blink", "content", "data", "element", "eventsource", "frame", "frameset", "hgroup", "keygen", "marquee", "menuitem", "meter", "output", "picture", "progress", "rp", "rt", "ruby", "search", "slot", "time", "vide", "xmp", "plaintext", "doctypes", "doctype", "xml", "utf", "8", "0"}
-    real_discord = [d for d in discord_user if d.lower() not in exclude and len(d) <= 32]
-    if real_discord:
-        contacts.append({"type": "discord_user", "value": f"@{real_discord[0]}"})
-
-    # Telegram: t.me/username or t.me/username/xxxx
-    telegram = re.findall(r't\.me/([A-Za-z0-9_]{3,32})', text)
-    if telegram:
-        contacts.append({"type": "telegram", "value": f"@{telegram[0]}"})
-
-    # Twitter/X: @username or t.co links or twitter.com/username
-    twitter = re.findall(r'twitter\.com/([A-Za-z0-9_]{1,15})', text)
-    if twitter:
-        contacts.append({"type": "twitter", "value": f"@{twitter[0]}"})
-    else:
-        x_handle = re.findall(r'x\.com/([A-Za-z0-9_]{1,15})', text)
-        if x_handle:
-            contacts.append({"type": "twitter", "value": f"@{x_handle[0]}"})
-
-    # GitHub username from URLs or mentions
-    github_users = re.findall(r'github\.com/([A-Za-z0-9_-]{1,39})/issues/\d+', text)
-    if github_users:
-        # The repo owner is the most relevant GitHub contact
-        contacts.append({"type": "github_owner", "value": github_users[0]})
-
-    # Generic "Contact:" patterns
-    contact_patterns = re.findall(r'(?:contact|email|reach|dm|message)\s*(?:me|us|the|them)?\s*[:.]\s*([^\n]{5,100})', text, re.IGNORECASE)
-    for cp in contact_patterns:
-        cp = cp.strip().strip('"\'`')
-        if '@' in cp:
-            extracted = extract_emails(cp)
-            if extracted:
-                contacts.append({"type": "contact_email", "value": extracted[0]})
-        elif cp.lower() not in ["me", "us", "the team", "the author", "the maintainer"]:
-            contacts.append({"type": "contact_raw", "value": cp[:50]})
-
-    # Website URLs from README or issue body
-    websites = re.findall(r'https?://[^\s\047\047<>]+\.(com|org|io|dev|net|co)', text)
-    if websites:
-        contacts.append({"type": "website", "value": f"https://...{websites[0][1]}.{websites[0][0].split('.')[-2]}.{websites[0][0].split('.')[-1]}"})
-
+        contacts.append(("email", emails[0]))
+    
+    # 2. Discord invite links
+    disc_re = re.compile(r"discord[.]gg/([a-zA-Z0-9_-]+)")
+    dm_re = re.compile(r"discord[.]com/invite/([a-zA-Z0-9_-]+)")
+    ig_re = re.compile(r"invite[.]gg/([a-zA-Z0-9_-]+)")
+    for pattern in [disc_re, dm_re, ig_re]:
+        m = pattern.search(text)
+        if m and len(m.group(1)) > 3:
+            contacts.append(("discord_invite", m.group(1)))
+            break
+    
+    # 3. Telegram usernames
+    tg_re = re.compile(r"t\.me/([a-zA-Z0-9_]{3,32})")
+    m = tg_re.search(text)
+    if m:
+        contacts.append(("telegram", "@" + m.group(1)))
+    
+    # 4. Twitter/X handles
+    tw_re = re.compile(r"(?:twitter|x)\.com/([a-zA-Z0-9_]{1,15})")
+    m = tw_re.search(text)
+    if m:
+        contacts.append(("twitter", "@" + m.group(1)))
+    
+    # 5. GitHub owner from issue URL
+    gh_re = re.compile(r"github[.]com/([a-zA-Z0-9_-]+)/issues/\d+")
+    m = gh_re.search(text)
+    if m and len(m.group(1)) <= 39:
+        contacts.append(("github_owner", m.group(1)))
+    
+    # 6. "Contact:" patterns
+    cp_re = re.compile(r"(?:Contact|Email|Reach|DM|Message)[:\s]+(.+)", re.IGNORECASE)
+    for m in cp_re.finditer(text):
+        val = m.group(1).strip().rstrip(".")[:80]
+        if not val:
+            continue
+        em = email_re.findall(val)
+        if em:
+            contacts.append(("contact_email", em[0]))
+        elif "@" not in val and len(val) > 3:
+            contacts.append(("contact_raw", val))
+        break
+    
+    # 7. Website domains
+    ws_re = re.compile(r"(?:https?://)?([a-zA-Z0-9][-a-zA-Z0-9]*[.](?:com|org|io|dev|net|co))")
+    m = ws_re.search(text)
+    if m:
+        domain = m.group(1).lower()
+        skip_domains = ["github.com", "twitter.com", "x.com", "t.me", "discord.gg", 
+                        "t.co", "linkedin.com", "reddit.com", "stackoverflow.com"]
+        if not any(domain.endswith(sd) for sd in skip_domains):
+            contacts.append(("website", domain))
+    
     return contacts
 
 
@@ -288,31 +294,6 @@ def is_actual_bounty(html, title):
             return True
     return False
 
-def extract_contact_info(html):
-    """Extract ALL possible contact methods from an issue page"""
-    emails = extract_emails(html)
-    contacts = set(emails)
-
-    # Look for Discord handles
-    discord = re.findall(r'discord\.com/(?:invite/)?([a-zA-Z0-9_-]+)', html)
-    contacts.update(f'{d} (Discord)' for d in discord[:3])
-
-    # Look for Telegram usernames
-    telegram = re.findall(r'telegram\.org/([a-zA-Z0-9_]+)', html)
-    contacts.update(f'{t} (Telegram)' for t in telegram[:3])
-
-    # Look for GitHub username mentions that could be messaged
-    username_mentions = re.findall(r'@([a-zA-Z0-9_-]{2,30})', html)
-    # Filter to likely real usernames (not common words)
-    skip_words = {'you', 'the', 'and', 'for', 'with', 'this', 'that', 'is', 'are',
-                  'bug', 'fix', 'issue', 'report', 'please', 'thanks', 'help',
-                  'see', 'link', 'visit', 'check', 'create', 'open', 'close',
-                  'add', 'remove', 'update', 'submit', 'comment', 'work', 'code'}
-    for u in username_mentions:
-        if u not in skip_words and len(u) > 2:
-            contacts.add(f'@{u} (GitHub)')
-
-    return list(contacts)
 
 def parse_search_results(html):
     issues = []
@@ -346,10 +327,10 @@ def parse_search_results(html):
             window2 = html[idx:m.end() + 500]
             bounty_amount = extract_reward(window2)
 
-        emails = []
         idx2 = max(0, m.start() - 2000)
         window2 = html[idx2:m.end() + 2000]
-        emails = extract_emails(window2)
+        contacts = extract_contacts(window2)
+        emails_list = [c[1] for c in contacts if c[0] == 'email']
 
         issues.append({
             'repo': repo_path,
@@ -357,7 +338,8 @@ def parse_search_results(html):
             'title': title,
             'url': f'https://github.com{repo_path}/issues/{issue_num}',
             'reward': bounty_amount,
-            'emails': emails,
+            'emails': emails_list,
+            'contacts': contacts,  # All contact methods for outreach
         })
 
     return issues
@@ -401,8 +383,9 @@ def fetch_issue_details(url):
         except:
             pass
 
-    all_emails = extract_emails(html)
-    details['emails'] = all_emails
+    all_contacts = extract_contacts(html)
+    details['emails'] = [c[1] for c in all_contacts if c[0] == 'email']
+    details['contacts'] = all_contacts
 
     author_m = re.search(r'data-testid="issue-body-header-author">([^<]+)<', html)
     if author_m:
