@@ -1,29 +1,17 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-*.egg
+# Cache for cloned repos
+cache/repos/*
+
+# Venv
 .venv/
 venv/
-env/
 
-# State files (can be regenerated, but keeping for initial setup)
-# state/*.json
+# Python
+__pycache__/
+*.pyc
 
 # IDE
-.idea/
 .vscode/
-*.swp
-*.swo
+.idea/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Config with secrets
+# Env files with secrets
 .env
-
-# Cached git repos
-cache/repos/Trauma-Station.git/

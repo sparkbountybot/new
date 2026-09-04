@@ -696,11 +696,26 @@ Email: {', '.join(details.get('emails', [])[:2]) if details else 'See issue for 
         print(f"  ⚠️  Git push failed: {e}")
         print("  📁 Proposals still saved locally in /sandbox/new/proposals/")
 
+    # Phase 6: Share with cohort (sync with other sandboxes)
+    print("[6/6] Sharing with cohort (other sandboxes)...")
+    try:
+        from cohort_coordinator import share_data, collect_local_data
+        local_data = collect_local_data()
+        if local_data.get("bounty_urls"):
+            share_data()
+            # Share our analysis cache with cohort
+            print("  ℹ️  Cohort share file at .github/shared/cohort_data.json")
+    except Exception as e:
+        print(f"  ⚠️  Cohort sharing: {e}")
+    print()
+
     # Print summary
     print()
     print("=" * 70)
     print(f"  SUMMARY: {len(all_issues)} bounties found, {len(proposals)} proposals drafted")
+    analyzed_count = sum(1 for p in proposals if p.get("analyzed"))
     print(f"  ✅ Pushed to GitHub → GitHub Actions will send emails automatically")
+    print(f"  📊 Repo analysis done: {analyzed_count}/{len(proposals)} proposals")
     print("=" * 70)
 
 if __name__ == '__main__':
